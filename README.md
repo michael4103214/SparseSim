@@ -1,2 +1,2 @@
 # SparseSim
-A sparse state vector simulator 
+Sparse state vector simulator 
