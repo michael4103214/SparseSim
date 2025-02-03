@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "complex.h": "c",
+        "pauli.h": "c",
+        "stdlib.h": "c",
+        "wavefunction.h": "c",
+        "math.h": "c",
+        "string.h": "c"
+    }
+}
