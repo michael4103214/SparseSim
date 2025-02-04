@@ -175,7 +175,7 @@ cdef class Wavefunction:
 
     def s_max(self):
         return (<WavefunctionC *> self._c_wfn).s_max
-
+        
 cdef class PauliString:
     cdef uintptr_t _c_pString
     cdef bint _in_sum
@@ -333,12 +333,10 @@ def pauli_sum_scalar_multiplication(PauliSum pSum, complex scalar):
     if not new_pSum:
         raise MemoryError("pauli_sum_scalar_multiplication_c returned NULL")
     return PauliSum._init_from_c(new_pSum)  # Return a new PauliSum instance
-
+    
 def pauli_sum_multiplication(PauliSum left, PauliSum right):
     """Multiply two Pauli sums."""
     cdef PauliSumC *new_pSum = pauli_sum_multiplication_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
     if not new_pSum:
         raise MemoryError("pauli_sum_multiplication_c returned NULL")
     return PauliSum._init_from_c(new_pSum)  # Return a new PauliSum instance
-
-    

@@ -9883,7 +9883,6 @@ static PyObject *__pyx_pf_10sparse_sim_18pauli_sum_multiplication(CYTHON_UNUSED 
  *     if not new_pSum:
  *         raise MemoryError("pauli_sum_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return PauliSum._init_from_c(new_pSum)  # Return a new PauliSum instance
- * 
  */
     __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__14, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 341, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -9904,8 +9903,6 @@ static PyObject *__pyx_pf_10sparse_sim_18pauli_sum_multiplication(CYTHON_UNUSED 
  *     if not new_pSum:
  *         raise MemoryError("pauli_sum_multiplication_c returned NULL")
  *     return PauliSum._init_from_c(new_pSum)  # Return a new PauliSum instance             # <<<<<<<<<<<<<<
- * 
- * 
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_8PauliSum__init_from_c(__pyx_v_new_pSum)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 342, __pyx_L1_error)
@@ -11032,7 +11029,6 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *     if not new_pSum:
  *         raise MemoryError("pauli_sum_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return PauliSum._init_from_c(new_pSum)  # Return a new PauliSum instance
- * 
  */
   __pyx_tuple__14 = PyTuple_Pack(1, __pyx_kp_s_pauli_sum_multiplication_c_retur); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__14);

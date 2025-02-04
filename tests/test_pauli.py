@@ -1,22 +1,24 @@
 from sparse_sim import *
 
+
 def test_pauli_string_initialization_scaling_freeing():
     paulis0 = ['I', 'X', 'I', 'X']
-    pString0 = PauliString(4, 1 + 0j, paulis0) 
+    pString0 = PauliString(4, 1 + 0j, paulis0)
 
     paulis1 = ['I', 'X', 'I', 'X']
     pString1 = PauliString(4, 1+1j, paulis1)
 
-    print(pString0) 
-    
+    print(pString0)
+
     pString2 = pauli_string_scalar_multiplication(pString1, 2 + 0j)
     print(f"2 * {pString1} = {pString2}")
 
     pString3 = pString2.adjoint()
     print(f"Adjoint of {pString2} = {pString3}")
 
+
 def test_multiplication():
-    paulis0 = ["I", "Y", "I", "X"] 
+    paulis0 = ["I", "Y", "I", "X"]
     pString0 = PauliString(4, 1 + 0j, paulis0)
 
     paulis1 = ["I", "X", "I", "I"]
@@ -25,6 +27,7 @@ def test_multiplication():
     pString2 = pauli_string_multiplication(pString0, pString1)
 
     print(f"{pString0} * {pString1} = {pString2}")
+
 
 def test_pauli_sum_initialization_scaling_freeing():
     paulis0 = ['I', 'Y', 'I', 'X']
@@ -40,6 +43,7 @@ def test_pauli_sum_initialization_scaling_freeing():
     print(f"{pSum0} contains {pSum0.p()} pStrings with a max of {pSum0.p_max()}")
     pSum1 = pauli_sum_scalar_multiplication(pSum0, 2 + 0j)
     print(f"2 * {pSum0} = {pSum1}")
+
 
 def test_pauli_sum_multiplication():
     paulis0 = ['I', 'Y', 'I', 'X']
@@ -66,6 +70,7 @@ def test_pauli_sum_multiplication():
 
     print(f"({pSum0}) * ({pSum1}) = {pSum2}")
 
+
 def main():
     print("\nTesting PauliString initialization, scaling, and freeing")
     test_pauli_string_initialization_scaling_freeing()
@@ -78,6 +83,7 @@ def main():
 
     print("\nTesting PauliSum Multiplication")
     test_pauli_sum_multiplication()
+
 
 if __name__ == "__main__":
     main()

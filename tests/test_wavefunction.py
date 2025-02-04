@@ -3,6 +3,7 @@ import random
 import time
 from sparse_sim import *
 
+
 def test_initialization_scaling_freeing():
     orbitals0 = [0, 1, 0, 1]
     sdet0 = SlaterDeterminant(4, 1 + 0j, orbitals0)
@@ -11,11 +12,12 @@ def test_initialization_scaling_freeing():
     sdet1 = SlaterDeterminant(4, 1j, orbitals1)
 
     wfn = Wavefunction(1)
-    
+
     wfn.append_slater_determinant(sdet0)
     wfn.append_slater_determinant(sdet1)
 
-    print(f"Wavefunction initialized with {wfn.s()} of a max {wfn.s_max()} sdets: {sdet0}, {sdet1}\n")
+    print(
+        f"Wavefunction initialized with {wfn.s()} of a max {wfn.s_max()} sdets: {sdet0}, {sdet1}\n")
 
     print(wfn)
 
@@ -27,6 +29,7 @@ def test_initialization_scaling_freeing():
 
     adjoint_wfn = normalized_wfn.adjoint()
     print(f"Adjoint: {adjoint_wfn}")
+
 
 def test_inner_product():
     orbitals0 = [0, 1, 0, 1]
@@ -44,6 +47,7 @@ def test_inner_product():
     inner_prod = wavefunction_multiplication(bra, ket)
 
     print(f"({bra}) * ({ket}) = {inner_prod}")
+
 
 def test_appending_slater_determinants():
     print("Order of Adding:")
@@ -77,6 +81,7 @@ def test_appending_slater_determinants():
     product = wavefunction_multiplication(wfn1, wfn2)
     print(f"Product: {product}")
 
+
 def test_wavefunction_pauli_sum_multiplication():
     orbitals0 = [0, 1, 0, 1]
     orbitals1 = [1, 0, 1, 0]
@@ -102,6 +107,7 @@ def test_wavefunction_pauli_sum_multiplication():
 
     print(f"({pSum}) * ({wfn}) = {new_wfn}")
 
+
 def test_wavefunction_pauli_string_evolution():
     orbitals0 = [0, 1, 0, 1]
     sdet0 = SlaterDeterminant(4, 1 + 0j, orbitals0)
@@ -120,6 +126,7 @@ def test_wavefunction_pauli_string_evolution():
     norm = wfn.norm()
     print(f"exp(0.01 * ({pString})) * ({old_wfn}) = {wfn}")
     print(f"Norm: {norm}")
+
 
 def test_wavefunction_pauli_sum_evolution():
     orbitals0 = [0, 1, 0, 1]
@@ -145,12 +152,14 @@ def test_wavefunction_pauli_sum_evolution():
     print(f"exp(0.01 * ({pSum})) * ({old_wfn}) = {wfn}")
     print(f"Norm: {norm}")
 
+
 def test_wavefunction_speed():
     N = 20  # Number of qubits
     num_sdets = 2  # Number of Slater determinants
     num_operations = 5  # Number of Pauli sum operations
 
-    print(f"\nRunning Wavefunction Speed Test with {N} qubits, {num_sdets} Slater determinants, {num_operations} Pauli sum operations.")
+    print(
+        f"\nRunning Wavefunction Speed Test with {N} qubits, {num_sdets} Slater determinants, {num_operations} Pauli sum operations.")
 
     # Step 1: Initialize a large wavefunction
     wfn = Wavefunction(num_sdets)
@@ -168,7 +177,7 @@ def test_wavefunction_speed():
     # Step 2: Generate multiple Pauli sums
     pauli_sums = []
     for _ in range(num_operations):
-        pSum = PauliSum(3) 
+        pSum = PauliSum(3)
         for _ in range(3):
             paulis = [random.choice(["I", "X", "Y", "Z"]) for _ in range(N)]
             coef = random.random() * 1j
@@ -188,9 +197,12 @@ def test_wavefunction_speed():
     end_time = time.time()
     elapsed_time = end_time - start_time
 
-    print(f"Completed {num_operations} Pauli sum multiplications in {elapsed_time:.4f} seconds.")
+    print(
+        f"Completed {num_operations} Pauli sum multiplications in {elapsed_time:.4f} seconds.")
     print(f"Final wavefunction norm: {wfn.norm()}")
-    print(f"Final number of Slater determinants is {wfn.s()} showing a 2^{log2(wfn.s() / num_sdets)} increase.")
+    print(
+        f"Final number of Slater determinants is {wfn.s()} showing a 2^{log2(wfn.s() / num_sdets)} increase.")
+
 
 def main():
     print("\nTesting Initialization, Scaling, and Freeing")
@@ -213,6 +225,7 @@ def main():
 
     print("\nTesting Wavefunction Speed")
     test_wavefunction_speed()
+
 
 if __name__ == "__main__":
     main()
