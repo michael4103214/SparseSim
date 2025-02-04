@@ -7,12 +7,13 @@ extensions = [
     Extension(
         MODULE_NAME,
         sources=[
-            "cython/sparse_sim.pyx", 
-            "src/wavefunction.c",      
-            "src/pauli.c"              
+            "cython/sparse_sim.pyx",
+            "src/wavefunction.c",
+            "src/pauli.c"
         ],
-        include_dirs=["include", "src", "cython"], 
-        extra_compile_args=["-O3", "-mcpu=apple-m1", "-flto", "-ffast-math", "-funroll-loops", "-fvectorize"],
+        include_dirs=["include", "src", "cython"],
+        extra_compile_args=["-O3", "-mcpu=apple-m1", "-flto",
+                            "-ffast-math", "-funroll-loops", "-fvectorize"],
     )
 ]
 
