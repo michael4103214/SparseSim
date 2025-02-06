@@ -170,147 +170,152 @@ void free_wavefunction_c(WavefunctionC *wfn) {
   if (wfn == NULL)
     return;
 
-  if (wfn->slater_determinants) {
-    for (unsigned int i = 0; i < wfn->s; i++) {
-      if (wfn->slater_determinants[i]) {
-        free_slater_determinant_c(wfn->slater_determinants[i]);
-        wfn->slater_determinants[i] = NULL;
-      }
+  khiter_t k;
+  for (k = kh_begin(wfn->slater_determinants);
+       k != kh_end(wfn->slater_determinants); ++k) {
+    if (kh_exist(wfn->slater_determinants, k)) {
+      free_slater_determinant_c(kh_value(wfn->slater_determinants, k));
     }
-    free(wfn->slater_determinants);
-    wfn->slater_determinants = NULL;
   }
 
+  kh_destroy(slater_hash, wfn->slater_determinants);
   free(wfn);
 }
 
-WavefunctionC *wavefunction_init_c(unsigned int s_max) {
+WavefunctionC *wavefunction_init_c(void) {
   WavefunctionC *wfn = (WavefunctionC *)malloc(sizeof(WavefunctionC));
-  wfn->s_max = s_max;
   wfn->s = 0;
-  wfn->slater_determinants =
-      (SlaterDeterminantC **)malloc(s_max * sizeof(SlaterDeterminantC *));
+  wfn->slater_determinants = kh_init(slater_hash);
   return wfn;
 }
 
-WavefunctionC *wavefunction_realloc_c(WavefunctionC *wfn,
-                                      unsigned int new_s_max) {
+void wavefunction_append_slater_determinant_c(WavefunctionC *wfn,
+                                              SlaterDeterminantC *sdet) {
+  int ret;
+  khiter_t k =
+      kh_put(slater_hash, wfn->slater_determinants, sdet->encoding, &ret);
 
-  WavefunctionC *new_wfn;
+  if (ret == 0) {
+    SlaterDeterminantC *existing_sdet = kh_value(wfn->slater_determinants, k);
+    existing_sdet->coef += sdet->coef;
 
-  if (wfn->s_max >= new_s_max) {
-    fprintf(stderr, "Error: Realloc must allocate more space\n");
-    return NULL;
-  }
-
-  new_wfn = wavefunction_init_c(new_s_max);
-  if (!new_wfn)
-    return NULL;
-
-  for (unsigned int i = 0; i < wfn->s; i++) {
-    new_wfn->slater_determinants[i] = wfn->slater_determinants[i];
-  }
-  new_wfn->s = wfn->s;
-
-  free(wfn->slater_determinants);
-  wfn->slater_determinants = NULL;
-
-  return new_wfn;
-}
-
-WavefunctionC *
-wavefunction_append_slater_determinant_c(WavefunctionC *wfn,
-                                         SlaterDeterminantC *sdet) {
-
-  WavefunctionC *new_wfn;
-  unsigned int appended_at;
-
-  if (wfn->s == wfn->s_max) {
-    new_wfn = wavefunction_realloc_c(wfn, 2 * wfn->s_max);
-    free(wfn);
-    wfn = new_wfn;
-  }
-
-  appended_at = wfn->s;
-  for (unsigned int i = 0; i < wfn->s; i++) {
-    if (sdet->encoding < wfn->slater_determinants[i]->encoding) {
-      for (unsigned int j = 0; j < wfn->s - i; j++) {
-        wfn->slater_determinants[wfn->s - j] =
-            wfn->slater_determinants[wfn->s - j - 1];
-      }
-      appended_at = i;
-      wfn->slater_determinants[appended_at] = sdet;
-      wfn->s += 1;
-      break;
-    } else if (sdet->encoding == wfn->slater_determinants[i]->encoding) {
-      appended_at = i;
-      wfn->slater_determinants[appended_at]->coef += sdet->coef;
-      free_slater_determinant_c(sdet);
-      break;
+    if (fabs(creal(existing_sdet->coef)) < 1e-12 &&
+        fabs(cimag(existing_sdet->coef)) < 1e-12) {
+      kh_del(slater_hash, wfn->slater_determinants, k);
+      free_slater_determinant_c(existing_sdet);
+      wfn->s--;
     }
+
+    free_slater_determinant_c(sdet);
+  } else {
+    kh_value(wfn->slater_determinants, k) = sdet;
+    wfn->s++;
   }
-  if (appended_at == wfn->s) {
-    wfn->slater_determinants[appended_at] = sdet;
-    wfn->s += 1;
-  }
-  return wfn;
 }
 
 double wavefunction_norm_c(WavefunctionC *wfn) {
-  double norm = 0;
-  for (unsigned int i = 0; i < wfn->s; i++) {
-    double complex coef = wfn->slater_determinants[i]->coef;
-    norm = norm + creal(coef) * creal(coef) + cimag(coef) * cimag(coef);
+  if (!wfn) {
+    fprintf(stderr, "Error: Received NULL wavefunction.\n");
+    return 0.0;
   }
+
+  double norm = 0.0;
+  khiter_t k;
+
+  for (k = kh_begin(wfn->slater_determinants);
+       k != kh_end(wfn->slater_determinants); ++k) {
+    if (kh_exist(wfn->slater_determinants, k)) {
+      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      double complex coef = sdet->coef;
+      norm += creal(coef) * creal(coef) + cimag(coef) * cimag(coef);
+    }
+  }
+
   return sqrt(norm);
 }
 
 WavefunctionC *wavefunction_scalar_multiplication_c(WavefunctionC *wfn,
                                                     double complex scalar) {
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->s_max);
-
-  for (unsigned int i = 0; i < wfn->s; i++) {
-    new_wfn->slater_determinants[i] =
-        slater_determinant_scalar_multiplication_c(wfn->slater_determinants[i],
-                                                   scalar);
+  if (!wfn) {
+    fprintf(stderr, "Error: Received NULL wavefunction.\n");
+    return NULL;
   }
-  new_wfn->s = wfn->s;
+
+  WavefunctionC *new_wfn = wavefunction_init_c();
+  khiter_t k;
+
+  for (k = kh_begin(wfn->slater_determinants);
+       k != kh_end(wfn->slater_determinants); ++k) {
+    if (kh_exist(wfn->slater_determinants, k)) {
+      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      SlaterDeterminantC *new_sdet =
+          slater_determinant_scalar_multiplication_c(sdet, scalar);
+
+      int ret;
+      khiter_t new_k = kh_put(slater_hash, new_wfn->slater_determinants,
+                              new_sdet->encoding, &ret);
+      kh_value(new_wfn->slater_determinants, new_k) = new_sdet;
+      new_wfn->s++;
+    }
+  }
 
   return new_wfn;
 }
 
 WavefunctionC *wavefunction_adjoint_c(WavefunctionC *wfn) {
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->s_max);
-
-  for (unsigned int i = 0; i < wfn->s; i++) {
-    new_wfn->slater_determinants[i] =
-        slater_determinant_adjoint_c(wfn->slater_determinants[i]);
+  if (!wfn) {
+    fprintf(stderr, "Error: Received NULL wavefunction.\n");
+    return NULL;
   }
-  new_wfn->s = wfn->s;
+
+  WavefunctionC *new_wfn = wavefunction_init_c();
+  khiter_t k;
+
+  for (k = kh_begin(wfn->slater_determinants);
+       k != kh_end(wfn->slater_determinants); ++k) {
+    if (kh_exist(wfn->slater_determinants, k)) {
+      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      SlaterDeterminantC *new_sdet = slater_determinant_adjoint_c(sdet);
+
+      int ret;
+      khiter_t new_k = kh_put(slater_hash, new_wfn->slater_determinants,
+                              new_sdet->encoding, &ret);
+      kh_value(new_wfn->slater_determinants, new_k) = new_sdet;
+      new_wfn->s++;
+    }
+  }
 
   return new_wfn;
 }
 
 double complex wavefunction_multiplication_c(WavefunctionC *bra,
                                              WavefunctionC *ket) {
-  double complex product = 0;
-  for (unsigned int i = 0; i < bra->s; i++) {
-    for (unsigned int j = 0; j < ket->s; j++) {
-      product = product +
-                slater_dermininant_multiplication_c(
-                    bra->slater_determinants[i], ket->slater_determinants[j]);
+  if (!bra || !ket) {
+    fprintf(stderr, "Error: Received NULL wavefunction.\n");
+    return 0.0 + 0.0 * (double complex)I;
+  }
+
+  double complex product = 0.0 + 0.0 * (double complex)I;
+  khiter_t k1, k2;
+
+  for (k1 = kh_begin(bra->slater_determinants);
+       k1 != kh_end(bra->slater_determinants); ++k1) {
+    if (kh_exist(bra->slater_determinants, k1)) {
+      SlaterDeterminantC *sdet_bra = kh_value(bra->slater_determinants, k1);
+      unsigned int encoding = sdet_bra->encoding;
+
+      k2 = kh_get(slater_hash, ket->slater_determinants, encoding);
+      if (k2 != kh_end(ket->slater_determinants)) { // If key exists
+        SlaterDeterminantC *sdet_ket = kh_value(ket->slater_determinants, k2);
+        product += slater_dermininant_multiplication_c(sdet_bra, sdet_ket);
+      }
     }
   }
+
   return product;
 }
 
 char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket) {
-
-  char *sdet_str;
-  char *buffer;
-  char *first_sdet_str;
-  size_t buffer_size;
-
   if (!wfn) {
     fprintf(stderr, "Error: Received NULL wavefunction.\n");
     return NULL;
@@ -324,39 +329,51 @@ char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket) {
     return empty_str;
   }
 
-  buffer_size = 1;
-
-  for (unsigned int i = 0; i < wfn->s; i++) {
-    sdet_str =
-        slater_determinant_to_string_c(wfn->slater_determinants[i], bra_or_ket);
-    if (!sdet_str) {
-      fprintf(
-          stderr,
-          "Error: Failed to allocate memory for Slater determinant string.\n");
-      return NULL;
-    }
-    buffer_size += strlen(sdet_str) + 3;
-    free(sdet_str);
+  size_t buffer_size = 1; // Start with space for null terminator
+  char *buffer = (char *)malloc(buffer_size);
+  if (!buffer) {
+    fprintf(stderr, "Error: Memory allocation failed.\n");
+    return NULL;
   }
-
-  buffer = (char *)malloc(buffer_size);
   buffer[0] = '\0';
 
-  first_sdet_str =
-      slater_determinant_to_string_c(wfn->slater_determinants[0], bra_or_ket);
-  if (!first_sdet_str)
-    return NULL;
-  strcpy(buffer, first_sdet_str);
-  free(first_sdet_str);
+  khiter_t k;
+  int first_entry = 1; // Flag to track first element (to avoid extra " + ")
 
-  for (unsigned int i = 1; i < wfn->s; i++) {
-    strcat(buffer, " + ");
-    sdet_str =
-        slater_determinant_to_string_c(wfn->slater_determinants[i], bra_or_ket);
-    if (!sdet_str)
-      return NULL;
-    strcat(buffer, sdet_str);
-    free(sdet_str);
+  for (k = kh_begin(wfn->slater_determinants);
+       k != kh_end(wfn->slater_determinants); ++k) {
+    if (kh_exist(wfn->slater_determinants, k)) {
+      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      char *sdet_str = slater_determinant_to_string_c(sdet, bra_or_ket);
+      if (!sdet_str) {
+        fprintf(stderr, "Error: Failed to allocate memory for Slater "
+                        "determinant string.\n");
+        free(buffer);
+        return NULL;
+      }
+
+      // Expand buffer size to accommodate new string
+      size_t new_size = buffer_size + strlen(sdet_str) +
+                        (first_entry ? 0 : 3); // Extra 3 for " + "
+      char *new_buffer = (char *)realloc(buffer, new_size);
+      if (!new_buffer) {
+        fprintf(stderr, "Error: Memory reallocation failed.\n");
+        free(buffer);
+        free(sdet_str);
+        return NULL;
+      }
+      buffer = new_buffer;
+      buffer_size = new_size;
+
+      // Append " + " if it's not the first entry
+      if (!first_entry) {
+        strcat(buffer, " + ");
+      }
+      strcat(buffer, sdet_str);
+
+      free(sdet_str);
+      first_entry = 0;
+    }
   }
 
   return buffer;
@@ -364,12 +381,25 @@ char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket) {
 
 WavefunctionC *wavefunction_pauli_string_multiplication_c(PauliStringC *pString,
                                                           WavefunctionC *wfn) {
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->s_max);
+  if (!wfn || !pString) {
+    fprintf(stderr, "Error: Received NULL wavefunction or Pauli string.\n");
+    return NULL;
+  }
 
-  for (unsigned int i = 0; i < wfn->s; i++) {
-    new_wfn = wavefunction_append_slater_determinant_c(
-        new_wfn, slater_determinant_pauli_string_multiplication_c(
-                     pString, wfn->slater_determinants[i]));
+  WavefunctionC *new_wfn = wavefunction_init_c();
+  khiter_t k;
+
+  for (k = kh_begin(wfn->slater_determinants);
+       k != kh_end(wfn->slater_determinants); ++k) {
+    if (kh_exist(wfn->slater_determinants, k)) {
+      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      SlaterDeterminantC *new_sdet =
+          slater_determinant_pauli_string_multiplication_c(pString, sdet);
+
+      if (new_sdet) {
+        wavefunction_append_slater_determinant_c(new_wfn, new_sdet);
+      }
+    }
   }
 
   return new_wfn;
@@ -377,14 +407,49 @@ WavefunctionC *wavefunction_pauli_string_multiplication_c(PauliStringC *pString,
 
 WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum,
                                                        WavefunctionC *wfn) {
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->s_max);
+  if (!wfn || !pSum) {
+    fprintf(stderr, "Error: Received NULL wavefunction or Pauli sum.\n");
+    return NULL;
+  }
 
-  for (unsigned int i = 0; i < pSum->p; i++) {
-    for (unsigned int j = 0; j < wfn->s; j++) {
-      new_wfn = wavefunction_append_slater_determinant_c(
-          new_wfn, slater_determinant_pauli_string_multiplication_c(
-                       pSum->pauli_strings[i], wfn->slater_determinants[j]));
+  WavefunctionC *new_wfn = wavefunction_init_c();
+  if (!new_wfn) {
+    fprintf(stderr, "Error: Failed to allocate new wavefunction.\n");
+    return NULL;
+  }
+
+  khiter_t kp, ks;
+  int success = 0;
+
+  // Iterate over Pauli strings in the Pauli sum
+  for (kp = kh_begin(pSum->pauli_strings); kp != kh_end(pSum->pauli_strings);
+       ++kp) {
+    if (kh_exist(pSum->pauli_strings, kp)) {
+      PauliStringC *pString = kh_value(pSum->pauli_strings, kp);
+
+      // Iterate over Slater determinants in the wavefunction
+      for (ks = kh_begin(wfn->slater_determinants);
+           ks != kh_end(wfn->slater_determinants); ++ks) {
+        if (kh_exist(wfn->slater_determinants, ks)) {
+          SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, ks);
+          SlaterDeterminantC *new_sdet =
+              slater_determinant_pauli_string_multiplication_c(pString, sdet);
+
+          if (!new_sdet) {
+            fprintf(stderr, "Error: Pauli string multiplication failed for a "
+                            "Slater determinant.\n");
+            continue;
+          }
+
+          wavefunction_append_slater_determinant_c(new_wfn, new_sdet);
+          success = 1;
+        }
+      }
     }
+  }
+
+  if (!success) {
+    fprintf(stderr, "Warning: No valid Slater determinants were processed.\n");
   }
 
   return new_wfn;
@@ -444,15 +509,31 @@ evolution_helper_sinh(PauliStringC *pString, SlaterDeterminantC *sdet,
 WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString,
                                                      WavefunctionC *wfn,
                                                      double epsilon) {
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->s_max);
+  if (!wfn || !pString) {
+    fprintf(stderr, "Error: Received NULL wavefunction or Pauli string.\n");
+    return NULL;
+  }
 
-  for (unsigned int i = 0; i < wfn->s; i++) {
-    new_wfn = wavefunction_append_slater_determinant_c(
-        new_wfn,
-        evolution_helper_cosh(pString, wfn->slater_determinants[i], epsilon));
-    new_wfn = wavefunction_append_slater_determinant_c(
-        new_wfn,
-        evolution_helper_sinh(pString, wfn->slater_determinants[i], epsilon));
+  WavefunctionC *new_wfn = wavefunction_init_c();
+  khiter_t k;
+
+  for (k = kh_begin(wfn->slater_determinants);
+       k != kh_end(wfn->slater_determinants); ++k) {
+    if (kh_exist(wfn->slater_determinants, k)) {
+      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+
+      SlaterDeterminantC *new_sdet_cosh =
+          evolution_helper_cosh(pString, sdet, epsilon);
+      SlaterDeterminantC *new_sdet_sinh =
+          evolution_helper_sinh(pString, sdet, epsilon);
+
+      if (new_sdet_cosh) {
+        wavefunction_append_slater_determinant_c(new_wfn, new_sdet_cosh);
+      }
+      if (new_sdet_sinh) {
+        wavefunction_append_slater_determinant_c(new_wfn, new_sdet_sinh);
+      }
+    }
   }
 
   return new_wfn;
@@ -461,15 +542,32 @@ WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString,
 WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum,
                                                   WavefunctionC *wfn,
                                                   double epsilon) {
-  WavefunctionC *new_wfn;
+  if (!wfn || !pSum) {
+    fprintf(stderr, "Error: Received NULL wavefunction or Pauli sum.\n");
+    return NULL;
+  }
 
-  for (unsigned int i = 0; i < pSum->p; i++) {
-    new_wfn = wavefunction_pauli_string_evolution_c(pSum->pauli_strings[i], wfn,
-                                                    epsilon);
-    if (i > 0) {
-      free_wavefunction_c(wfn);
+  WavefunctionC *new_wfn = NULL;
+  khiter_t kp;
+  int first_iteration = 1;
+
+  for (kp = kh_begin(pSum->pauli_strings); kp != kh_end(pSum->pauli_strings);
+       ++kp) {
+    if (kh_exist(pSum->pauli_strings, kp)) {
+      PauliStringC *pString = kh_value(pSum->pauli_strings, kp);
+
+      new_wfn = wavefunction_pauli_string_evolution_c(pString, wfn, epsilon);
+      if (!new_wfn) {
+        fprintf(stderr, "Error: Pauli string evolution failed.\n");
+        continue;
+      }
+
+      if (!first_iteration) {
+        free_wavefunction_c(wfn);
+      }
+      wfn = new_wfn;
+      first_iteration = 0;
     }
-    wfn = new_wfn;
   }
 
   return wfn;

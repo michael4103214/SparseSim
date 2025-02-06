@@ -27,6 +27,7 @@ PauliStringC *pauli_string_init_as_chars_c(unsigned int N, double complex coef,
       free(pString);
       return NULL;
     }
+    pString->encoding = pString->encoding * 4 + pString->paulis[i];
   }
   return pString;
 }
@@ -40,6 +41,7 @@ PauliStringC *pauli_string_init_as_ints_c(unsigned int N, double complex coef,
   pString->paulis = (unsigned int *)malloc(N * sizeof(unsigned int));
   for (unsigned int i = 0; i < N; i++) {
     pString->paulis[i] = paulis[i];
+    pString->encoding = pString->encoding * 4 + pString->paulis[i];
   }
   return pString;
 }
@@ -147,71 +149,96 @@ PauliStringC *pauli_string_multiplication_c(PauliStringC *left,
   return product;
 }
 
-PauliSumC *pauli_sum_init_c(unsigned int p_max) {
+PauliSumC *pauli_sum_init_c(void) {
   PauliSumC *pSum = (PauliSumC *)malloc(sizeof(PauliSumC));
-  pSum->p_max = p_max;
   pSum->p = 0;
-  pSum->pauli_strings = (PauliStringC **)malloc(p_max * sizeof(PauliStringC *));
+  pSum->pauli_strings = kh_init(pauli_hash);
   return pSum;
 }
 
 void free_pauli_sum_c(PauliSumC *pSum) {
-  for (unsigned int i = 0; i < pSum->p; i++) {
-    free_pauli_string_c(pSum->pauli_strings[i]);
+  if (pSum == NULL)
+    return;
+
+  khiter_t k;
+  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
+       ++k) {
+    if (kh_exist(pSum->pauli_strings, k)) {
+      free_pauli_string_c(kh_value(pSum->pauli_strings, k));
+    }
   }
-  free(pSum->pauli_strings);
+
+  kh_destroy(pauli_hash, pSum->pauli_strings);
   free(pSum);
-}
-
-PauliSumC *pauli_sum_realloc_c(PauliSumC *pSum, unsigned int new_p_max) {
-
-  PauliSumC *new_pSum;
-
-  if (pSum->p_max >= new_p_max) {
-    fprintf(stderr, "Error: Realloc must allocate more space\n");
-    return NULL;
-  }
-
-  new_pSum = pauli_sum_init_c(new_p_max);
-  for (unsigned int i = 0; i < pSum->p; i++) {
-    new_pSum->pauli_strings[i] = pSum->pauli_strings[i];
-  }
-  new_pSum->p = pSum->p;
-
-  free(pSum->pauli_strings);
-  free(pSum);
-  return new_pSum;
 }
 
 char *pauli_sum_to_string_c(PauliSumC *pSum) {
-  size_t buffer_size = 1; // Space for null terminator
-  char **pauli_strings;
-  char *buffer;
-
-  pauli_strings = (char **)malloc(pSum->p * sizeof(char *));
-
-  // First, collect all individual Pauli string representations
-  for (unsigned int i = 0; i < pSum->p; i++) {
-    pauli_strings[i] = pauli_string_to_string_c(pSum->pauli_strings[i]);
-    buffer_size += strlen(pauli_strings[i]) + 3; // +3 for " + " separator
+  if (!pSum) {
+    fprintf(stderr, "Error: Received NULL PauliSum.\n");
+    return NULL;
   }
 
-  // Allocate buffer
-  buffer = (char *)malloc(buffer_size);
-  if (!buffer)
-    return NULL; // Check for allocation failure
+  if (pSum->p == 0) {
+    char *empty_str = (char *)malloc(1);
+    if (!empty_str) {
+      fprintf(stderr, "Error: Memory allocation failed.\n");
+      return NULL;
+    }
+    empty_str[0] = '\0';
+    return empty_str;
+  }
+
+  size_t buffer_size = 1; // Space for null terminator
+  char **pauli_strings = (char **)malloc(pSum->p * sizeof(char *));
+  if (!pauli_strings) {
+    fprintf(stderr, "Error: Memory allocation failed.\n");
+    return NULL;
+  }
+
+  // Iterate through the hash table
+  khiter_t k;
+  unsigned int index = 0;
+  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
+       ++k) {
+    if (kh_exist(pSum->pauli_strings, k)) {
+      PauliStringC *pString = kh_value(pSum->pauli_strings, k);
+      pauli_strings[index] = pauli_string_to_string_c(pString);
+      if (!pauli_strings[index]) {
+        fprintf(stderr, "Error: Failed to allocate memory for Pauli string.\n");
+        // Free previously allocated strings before exiting
+        for (unsigned int j = 0; j < index; j++) {
+          free(pauli_strings[j]);
+        }
+        free(pauli_strings);
+        return NULL;
+      }
+      buffer_size += strlen(pauli_strings[index]) + 3; // +3 for " + "
+      index++;
+    }
+  }
+
+  // Allocate buffer for the final string
+  char *buffer = (char *)malloc(buffer_size);
+  if (!buffer) {
+    fprintf(stderr, "Error: Memory allocation failed.\n");
+    for (unsigned int i = 0; i < index; i++) {
+      free(pauli_strings[i]);
+    }
+    free(pauli_strings);
+    return NULL;
+  }
 
   // Initialize the buffer with the first Pauli string
   snprintf(buffer, buffer_size, "%s", pauli_strings[0]);
 
   // Append remaining Pauli strings
-  for (unsigned int i = 1; i < pSum->p; i++) {
+  for (unsigned int i = 1; i < index; i++) {
     strncat(buffer, " + ", buffer_size - strlen(buffer) - 1);
     strncat(buffer, pauli_strings[i], buffer_size - strlen(buffer) - 1);
   }
 
   // Free intermediate Pauli strings
-  for (unsigned int i = 0; i < pSum->p; i++) {
+  for (unsigned int i = 0; i < index; i++) {
     free(pauli_strings[i]);
   }
   free(pauli_strings);
@@ -219,45 +246,128 @@ char *pauli_sum_to_string_c(PauliSumC *pSum) {
   return buffer;
 }
 
-PauliSumC *pauli_sum_append_pauli_string_c(PauliSumC *pSum,
-                                           PauliStringC *pString) {
-  if (pSum->p == pSum->p_max) {
-    pSum = pauli_sum_realloc_c(pSum, pSum->p_max + 1);
-  }
+void pauli_sum_append_pauli_string_c(PauliSumC *pSum, PauliStringC *pString) {
+  int ret;
+  khiter_t k = kh_put(pauli_hash, pSum->pauli_strings, pString->encoding, &ret);
 
-  pSum->pauli_strings[pSum->p] = pString;
-  pSum->p++;
-  return pSum;
+  if (ret == 0) {
+    PauliStringC *existing_pString = kh_value(pSum->pauli_strings, k);
+    existing_pString->coef += pString->coef;
+
+    if (fabs(creal(existing_pString->coef)) < 1e-12 &&
+        fabs(cimag(existing_pString->coef)) < 1e-12) {
+      kh_del(pauli_hash, pSum->pauli_strings, k);
+      free_pauli_string_c(existing_pString);
+      pSum->p--;
+    }
+
+    free_pauli_string_c(pString);
+  } else {
+    kh_value(pSum->pauli_strings, k) = pString;
+    pSum->p++;
+  }
 }
 
 PauliSumC *pauli_sum_scalar_multiplication_c(PauliSumC *pSum,
                                              double complex scalar) {
-  PauliSumC *new_pSum = pauli_sum_init_c(pSum->p_max);
-  for (unsigned int i = 0; i < pSum->p; i++) {
-    new_pSum = pauli_sum_append_pauli_string_c(
-        new_pSum,
-        pauli_string_scalar_multiplication_c(pSum->pauli_strings[i], scalar));
+  if (!pSum) {
+    fprintf(stderr, "Error: NULL PauliSum input to scalar multiplication.\n");
+    return NULL;
   }
+
+  PauliSumC *new_pSum = pauli_sum_init_c();
+  if (!new_pSum) {
+    fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
+    return NULL;
+  }
+
+  khiter_t k;
+  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
+       ++k) {
+    if (kh_exist(pSum->pauli_strings, k)) {
+      PauliStringC *original_pString = kh_value(pSum->pauli_strings, k);
+      PauliStringC *scaled_pString =
+          pauli_string_scalar_multiplication_c(original_pString, scalar);
+      if (!scaled_pString) {
+        fprintf(stderr,
+                "Error: Scalar multiplication failed for Pauli string.\n");
+        free_pauli_sum_c(new_pSum);
+        return NULL;
+      }
+      pauli_sum_append_pauli_string_c(new_pSum, scaled_pString);
+    }
+  }
+
   return new_pSum;
 }
 
 PauliSumC *pauli_sum_adjoint_c(PauliSumC *pSum) {
-  PauliSumC *new_pSum = pauli_sum_init_c(pSum->p_max);
-  for (unsigned int i = 0; i < pSum->p; i++) {
-    new_pSum = pauli_sum_append_pauli_string_c(
-        new_pSum, pauli_string_adjoint_c(pSum->pauli_strings[i]));
+  if (!pSum) {
+    fprintf(stderr, "Error: NULL PauliSum input to adjoint.\n");
+    return NULL;
   }
+
+  PauliSumC *new_pSum = pauli_sum_init_c();
+  if (!new_pSum) {
+    fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
+    return NULL;
+  }
+
+  khiter_t k;
+  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
+       ++k) {
+    if (kh_exist(pSum->pauli_strings, k)) {
+      PauliStringC *original_pString = kh_value(pSum->pauli_strings, k);
+      PauliStringC *adjoint_pString = pauli_string_adjoint_c(original_pString);
+      if (!adjoint_pString) {
+        fprintf(stderr,
+                "Error: Adjoint computation failed for Pauli string.\n");
+        free_pauli_sum_c(new_pSum);
+        return NULL;
+      }
+      pauli_sum_append_pauli_string_c(new_pSum, adjoint_pString);
+    }
+  }
+
   return new_pSum;
 }
 
 PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right) {
-  PauliSumC *new_pSum = pauli_sum_init_c(left->p_max);
-  for (unsigned int i = 0; i < left->p; i++) {
-    for (unsigned int j = 0; j < right->p; j++) {
-      new_pSum = pauli_sum_append_pauli_string_c(
-          new_pSum, pauli_string_multiplication_c(left->pauli_strings[i],
-                                                  right->pauli_strings[j]));
+  if (!left || !right) {
+    fprintf(stderr, "Error: NULL PauliSum input to multiplication.\n");
+    return NULL;
+  }
+
+  PauliSumC *new_pSum = pauli_sum_init_c();
+  if (!new_pSum) {
+    fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
+    return NULL;
+  }
+
+  khiter_t k1, k2;
+  for (k1 = kh_begin(left->pauli_strings); k1 != kh_end(left->pauli_strings);
+       ++k1) {
+    if (kh_exist(left->pauli_strings, k1)) {
+      PauliStringC *left_pString = kh_value(left->pauli_strings, k1);
+
+      for (k2 = kh_begin(right->pauli_strings);
+           k2 != kh_end(right->pauli_strings); ++k2) {
+        if (kh_exist(right->pauli_strings, k2)) {
+          PauliStringC *right_pString = kh_value(right->pauli_strings, k2);
+
+          PauliStringC *product_pString =
+              pauli_string_multiplication_c(left_pString, right_pString);
+          if (!product_pString) {
+            fprintf(stderr,
+                    "Error: Multiplication failed for Pauli strings.\n");
+            free_pauli_sum_c(new_pSum);
+            return NULL;
+          }
+          pauli_sum_append_pauli_string_c(new_pSum, product_pString);
+        }
+      }
     }
   }
+
   return new_pSum;
 }

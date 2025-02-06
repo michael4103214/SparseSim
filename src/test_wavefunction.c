@@ -35,7 +35,7 @@ void test_initialization_scaling_freeing(void) {
   sdet0 = slater_determinant_init_c(4, 1, orbitals0);
   sdet1 = slater_determinant_init_c(4, (double complex)I, orbitals1);
 
-  wfn = wavefunction_init_c(2);
+  wfn = wavefunction_init_c();
   printf("Wavefunction initialized at %p with sdets: %d, %d\n", (void *)wfn,
          sdet0->encoding, sdet1->encoding);
 
@@ -66,36 +66,6 @@ void test_initialization_scaling_freeing(void) {
   free_wavefunction_c(adjoint_wfn);
 }
 
-void test_realloc(void) {
-
-  unsigned int orbitals0[] = {0, 1, 0, 1};
-
-  SlaterDeterminantC *sdet;
-  WavefunctionC *wfn;
-  WavefunctionC *new_wfn;
-
-  char *wfn_str;
-
-  sdet = slater_determinant_init_c(4, 1, orbitals0);
-  wfn = wavefunction_init_c(2);
-
-  wavefunction_append_slater_determinant_c(wfn, sdet);
-  printf("Wavefunction at %p with s_max=%d\n", (void *)wfn, wfn->s_max);
-
-  new_wfn = wavefunction_realloc_c(wfn, 2 * wfn->s_max);
-
-  free(wfn);
-  wfn = new_wfn;
-
-  printf("Wavefunction at %p with s_max=%d\n", (void *)wfn, wfn->s_max);
-
-  wfn_str = wavefunction_to_string_c(wfn, 'k');
-  printf("%s\n", wfn_str);
-
-  free(wfn_str);
-  free_wavefunction_c(wfn);
-}
-
 void test_inner_product(void) {
   unsigned int orbitals0[] = {0, 1, 0, 1};
   unsigned int orbitals1[] = {1, 0, 1, 0};
@@ -113,7 +83,7 @@ void test_inner_product(void) {
   sdet0 = slater_determinant_init_c(4, 1, orbitals0);
   sdet1 = slater_determinant_init_c(4, (double complex)I, orbitals1);
 
-  ket = wavefunction_init_c(2);
+  ket = wavefunction_init_c();
   wavefunction_append_slater_determinant_c(ket, sdet0);
   wavefunction_append_slater_determinant_c(ket, sdet1);
 
@@ -150,7 +120,7 @@ void test_appending_slater_determinants(void) {
 
   printf("Order of Adding:\n");
 
-  wfn1 = wavefunction_init_c(16);
+  wfn1 = wavefunction_init_c();
 
   for (i = 0; i < 2; i++) {
     for (j = 0; j < 2; j++) {
@@ -168,7 +138,7 @@ void test_appending_slater_determinants(void) {
     }
   }
 
-  wfn2 = wavefunction_init_c(16);
+  wfn2 = wavefunction_init_c();
 
   for (i = 0; i < 2; i++) {
     for (j = 0; j < 2; j++) {
@@ -195,22 +165,23 @@ void test_appending_slater_determinants(void) {
   free(wfn2_str);
 
   product = wavefunction_multiplication_c(wfn1, wfn2);
-  printf("Product: %lf + %lfi\n\n", creal(product), cimag(product));
+  printf("Product of %d orbitals with %d orbitals : %lf + %lfi\n\n", wfn1->s,
+         wfn2->s, creal(product), cimag(product));
 
   free_wavefunction_c(wfn1);
   free_wavefunction_c(wfn2);
 
-  wfn3 = wavefunction_init_c(1);
+  wfn3 = wavefunction_init_c();
   printf("Repeated addition of the same orbitals:\n");
-  printf("s_max before addition: %d\n", wfn3->s_max);
+  printf("s before addition: %d\n", wfn3->s);
 
   for (i = 0; i < 4; i++) {
     unsigned int small_orbitals[] = {0, 1};
     sdet = slater_determinant_init_c(2, 1, small_orbitals);
-    wfn3 = wavefunction_append_slater_determinant_c(wfn3, sdet);
+    wavefunction_append_slater_determinant_c(wfn3, sdet);
   }
 
-  printf("s_max after addition: %d\n", wfn3->s_max);
+  printf("s after addition: %d\n", wfn3->s);
 
   wfn3_str = wavefunction_to_string_c(wfn3, 'k');
   printf("%s\n", wfn3_str);
@@ -240,7 +211,7 @@ void test_wavefunction_pauli_sum_multiplication(void) {
 
   sdet0 = slater_determinant_init_c(4, 1, orbitals0);
   sdet1 = slater_determinant_init_c(4, 1, orbitals1);
-  wfn = wavefunction_init_c(2);
+  wfn = wavefunction_init_c();
 
   wavefunction_append_slater_determinant_c(wfn, sdet0);
   wavefunction_append_slater_determinant_c(wfn, sdet1);
@@ -248,9 +219,9 @@ void test_wavefunction_pauli_sum_multiplication(void) {
   pString0 = pauli_string_init_as_ints_c(4, 1, paulis0);
   pString1 = pauli_string_init_as_ints_c(4, 1, paulis1);
 
-  pSum = pauli_sum_init_c(2);
-  pSum = pauli_sum_append_pauli_string_c(pSum, pString0);
-  pSum = pauli_sum_append_pauli_string_c(pSum, pString1);
+  pSum = pauli_sum_init_c();
+  pauli_sum_append_pauli_string_c(pSum, pString0);
+  pauli_sum_append_pauli_string_c(pSum, pString1);
 
   new_wfn = wavefunction_pauli_sum_multiplication_c(pSum, wfn);
 
@@ -287,7 +258,7 @@ void test_wavefunction_pauli_string_evolution(void) {
   unsigned int t;
 
   sdet0 = slater_determinant_init_c(4, 1, orbitals0);
-  wfn = wavefunction_init_c(2);
+  wfn = wavefunction_init_c();
   wavefunction_append_slater_determinant_c(wfn, sdet0);
 
   pString = pauli_string_init_as_ints_c(4, (double complex)I, paulis0);
@@ -335,15 +306,15 @@ void test_wavefunction_pauli_sum_evolution(void) {
   unsigned int t;
 
   sdet0 = slater_determinant_init_c(4, 1, orbitals0);
-  wfn = wavefunction_init_c(2);
+  wfn = wavefunction_init_c();
   wavefunction_append_slater_determinant_c(wfn, sdet0);
 
   pString0 = pauli_string_init_as_ints_c(4, (0.5 * (double complex)I), paulis0);
   pString1 = pauli_string_init_as_ints_c(4, (0.5 * (double complex)I), paulis0);
 
-  pSum = pauli_sum_init_c(1);
-  pSum = pauli_sum_append_pauli_string_c(pSum, pString0);
-  pSum = pauli_sum_append_pauli_string_c(pSum, pString1);
+  pSum = pauli_sum_init_c();
+  pauli_sum_append_pauli_string_c(pSum, pString0);
+  pauli_sum_append_pauli_string_c(pSum, pString1);
 
   wfn_str = wavefunction_to_string_c(wfn, 'k');
 
@@ -369,20 +340,20 @@ void test_wavefunction_pauli_sum_evolution(void) {
 }
 
 void test_wavefunction_speed(void) {
-  unsigned int N = 20;
+  const unsigned int N = 20;
   unsigned int num_sdets = 2;
-  unsigned int num_operations = 5;
+  const unsigned int num_operations = 20;
 
   unsigned int i, j, k;
-  unsigned int orbitals[20];
-  unsigned int paulis[20];
+  unsigned int orbitals[N];
+  unsigned int paulis[N];
   unsigned int pauli_type;
 
   SlaterDeterminantC *sdet;
   WavefunctionC *wfn;
   WavefunctionC *new_wfn;
 
-  PauliSumC *pauli_sums[5];
+  PauliSumC *pauli_sums[num_operations];
   PauliStringC *pString;
 
   WavefunctionC **old_wfns;
@@ -397,7 +368,7 @@ void test_wavefunction_speed(void) {
          "determinants, %u Pauli sum operations.\n",
          N, num_sdets, num_operations);
 
-  wfn = wavefunction_init_c(num_sdets);
+  wfn = wavefunction_init_c();
 
   for (i = 0; i < num_sdets; i++) {
     for (j = 0; j < N; j++) {
@@ -415,7 +386,7 @@ void test_wavefunction_speed(void) {
   printf("Wavefunction initialized.\n");
 
   for (i = 0; i < num_operations; i++) {
-    pauli_sums[i] = pauli_sum_init_c(3);
+    pauli_sums[i] = pauli_sum_init_c();
 
     for (j = 0; j < 3; j++) {
       for (k = 0; k < N; k++) {
@@ -424,7 +395,7 @@ void test_wavefunction_speed(void) {
       }
       coef = (rand() / (double)RAND_MAX) * (double complex)I;
       pString = pauli_string_init_as_ints_c(N, coef, paulis);
-      pauli_sums[i] = pauli_sum_append_pauli_string_c(pauli_sums[i], pString);
+      pauli_sum_append_pauli_string_c(pauli_sums[i], pString);
     }
   }
 
@@ -464,8 +435,6 @@ void test_wavefunction_speed(void) {
 int main(void) {
   printf("\nTesting Initialization, Scaling, and Freeing\n");
   test_initialization_scaling_freeing();
-  printf("\n\nTesting Wavefunction Realloc\n");
-  test_realloc();
   printf("\n\nTesting Inner Products\n");
   test_inner_product();
   printf("\n\nTesting Appending Slater Determinants\n");

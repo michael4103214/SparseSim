@@ -36,11 +36,11 @@ def test_pauli_sum_initialization_scaling_freeing():
     paulis1 = ['I', 'X', 'I', 'I']
     pString1 = PauliString(4, 1j, paulis1)
 
-    pSum0 = PauliSum(0)
+    pSum0 = PauliSum()
     pSum0.append_pauli_string(pString0)
     pSum0.append_pauli_string(pString1)
 
-    print(f"{pSum0} contains {pSum0.p()} pStrings with a max of {pSum0.p_max()}")
+    print(f"{pSum0} contains {pSum0.p()} pStrings")
     pSum1 = pauli_sum_scalar_multiplication(pSum0, 2 + 0j)
     print(f"2 * {pSum0} = {pSum1}")
 
@@ -52,7 +52,7 @@ def test_pauli_sum_multiplication():
     paulis1 = ['I', 'X', 'I', 'I']
     pString1 = PauliString(4, 1j, paulis1)
 
-    pSum0 = PauliSum(0)
+    pSum0 = PauliSum()
     pSum0.append_pauli_string(pString0)
     pSum0.append_pauli_string(pString1)
 
@@ -62,7 +62,7 @@ def test_pauli_sum_multiplication():
     paulis3 = ['I', 'X', 'I', 'I']
     pString3 = PauliString(4, 1j, paulis3)
 
-    pSum1 = PauliSum(0)
+    pSum1 = PauliSum()
     pSum1.append_pauli_string(pString2)
     pSum1.append_pauli_string(pString3)
 

@@ -2,7 +2,8 @@
 CC = clang
 CFLAGS = -O3 -mcpu=apple-m1 -flto -ffast-math -funroll-loops -fvectorize \
          -Wall -Wextra -Wpedantic -Weverything -Wshadow -Wformat=2 -Wconversion \
-         -Wno-padded -Wno-c++98-compat -Wno-poison-system-directories -g -lm -I./include
+         -Wno-padded -Wno-c++98-compat -Wno-poison-system-directories \
+         -Wno-declaration-after-statement -g -lm -I./include
 PYTHON = python3
 
 # Directories

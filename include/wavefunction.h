@@ -7,6 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef klib_unused
+#undef klib_unused
+#endif
+#define klib_unused
+
+#include "khash.h"
 #include "pauli.h"
 
 // Struct for a single SlaterDeterminant
@@ -36,15 +42,16 @@ SlaterDeterminantC *
 slater_determinant_pauli_string_multiplication_c(PauliStringC *pString,
                                                  SlaterDeterminantC *sdet);
 
+KHASH_MAP_INIT_INT(slater_hash, SlaterDeterminantC *)
+
 // Struct for a Wavefunction containing multiple SlaterDeterminants
 typedef struct WavefunctionC {
-  unsigned int s_max; // Maximum number of slater determinants
-  unsigned int s;     // Current number of slater determinants
-  SlaterDeterminantC *
-      *slater_determinants; // Array of Slater Determinant elements
+  unsigned int s; // Current number of slater determinants
+  khash_t(slater_hash) *
+      slater_determinants; // Hashmap of Slater Determinant elements
 } WavefunctionC;
 
-WavefunctionC *wavefunction_init_c(unsigned int s_max);
+WavefunctionC *wavefunction_init_c(void);
 void free_wavefunction_c(WavefunctionC *wfn);
 char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket);
 double wavefunction_norm_c(WavefunctionC *wfn);
@@ -53,11 +60,8 @@ WavefunctionC *wavefunction_scalar_multiplication_c(WavefunctionC *wfn,
 WavefunctionC *wavefunction_adjoint_c(WavefunctionC *wfn);
 double complex wavefunction_multiplication_c(WavefunctionC *bra,
                                              WavefunctionC *ket);
-WavefunctionC *wavefunction_realloc_c(WavefunctionC *wfn,
-                                      unsigned int new_s_max);
-WavefunctionC *
-wavefunction_append_slater_determinant_c(WavefunctionC *wfn,
-                                         SlaterDeterminantC *sdet);
+void wavefunction_append_slater_determinant_c(WavefunctionC *wfn,
+                                              SlaterDeterminantC *sdet);
 WavefunctionC *wavefunction_pauli_string_multiplication_c(PauliStringC *pString,
                                                           WavefunctionC *wfn);
 WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum,

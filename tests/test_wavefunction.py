@@ -11,13 +11,13 @@ def test_initialization_scaling_freeing():
     orbitals1 = [1, 0, 1, 0]
     sdet1 = SlaterDeterminant(4, 1j, orbitals1)
 
-    wfn = Wavefunction(1)
+    wfn = Wavefunction()
 
     wfn.append_slater_determinant(sdet0)
     wfn.append_slater_determinant(sdet1)
 
     print(
-        f"Wavefunction initialized with {wfn.s()} of a max {wfn.s_max()} sdets: {sdet0}, {sdet1}\n")
+        f"Wavefunction initialized with {wfn.s()} sdets: {sdet0}, {sdet1}\n")
 
     print(wfn)
 
@@ -38,7 +38,7 @@ def test_inner_product():
     orbitals1 = [1, 0, 1, 0]
     sdet1 = SlaterDeterminant(4, 1j, orbitals1)
 
-    ket = Wavefunction(2)
+    ket = Wavefunction()
     ket.append_slater_determinant(sdet0)
     ket.append_slater_determinant(sdet1)
 
@@ -52,7 +52,7 @@ def test_inner_product():
 def test_appending_slater_determinants():
     print("Order of Adding:")
 
-    wfn1 = Wavefunction(16)
+    wfn1 = Wavefunction()
 
     for i in range(2):
         for j in range(2):
@@ -62,7 +62,7 @@ def test_appending_slater_determinants():
                     sdet = SlaterDeterminant(4, 1 + 0j, orbitals)
                     wfn1.append_slater_determinant(sdet)
 
-    wfn2 = Wavefunction(16)
+    wfn2 = Wavefunction()
 
     for i in range(2):
         for j in range(2):
@@ -89,7 +89,7 @@ def test_wavefunction_pauli_sum_multiplication():
     sdet0 = SlaterDeterminant(4, 1 + 0j, orbitals0)
     sdet1 = SlaterDeterminant(4, 1 + 0j, orbitals1)
 
-    wfn = Wavefunction(2)
+    wfn = Wavefunction()
     wfn.append_slater_determinant(sdet0)
     wfn.append_slater_determinant(sdet1)
 
@@ -99,7 +99,7 @@ def test_wavefunction_pauli_sum_multiplication():
     paulis1 = ["X", "I", "X", "I"]
     pString1 = PauliString(4, 1 + 0j, paulis1)
 
-    pSum = PauliSum(2)
+    pSum = PauliSum()
     pSum.append_pauli_string(pString0)
     pSum.append_pauli_string(pString1)
 
@@ -112,7 +112,7 @@ def test_wavefunction_pauli_string_evolution():
     orbitals0 = [0, 1, 0, 1]
     sdet0 = SlaterDeterminant(4, 1 + 0j, orbitals0)
 
-    wfn = Wavefunction(2)
+    wfn = Wavefunction()
     wfn.append_slater_determinant(sdet0)
 
     paulis0 = ["X", "X", "X", "X"]
@@ -132,14 +132,14 @@ def test_wavefunction_pauli_sum_evolution():
     orbitals0 = [0, 1, 0, 1]
     sdet0 = SlaterDeterminant(4, 1 + 0j, orbitals0)
 
-    wfn = Wavefunction(2)
+    wfn = Wavefunction()
     wfn.append_slater_determinant(sdet0)
 
     paulis0 = ["X", "X", "X", "X"]
     pString0 = PauliString(4, 0.5j, paulis0)
     pString1 = PauliString(4, 0.5j, paulis0)
 
-    pSum = PauliSum(1)
+    pSum = PauliSum()
     pSum.append_pauli_string(pString0)
     pSum.append_pauli_string(pString1)
 
@@ -156,13 +156,13 @@ def test_wavefunction_pauli_sum_evolution():
 def test_wavefunction_speed():
     N = 20  # Number of qubits
     num_sdets = 2  # Number of Slater determinants
-    num_operations = 5  # Number of Pauli sum operations
+    num_operations = 20  # Number of Pauli sum operations
 
     print(
         f"\nRunning Wavefunction Speed Test with {N} qubits, {num_sdets} Slater determinants, {num_operations} Pauli sum operations.")
 
     # Step 1: Initialize a large wavefunction
-    wfn = Wavefunction(num_sdets)
+    wfn = Wavefunction()
 
     for _ in range(num_sdets):
         orbitals = [random.randint(0, 1) for _ in range(N)]
@@ -177,7 +177,7 @@ def test_wavefunction_speed():
     # Step 2: Generate multiple Pauli sums
     pauli_sums = []
     for _ in range(num_operations):
-        pSum = PauliSum(3)
+        pSum = PauliSum()
         for _ in range(3):
             paulis = [random.choice(["I", "X", "Y", "Z"]) for _ in range(N)]
             coef = random.random() * 1j

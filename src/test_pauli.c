@@ -24,7 +24,7 @@ void test_pauli_string_initialization_scaling_freeing(void) {
   pString0 = pauli_string_init_as_ints_c(4, (double complex)1.0, paulis0);
   pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
   pString0_str = pauli_string_to_string_c(pString0);
-  printf("%s\n", pString0_str);
+  printf("%s with encoding %d\n", pString0_str, pString0->encoding);
 
   pString1_str = pauli_string_to_string_c(pString1);
 
@@ -86,13 +86,12 @@ void test_pauli_sum_initialization_scaling_freeing(void) {
   pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
   pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
 
-  pSum = pauli_sum_init_c(0);
-  pSum = pauli_sum_append_pauli_string_c(pSum, pString0);
-  pSum = pauli_sum_append_pauli_string_c(pSum, pString1);
+  pSum = pauli_sum_init_c();
+  pauli_sum_append_pauli_string_c(pSum, pString0);
+  pauli_sum_append_pauli_string_c(pSum, pString1);
 
   pSum_str = pauli_sum_to_string_c(pSum);
-  printf("%s contains %d pStrings with a max of %d\n", pSum_str, pSum->p,
-         pSum->p_max);
+  printf("%s contains %d pStrings of 2\n", pSum_str, pSum->p);
 
   free(pSum_str);
   free_pauli_sum_c(pSum);
@@ -122,13 +121,13 @@ void test_pauli_sum_multiplication(void) {
   pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
   pString3 = pauli_string_init_as_chars_c(4, (double complex)I, paulis3);
 
-  pSum0 = pauli_sum_init_c(0);
-  pSum0 = pauli_sum_append_pauli_string_c(pSum0, pString0);
-  pSum0 = pauli_sum_append_pauli_string_c(pSum0, pString1);
+  pSum0 = pauli_sum_init_c();
+  pauli_sum_append_pauli_string_c(pSum0, pString0);
+  pauli_sum_append_pauli_string_c(pSum0, pString1);
 
-  pSum1 = pauli_sum_init_c(3);
-  pSum1 = pauli_sum_append_pauli_string_c(pSum1, pString2);
-  pSum1 = pauli_sum_append_pauli_string_c(pSum1, pString3);
+  pSum1 = pauli_sum_init_c();
+  pauli_sum_append_pauli_string_c(pSum1, pString2);
+  pauli_sum_append_pauli_string_c(pSum1, pString3);
 
   pSum2 = pauli_sum_multiplication_c(pSum0, pSum1);
 

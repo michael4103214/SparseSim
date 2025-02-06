@@ -1,5 +1,56 @@
 from libc.stdlib cimport malloc, free
 from libc.stdint cimport uintptr_t
+import re
+
+cdef extern from "khash.h":
+    # Define khiter_t (iterator type for khash)
+    ctypedef int khiter_t
+
+    # Declare the hash table struct type for SlaterDeterminantC
+    ctypedef struct kh_slater_hash_t:
+        int n_buckets
+        int size
+        int n_occupied
+        int upper_bound
+        unsigned int *keys  # Hash keys (Slater determinant encodings)
+        char *flags         # Flags for tracking entries
+        SlaterDeterminantC **vals  # Hash values (SlaterDeterminantC pointers)
+
+    # Declare khash functions
+    kh_slater_hash_t *kh_init_slater_hash()
+    void kh_destroy_slater_hash(kh_slater_hash_t *h)
+    khiter_t kh_get_slater_hash(kh_slater_hash_t *h, unsigned int key)
+    khiter_t kh_put_slater_hash(kh_slater_hash_t *h, unsigned int key, int *ret)
+    int kh_exist(kh_slater_hash_t *h, khiter_t k)
+    void kh_del_slater_hash(kh_slater_hash_t *h, khiter_t k)
+    SlaterDeterminantC *kh_value(kh_slater_hash_t *h, khiter_t k)
+
+    # Declare iteration functions
+    khiter_t kh_begin(kh_slater_hash_t *h)
+    khiter_t kh_end(kh_slater_hash_t *h)
+
+    # Declare the hash table type for PauliSumC (assuming it's `khash_t(pauli_hash)`)
+    ctypedef struct kh_pauli_hash_t:
+        int n_buckets
+        int size
+        int n_occupied
+        int upper_bound
+        unsigned int *keys  # The hash keys (Pauli string encodings)
+        char *flags         # Flags to track empty/deleted entries
+        PauliStringC **vals # The corresponding PauliStringC values
+
+    # Function declarations for handling khash
+    kh_pauli_hash_t *kh_init_pauli_hash()
+    void kh_destroy_pauli_hash(kh_pauli_hash_t *h)
+    khiter_t kh_get_pauli_hash(kh_pauli_hash_t *h, unsigned int key)
+    khiter_t kh_put_pauli_hash(kh_pauli_hash_t *h, unsigned int key, int *ret)
+    int kh_exist(kh_pauli_hash_t *h, khiter_t k)
+    void kh_del_pauli_hash(kh_pauli_hash_t *h, khiter_t k)
+    PauliStringC *kh_value(kh_pauli_hash_t *h, khiter_t k)
+
+    # Declare hash iteration functions
+    khiter_t kh_begin(kh_pauli_hash_t *h)
+    khiter_t kh_end(kh_pauli_hash_t *h)
 
 cdef extern from "wavefunction.h":
 
@@ -19,19 +70,17 @@ cdef extern from "wavefunction.h":
     SlaterDeterminantC *slater_determinant_pauli_string_multiplication_c(PauliStringC *pString, SlaterDeterminantC *sdet)
 
     cdef struct WavefunctionC:
-        unsigned int s_max
         unsigned int s
-        SlaterDeterminantC **slater_determinants
+        kh_slater_hash_t *slater_determinants
 
-    WavefunctionC *wavefunction_init_c(unsigned int s_max);
+    WavefunctionC *wavefunction_init_c();
     void free_wavefunction_c(WavefunctionC *wfn);
     char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket);
     double wavefunction_norm_c(WavefunctionC *wfn);
     WavefunctionC *wavefunction_scalar_multiplication_c(WavefunctionC *wfn, double complex scalar);
     WavefunctionC *wavefunction_adjoint_c(WavefunctionC *wfn);
     double complex wavefunction_multiplication_c(WavefunctionC *bra, WavefunctionC *ket);
-    WavefunctionC *wavefunction_realloc_c(WavefunctionC *wfn, unsigned int new_s_max);
-    WavefunctionC *wavefunction_append_slater_determinant_c(WavefunctionC *wfn, SlaterDeterminantC *sdet);
+    void wavefunction_append_slater_determinant_c(WavefunctionC *wfn, SlaterDeterminantC *sdet);
     WavefunctionC *wavefunction_pauli_string_multiplication_c(PauliStringC *pString, WavefunctionC *wfn);
     WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum, WavefunctionC *wfn);
     WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString, WavefunctionC *wfn, double epsilon);
@@ -54,19 +103,16 @@ cdef extern from "pauli.h":
     PauliStringC *pauli_string_multiplication_c(PauliStringC *left, PauliStringC *right)
 
     cdef struct PauliSumC:
-        unsigned int p_max
         unsigned int p
-        PauliStringC **pauli_strings
+        kh_pauli_hash_t *pauli_strings
 
-    PauliSumC *pauli_sum_init_c(unsigned int p_max)
+    PauliSumC *pauli_sum_init_c()
     void free_pauli_sum_c(PauliSumC *pSum)
-    PauliSumC *pauli_sum_realloc_c(PauliSumC *pSum, unsigned int new_p_max)
     char *pauli_sum_to_string_c(PauliSumC *pSum)
-    PauliSumC *pauli_sum_append_pauli_string_c(PauliSumC *pSum, PauliStringC *pString)
+    void pauli_sum_append_pauli_string_c(PauliSumC *pSum, PauliStringC *pString)
     PauliSumC *pauli_sum_scalar_multiplication_c(PauliSumC *pSum, double complex scalar)
     PauliSumC *pauli_sum_adjoint_c(PauliSumC *pSum)
     PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right)
-
 
 cdef class SlaterDeterminant:
     cdef uintptr_t _c_sd
@@ -121,8 +167,8 @@ cdef class Wavefunction:
     def __cinit__(self):
         pass
 
-    def __init__(self, unsigned int s_max):
-        cdef WavefunctionC *c_wfn = wavefunction_init_c(s_max)
+    def __init__(self):
+        cdef WavefunctionC *c_wfn = wavefunction_init_c()
         if not c_wfn:
             raise MemoryError("Failed to allocate WavefunctionC")
         self._c_wfn = <uintptr_t> c_wfn
@@ -156,7 +202,7 @@ cdef class Wavefunction:
 
     def append_slater_determinant(self, SlaterDeterminant sdet):
         sdet._in_wfn = True
-        self._c_wfn = <uintptr_t> wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
+        wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
 
     def adjoint(self):
         cdef WavefunctionC *new_wfn = wavefunction_adjoint_c(<WavefunctionC *> self._c_wfn)
@@ -172,9 +218,6 @@ cdef class Wavefunction:
 
     def s(self):
         return (<WavefunctionC *> self._c_wfn).s
-
-    def s_max(self):
-        return (<WavefunctionC *> self._c_wfn).s_max
         
 cdef class PauliString:
     cdef uintptr_t _c_pString
@@ -233,8 +276,8 @@ cdef class PauliSum:
     def __cinit__(self):
         pass
 
-    def __init__(self, unsigned int p_max):
-        cdef PauliSumC *c_pSum = pauli_sum_init_c(p_max)
+    def __init__(self):
+        cdef PauliSumC *c_pSum = pauli_sum_init_c()
         if not c_pSum:
             raise MemoryError("Failed to allocate PauliSum")
         self._c_pSum = <uintptr_t> c_pSum
@@ -262,7 +305,7 @@ cdef class PauliSum:
 
     def append_pauli_string(self, PauliString pString):
         pString._in_sum = True
-        self._c_pSum = <uintptr_t> pauli_sum_append_pauli_string_c(<PauliSumC *> self._c_pSum, <PauliStringC *> pString._c_pString)
+        pauli_sum_append_pauli_string_c(<PauliSumC *> self._c_pSum, <PauliStringC *> pString._c_pString)
 
     def adjoint(self):
         cdef PauliSumC *new_pSum = pauli_sum_adjoint_c(<PauliSumC *> self._c_pSum)
@@ -272,71 +315,149 @@ cdef class PauliSum:
     def p(self):
         return (<PauliSumC *> self._c_pSum).p
 
-    def p_max(self):
-        return (<PauliSumC *> self._c_pSum).p_max
-
-
 def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):
     """Multiply a wavefunction by a scalar."""
     cdef WavefunctionC *new_wfn = wavefunction_scalar_multiplication_c(<WavefunctionC *> wfn._c_wfn, scalar)
     if not new_wfn:
         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
-    return Wavefunction._init_from_c(new_wfn)  # Return a new Wavefunction instance
+    return Wavefunction._init_from_c(new_wfn)  
 
 def wavefunction_multiplication(Wavefunction bra, Wavefunction ket):
     """Compute the inner product of two wavefunctions."""
-    return wavefunction_multiplication_c(<WavefunctionC *> bra._c_wfn, <WavefunctionC *> ket._c_wfn)  # Returns a complex double
+    return wavefunction_multiplication_c(<WavefunctionC *> bra._c_wfn, <WavefunctionC *> ket._c_wfn)  
 
 def wavefunction_pauli_string_multiplication(PauliString pString, Wavefunction wfn):
     """Apply a Pauli string to a wavefunction."""
     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_multiplication_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn)
     if not new_wfn:
         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
-    return Wavefunction._init_from_c(new_wfn)  # Return a new Wavefunction instance
+    return Wavefunction._init_from_c(new_wfn) 
 
 def wavefunction_pauli_sum_multiplication(PauliSum pSum, Wavefunction wfn):
     """Apply a Pauli sum to a wavefunction."""
     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_multiplication_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn)
     if not new_wfn:
         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
-    return Wavefunction._init_from_c(new_wfn)  # Return a new Wavefunction instance
+    return Wavefunction._init_from_c(new_wfn)  
 
 def wavefunction_pauli_string_evolution(PauliString pString, Wavefunction wfn, double epsilon):
     """Evolve a wavefunction under a Pauli string using exponentiation."""
     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_evolution_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn, epsilon)
     if not new_wfn:
         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
-    return Wavefunction._init_from_c(new_wfn)  # Return a new Wavefunction instance
+    return Wavefunction._init_from_c(new_wfn)  
 
 def wavefunction_pauli_sum_evolution(PauliSum pSum, Wavefunction wfn, double epsilon):
     """Evolve a wavefunction under a Pauli sum using exponentiation."""
     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_evolution_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn, epsilon)
     if not new_wfn:
         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
-    return Wavefunction._init_from_c(new_wfn)  # Return a new Wavefunction instance
+    return Wavefunction._init_from_c(new_wfn)  
 
 def pauli_string_scalar_multiplication(PauliString pString, complex scalar):
     """Multiply a Pauli string by a scalar."""
     cdef PauliStringC *new_pString = pauli_string_scalar_multiplication_c(<PauliStringC *> pString._c_pString, scalar)
     if not new_pString:
         raise MemoryError("pauli_string_scalar_multiplication_c returned NULL")
-    return PauliString._init_from_c(new_pString)  # Return a new PauliString instance
+    return PauliString._init_from_c(new_pString)  
 
 def pauli_string_multiplication(PauliString left, PauliString right):
     """Multiply two Pauli strings."""
     cdef PauliStringC *new_pString = pauli_string_multiplication_c(<PauliStringC *> left._c_pString, <PauliStringC *> right._c_pString)
-    return PauliString._init_from_c(new_pString)  # Return a new PauliString instance
+    return PauliString._init_from_c(new_pString)  
 
 def pauli_sum_scalar_multiplication(PauliSum pSum, complex scalar):
     """Multiply a Pauli sum by a scalar."""
     cdef PauliSumC *new_pSum = pauli_sum_scalar_multiplication_c(<PauliSumC *> pSum._c_pSum, scalar)
     if not new_pSum:
         raise MemoryError("pauli_sum_scalar_multiplication_c returned NULL")
-    return PauliSum._init_from_c(new_pSum)  # Return a new PauliSum instance
+    return PauliSum._init_from_c(new_pSum)  
     
 def pauli_sum_multiplication(PauliSum left, PauliSum right):
     """Multiply two Pauli sums."""
     cdef PauliSumC *new_pSum = pauli_sum_multiplication_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
     if not new_pSum:
         raise MemoryError("pauli_sum_multiplication_c returned NULL")
-    return PauliSum._init_from_c(new_pSum)  # Return a new PauliSum instance
+    return PauliSum._init_from_c(new_pSum) 
+
+def pauli_sum_collect_measurements(PauliSum pSum):
+    """
+    Collects all unique PauliString elements from a PauliSum.
+
+    Parameters:
+    - pSum: PauliSum instance.
+
+    Returns:
+    - A set of unique Pauli strings.
+    """
+    cdef PauliSumC* c_pSum = <PauliSumC *> pSum._c_pSum
+    cdef PauliStringC* c_pString
+    cdef char* c_str
+    cdef khiter_t k
+
+    unique_strings = set()
+
+    for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
+        if kh_exist(c_pSum.pauli_strings, k):
+            c_pString = kh_value(c_pSum.pauli_strings, k)
+
+            c_str = pauli_string_to_string_c(c_pString)
+            if not c_str:
+                continue 
+
+            py_str = c_str.decode('utf-8')
+            free(c_str)
+
+            unique_strings.add(py_str)
+
+    return unique_strings
+
+def evaluate_pauli_sum_expectation(PauliSum pSum, dict tomography):
+    """
+    Computes the expectation value of a Pauli sum given tomography data.
+
+    Parameters:
+    - pSum: PauliSum instance.
+    - tomography: Dictionary mapping Pauli strings to expectation values.
+
+    Returns:
+    - Complex expectation value of the Pauli sum.
+    """
+
+    cdef PauliSumC* c_pSum = <PauliSumC *> pSum._c_pSum
+    cdef PauliStringC* c_pString
+    cdef char* c_str
+    cdef khiter_t k
+
+    exp = 0 + 0j
+
+    for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
+        if kh_exist(c_pSum.pauli_strings, k):
+            c_pString = kh_value(c_pSum.pauli_strings, k)
+
+            c_str = pauli_string_to_string_c(c_pString)
+            if not c_str:
+                print("Error: Failed to convert PauliString to string")
+                continue  
+
+            py_str = c_str.decode('utf-8')
+            free(c_str)
+
+            match = re.match(r"\(([^)]+)\)\s*([IXYZ]+)", py_str)
+            if match:
+                coef = complex(match.group(1)) 
+                pauli_str = match.group(2) 
+
+                if pauli_str in tomography:
+                    exp += coef * tomography[pauli_str]  
+                else:
+                    print(f"Error: PauliString '{pauli_str}' not found in tomography data")
+            else:
+                print(f"Error: Invalid PauliString format '{py_str}'")
+
+    return exp
+
+def pauli_sum_addition(PauliSum left, PauliSum right):
+    pass
+
+
