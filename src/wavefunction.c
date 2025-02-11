@@ -78,7 +78,7 @@ char *slater_determinant_to_string_c(SlaterDeterminantC *sdet,
 
   // Append the orbital occupations
   for (i = 0; i < sdet->N; i++) {
-    snprintf(orbital_char, sizeof(orbital_char), "%d", sdet->orbitals[i]);
+    snprintf(orbital_char, sizeof(orbital_char), "%u", sdet->orbitals[i]);
     strcat(buffer, orbital_char);
   }
 
@@ -153,12 +153,16 @@ slater_determinant_pauli_string_multiplication_c(PauliStringC *pString,
     case 2: // Y
       new_orbitals[i] = sdet->orbitals[i] ^ 1;
       new_coef =
-          new_coef * ((double complex)I) * (1 - 2 * (int)sdet->orbitals[i]);
+          new_coef * ((double complex)I) * (1 - (int)(sdet->orbitals[i] << 1));
       break;
     case 3: // Z
       new_orbitals[i] = sdet->orbitals[i];
-      new_coef = new_coef * (1 - 2 * (int)sdet->orbitals[i]);
+      new_coef = new_coef * (1 - (int)(sdet->orbitals[i] << 1));
       break;
+    default:
+      fprintf(stderr, "Error: Invalid Pauli operator '%u'.\n",
+              pString->paulis[i]);
+      return NULL;
     }
   }
   new_sdet = slater_determinant_init_c(N, new_coef, new_orbitals);
@@ -174,7 +178,8 @@ void free_wavefunction_c(WavefunctionC *wfn) {
   for (k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
-      free_slater_determinant_c(kh_value(wfn->slater_determinants, k));
+      free_slater_determinant_c(
+          (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k));
     }
   }
 
@@ -196,7 +201,8 @@ void wavefunction_append_slater_determinant_c(WavefunctionC *wfn,
       kh_put(slater_hash, wfn->slater_determinants, sdet->encoding, &ret);
 
   if (ret == 0) {
-    SlaterDeterminantC *existing_sdet = kh_value(wfn->slater_determinants, k);
+    SlaterDeterminantC *existing_sdet =
+        (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
     existing_sdet->coef += sdet->coef;
 
     if (fabs(creal(existing_sdet->coef)) < 1e-12 &&
@@ -225,7 +231,8 @@ double wavefunction_norm_c(WavefunctionC *wfn) {
   for (k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
-      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      SlaterDeterminantC *sdet =
+          (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
       double complex coef = sdet->coef;
       norm += creal(coef) * creal(coef) + cimag(coef) * cimag(coef);
     }
@@ -247,7 +254,8 @@ WavefunctionC *wavefunction_scalar_multiplication_c(WavefunctionC *wfn,
   for (k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
-      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      SlaterDeterminantC *sdet =
+          (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
       SlaterDeterminantC *new_sdet =
           slater_determinant_scalar_multiplication_c(sdet, scalar);
 
@@ -274,7 +282,8 @@ WavefunctionC *wavefunction_adjoint_c(WavefunctionC *wfn) {
   for (k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
-      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      SlaterDeterminantC *sdet =
+          (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
       SlaterDeterminantC *new_sdet = slater_determinant_adjoint_c(sdet);
 
       int ret;
@@ -301,12 +310,14 @@ double complex wavefunction_multiplication_c(WavefunctionC *bra,
   for (k1 = kh_begin(bra->slater_determinants);
        k1 != kh_end(bra->slater_determinants); ++k1) {
     if (kh_exist(bra->slater_determinants, k1)) {
-      SlaterDeterminantC *sdet_bra = kh_value(bra->slater_determinants, k1);
+      SlaterDeterminantC *sdet_bra =
+          (SlaterDeterminantC *)kh_value(bra->slater_determinants, k1);
       unsigned int encoding = sdet_bra->encoding;
 
       k2 = kh_get(slater_hash, ket->slater_determinants, encoding);
-      if (k2 != kh_end(ket->slater_determinants)) { // If key exists
-        SlaterDeterminantC *sdet_ket = kh_value(ket->slater_determinants, k2);
+      if (k2 != kh_end(ket->slater_determinants)) {
+        SlaterDeterminantC *sdet_ket =
+            (SlaterDeterminantC *)kh_value(ket->slater_determinants, k2);
         product += slater_dermininant_multiplication_c(sdet_bra, sdet_ket);
       }
     }
@@ -343,7 +354,8 @@ char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket) {
   for (k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
-      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      SlaterDeterminantC *sdet =
+          (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
       char *sdet_str = slater_determinant_to_string_c(sdet, bra_or_ket);
       if (!sdet_str) {
         fprintf(stderr, "Error: Failed to allocate memory for Slater "
@@ -392,7 +404,8 @@ WavefunctionC *wavefunction_pauli_string_multiplication_c(PauliStringC *pString,
   for (k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
-      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      SlaterDeterminantC *sdet =
+          (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
       SlaterDeterminantC *new_sdet =
           slater_determinant_pauli_string_multiplication_c(pString, sdet);
 
@@ -421,17 +434,16 @@ WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum,
   khiter_t kp, ks;
   int success = 0;
 
-  // Iterate over Pauli strings in the Pauli sum
   for (kp = kh_begin(pSum->pauli_strings); kp != kh_end(pSum->pauli_strings);
        ++kp) {
     if (kh_exist(pSum->pauli_strings, kp)) {
-      PauliStringC *pString = kh_value(pSum->pauli_strings, kp);
+      PauliStringC *pString = (PauliStringC *)kh_value(pSum->pauli_strings, kp);
 
-      // Iterate over Slater determinants in the wavefunction
       for (ks = kh_begin(wfn->slater_determinants);
            ks != kh_end(wfn->slater_determinants); ++ks) {
         if (kh_exist(wfn->slater_determinants, ks)) {
-          SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, ks);
+          SlaterDeterminantC *sdet =
+              (SlaterDeterminantC *)kh_value(wfn->slater_determinants, ks);
           SlaterDeterminantC *new_sdet =
               slater_determinant_pauli_string_multiplication_c(pString, sdet);
 
@@ -459,8 +471,9 @@ static inline SlaterDeterminantC *
 evolution_helper_cosh(PauliStringC *pString, SlaterDeterminantC *sdet,
                       double epsilon) {
   unsigned int N = sdet->N;
-  double complex new_coef =
-      (double complex)(ccosh(pString->coef * epsilon) * sdet->coef);
+  double complex x = pString->coef * epsilon;
+  double complex approx_cosh = 1 + x * x * (0.5 + x * x / 24.0);
+  double complex new_coef = approx_cosh * sdet->coef;
   return slater_determinant_init_c(N, new_coef, sdet->orbitals);
 }
 
@@ -480,7 +493,9 @@ evolution_helper_sinh(PauliStringC *pString, SlaterDeterminantC *sdet,
 
   N = sdet->N;
   new_orbitals = (unsigned int *)malloc(sdet->N * sizeof(int));
-  new_coef = (csinh(pString->coef * epsilon) * sdet->coef);
+  double complex x = pString->coef * epsilon;
+  double complex approx_sinh = x * (1 + x * x * (1.0 / 6.0 + x * x / 120.0));
+  new_coef = approx_sinh * sdet->coef;
 
   for (unsigned int i = 0; i < N; i++) {
     switch (pString->paulis[i]) {
@@ -493,12 +508,16 @@ evolution_helper_sinh(PauliStringC *pString, SlaterDeterminantC *sdet,
     case 2: // Y
       new_orbitals[i] = sdet->orbitals[i] ^ 1;
       new_coef =
-          new_coef * (double complex)I * (1 - 2 * (int)sdet->orbitals[i]);
+          new_coef * (double complex)I * (1 - (int)(sdet->orbitals[i] << 1));
       break;
     case 3: // Z
       new_orbitals[i] = sdet->orbitals[i];
-      new_coef = new_coef * (1 - 2 * (int)sdet->orbitals[i]);
+      new_coef = new_coef * (1 - (int)(sdet->orbitals[i] << 1));
       break;
+    default:
+      fprintf(stderr, "Error: Invalid Pauli operator '%u'.\n",
+              pString->paulis[i]);
+      return NULL;
     }
   }
   new_sdet = slater_determinant_init_c(N, new_coef, new_orbitals);
@@ -520,7 +539,8 @@ WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString,
   for (k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
-      SlaterDeterminantC *sdet = kh_value(wfn->slater_determinants, k);
+      SlaterDeterminantC *sdet =
+          (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
 
       SlaterDeterminantC *new_sdet_cosh =
           evolution_helper_cosh(pString, sdet, epsilon);
@@ -554,7 +574,7 @@ WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum,
   for (kp = kh_begin(pSum->pauli_strings); kp != kh_end(pSum->pauli_strings);
        ++kp) {
     if (kh_exist(pSum->pauli_strings, kp)) {
-      PauliStringC *pString = kh_value(pSum->pauli_strings, kp);
+      PauliStringC *pString = (PauliStringC *)kh_value(pSum->pauli_strings, kp);
 
       new_wfn = wavefunction_pauli_string_evolution_c(pString, wfn, epsilon);
       if (!new_wfn) {

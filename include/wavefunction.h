@@ -15,16 +15,16 @@
 #include "khash.h"
 #include "pauli.h"
 
-// Struct for a single SlaterDeterminant
+// Struct for a single slater determinant
 typedef struct SlaterDeterminantC {
   unsigned int N;      // Number of orbitals
   double complex coef; // Complex coefficient in front of the slater determinant
   unsigned int *orbitals; // Dynamically allocated array for orbital occupations
   unsigned int
-      encoding; // Decimal encoding of orbital occupations for indexing purposes
+      encoding; // Decimal encoding of orbital occupations for hashing purposes
 } SlaterDeterminantC;
 
-// Function declarations
+// Slater determinant function declarations
 SlaterDeterminantC *slater_determinant_init_c(unsigned int N,
                                               double complex coef,
                                               unsigned int orbitals[]);
@@ -42,15 +42,17 @@ SlaterDeterminantC *
 slater_determinant_pauli_string_multiplication_c(PauliStringC *pString,
                                                  SlaterDeterminantC *sdet);
 
+// Struct for slater determinant khash hashmap
 KHASH_MAP_INIT_INT(slater_hash, SlaterDeterminantC *)
 
-// Struct for a Wavefunction containing multiple SlaterDeterminants
+// Struct for a wavefunction containing multiple slater determinants
 typedef struct WavefunctionC {
   unsigned int s; // Current number of slater determinants
   khash_t(slater_hash) *
-      slater_determinants; // Hashmap of Slater Determinant elements
+      slater_determinants; // Hashmap of slater determinant elements
 } WavefunctionC;
 
+// Wavefunction function declarations
 WavefunctionC *wavefunction_init_c(void);
 void free_wavefunction_c(WavefunctionC *wfn);
 char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket);

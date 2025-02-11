@@ -1,9 +1,13 @@
 # Compiler and flags
-CC = clang
-CFLAGS = -O3 -mcpu=apple-m1 -flto -ffast-math -funroll-loops -fvectorize \
-         -Wall -Wextra -Wpedantic -Weverything -Wshadow -Wformat=2 -Wconversion \
-         -Wno-padded -Wno-c++98-compat -Wno-poison-system-directories \
-         -Wno-declaration-after-statement -g -lm -I./include
+CC = /usr/bin/clang
+CFLAGS += -O3 -mcpu=apple-m1 -flto -ffast-math -funroll-loops -fvectorize \
+         -Wall -Wextra -Weverything -Wshadow -Wformat=2 -Wconversion \
+         -g -I./include -Xpreprocessor 
+
+# Disabled C Flags
+CFLAGS += -Wno-padded -Wno-c++98-compat -Wno-disabled-macro-expansion \
+          -Wno-poison-system-directories -Wno-declaration-after-statement 
+
 PYTHON = python3
 
 # Directories
@@ -27,11 +31,11 @@ $(BUILD_DIR):
 
 # Compile test_pauli
 $(TEST_PAULI): $(SRC_DIR)/test_pauli.c $(SRC_DIR)/pauli.c $(SRC_DIR)/wavefunction.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Compile test_wavefunction
 $(TEST_WAVEFUNCTION): $(SRC_DIR)/test_wavefunction.c $(SRC_DIR)/wavefunction.c $(SRC_DIR)/pauli.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Cython build (ensures pauli.c and wavefunction.c are compiled first)
 cython: $(CYTHON_BUILD)
@@ -40,12 +44,14 @@ $(CYTHON_BUILD): $(CYTHON_DIR)/sparse_sim.pyx $(SRC_DIR)/wavefunction.c $(SRC_DI
 	$(PYTHON) setup.py build_ext --inplace
 
 # Run Python tests
-test-python:
+test-cython:
 	PYTHONPATH=$(shell pwd) $(PYTHON) tests/test_pauli.py
 	PYTHONPATH=$(shell pwd) $(PYTHON) tests/test_wavefunction.py
+
+test-fermion:
+	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_fermion.py
 
 # Clean up generated files
 clean:
 	rm -rf $(BUILD_DIR) *.so *.o
 	rm -rf cython/__pycache__
-	

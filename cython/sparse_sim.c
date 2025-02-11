@@ -14,12 +14,20 @@
             "-flto",
             "-ffast-math",
             "-funroll-loops",
-            "-fvectorize"
+            "-fvectorize",
+            "-Xpreprocessor",
+            "-fopenmp",
+            "-I/opt/homebrew/opt/libomp/include"
+        ],
+        "extra_link_args": [
+            "-L/opt/homebrew/opt/libomp/lib",
+            "-lomp"
         ],
         "include_dirs": [
             "include",
             "src",
-            "cython"
+            "cython",
+            "/opt/homebrew/opt/libomp/include"
         ],
         "name": "sparse_sim",
         "sources": [
@@ -1559,8 +1567,8 @@ struct __pyx_obj_10sparse_sim_PauliString;
 struct __pyx_obj_10sparse_sim_PauliSum;
 struct __pyx_obj_10sparse_sim___pyx_scope_struct__genexpr;
 
-/* "sparse_sim.pyx":117
- *     PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right)
+/* "sparse_sim.pyx":119
+ *     PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right)
  * 
  * cdef class SlaterDeterminant:             # <<<<<<<<<<<<<<
  *     cdef uintptr_t _c_sd
@@ -1574,7 +1582,7 @@ struct __pyx_obj_10sparse_sim_SlaterDeterminant {
 };
 
 
-/* "sparse_sim.pyx":163
+/* "sparse_sim.pyx":164
  *         return py_str
  * 
  * cdef class Wavefunction:             # <<<<<<<<<<<<<<
@@ -1589,7 +1597,7 @@ struct __pyx_obj_10sparse_sim_Wavefunction {
 };
 
 
-/* "sparse_sim.pyx":222
+/* "sparse_sim.pyx":223
  *         return (<WavefunctionC *> self._c_wfn).s
  * 
  * cdef class PauliString:             # <<<<<<<<<<<<<<
@@ -1604,7 +1612,7 @@ struct __pyx_obj_10sparse_sim_PauliString {
 };
 
 
-/* "sparse_sim.pyx":273
+/* "sparse_sim.pyx":271
  *         return py_pString
  * 
  * cdef class PauliSum:             # <<<<<<<<<<<<<<
@@ -1619,8 +1627,8 @@ struct __pyx_obj_10sparse_sim_PauliSum {
 
 
 /* "sparse_sim.pyx":231
+ * 
  *     def __init__(self, unsigned int N, double complex coef, list paulis):
- *         # Ensure paulis is a list of single-character strings
  *         if any(len(p) != 1 for p in paulis):             # <<<<<<<<<<<<<<
  *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")
  * 
@@ -1633,8 +1641,8 @@ struct __pyx_obj_10sparse_sim___pyx_scope_struct__genexpr {
 
 
 
-/* "sparse_sim.pyx":117
- *     PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right)
+/* "sparse_sim.pyx":119
+ *     PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right)
  * 
  * cdef class SlaterDeterminant:             # <<<<<<<<<<<<<<
  *     cdef uintptr_t _c_sd
@@ -1647,7 +1655,7 @@ struct __pyx_vtabstruct_10sparse_sim_SlaterDeterminant {
 static struct __pyx_vtabstruct_10sparse_sim_SlaterDeterminant *__pyx_vtabptr_10sparse_sim_SlaterDeterminant;
 
 
-/* "sparse_sim.pyx":163
+/* "sparse_sim.pyx":164
  *         return py_str
  * 
  * cdef class Wavefunction:             # <<<<<<<<<<<<<<
@@ -1661,7 +1669,7 @@ struct __pyx_vtabstruct_10sparse_sim_Wavefunction {
 static struct __pyx_vtabstruct_10sparse_sim_Wavefunction *__pyx_vtabptr_10sparse_sim_Wavefunction;
 
 
-/* "sparse_sim.pyx":222
+/* "sparse_sim.pyx":223
  *         return (<WavefunctionC *> self._c_wfn).s
  * 
  * cdef class PauliString:             # <<<<<<<<<<<<<<
@@ -1675,7 +1683,7 @@ struct __pyx_vtabstruct_10sparse_sim_PauliString {
 static struct __pyx_vtabstruct_10sparse_sim_PauliString *__pyx_vtabptr_10sparse_sim_PauliString;
 
 
-/* "sparse_sim.pyx":273
+/* "sparse_sim.pyx":271
  *         return py_pString
  * 
  * cdef class PauliSum:             # <<<<<<<<<<<<<<
@@ -2063,53 +2071,6 @@ static PyObject* __Pyx_PyObject_CallMethod1(PyObject* obj, PyObject* method_name
 #endif
 static CYTHON_INLINE PyObject* __Pyx_PyBytes_Join(PyObject* sep, PyObject* values);
 
-/* PyDictVersioning.proto */
-#if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
-#define __PYX_DICT_VERSION_INIT  ((PY_UINT64_T) -1)
-#define __PYX_GET_DICT_VERSION(dict)  (((PyDictObject*)(dict))->ma_version_tag)
-#define __PYX_UPDATE_DICT_CACHE(dict, value, cache_var, version_var)\
-    (version_var) = __PYX_GET_DICT_VERSION(dict);\
-    (cache_var) = (value);
-#define __PYX_PY_DICT_LOOKUP_IF_MODIFIED(VAR, DICT, LOOKUP) {\
-    static PY_UINT64_T __pyx_dict_version = 0;\
-    static PyObject *__pyx_dict_cached_value = NULL;\
-    if (likely(__PYX_GET_DICT_VERSION(DICT) == __pyx_dict_version)) {\
-        (VAR) = __pyx_dict_cached_value;\
-    } else {\
-        (VAR) = __pyx_dict_cached_value = (LOOKUP);\
-        __pyx_dict_version = __PYX_GET_DICT_VERSION(DICT);\
-    }\
-}
-static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj);
-static CYTHON_INLINE PY_UINT64_T __Pyx_get_object_dict_version(PyObject *obj);
-static CYTHON_INLINE int __Pyx_object_dict_version_matches(PyObject* obj, PY_UINT64_T tp_dict_version, PY_UINT64_T obj_dict_version);
-#else
-#define __PYX_GET_DICT_VERSION(dict)  (0)
-#define __PYX_UPDATE_DICT_CACHE(dict, value, cache_var, version_var)
-#define __PYX_PY_DICT_LOOKUP_IF_MODIFIED(VAR, DICT, LOOKUP)  (VAR) = (LOOKUP);
-#endif
-
-/* GetModuleGlobalName.proto */
-#if CYTHON_USE_DICT_VERSIONS
-#define __Pyx_GetModuleGlobalName(var, name)  do {\
-    static PY_UINT64_T __pyx_dict_version = 0;\
-    static PyObject *__pyx_dict_cached_value = NULL;\
-    (var) = (likely(__pyx_dict_version == __PYX_GET_DICT_VERSION(__pyx_d))) ?\
-        (likely(__pyx_dict_cached_value) ? __Pyx_NewRef(__pyx_dict_cached_value) : __Pyx_GetBuiltinName(name)) :\
-        __Pyx__GetModuleGlobalName(name, &__pyx_dict_version, &__pyx_dict_cached_value);\
-} while(0)
-#define __Pyx_GetModuleGlobalNameUncached(var, name)  do {\
-    PY_UINT64_T __pyx_dict_version;\
-    PyObject *__pyx_dict_cached_value;\
-    (var) = __Pyx__GetModuleGlobalName(name, &__pyx_dict_version, &__pyx_dict_cached_value);\
-} while(0)
-static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_version, PyObject **dict_cached_value);
-#else
-#define __Pyx_GetModuleGlobalName(var, name)  (var) = __Pyx__GetModuleGlobalName(name)
-#define __Pyx_GetModuleGlobalNameUncached(var, name)  (var) = __Pyx__GetModuleGlobalName(name)
-static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name);
-#endif
-
 /* PyDictContains.proto */
 static CYTHON_INLINE int __Pyx_PyDict_ContainsTF(PyObject* item, PyObject* dict, int eq) {
     int result = PyDict_Contains(dict, item);
@@ -2353,6 +2314,32 @@ static PyObject *__Pyx_CyFunction_New(PyMethodDef *ml,
                                       PyObject *closure,
                                       PyObject *module, PyObject *globals,
                                       PyObject* code);
+
+/* PyDictVersioning.proto */
+#if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
+#define __PYX_DICT_VERSION_INIT  ((PY_UINT64_T) -1)
+#define __PYX_GET_DICT_VERSION(dict)  (((PyDictObject*)(dict))->ma_version_tag)
+#define __PYX_UPDATE_DICT_CACHE(dict, value, cache_var, version_var)\
+    (version_var) = __PYX_GET_DICT_VERSION(dict);\
+    (cache_var) = (value);
+#define __PYX_PY_DICT_LOOKUP_IF_MODIFIED(VAR, DICT, LOOKUP) {\
+    static PY_UINT64_T __pyx_dict_version = 0;\
+    static PyObject *__pyx_dict_cached_value = NULL;\
+    if (likely(__PYX_GET_DICT_VERSION(DICT) == __pyx_dict_version)) {\
+        (VAR) = __pyx_dict_cached_value;\
+    } else {\
+        (VAR) = __pyx_dict_cached_value = (LOOKUP);\
+        __pyx_dict_version = __PYX_GET_DICT_VERSION(DICT);\
+    }\
+}
+static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj);
+static CYTHON_INLINE PY_UINT64_T __Pyx_get_object_dict_version(PyObject *obj);
+static CYTHON_INLINE int __Pyx_object_dict_version_matches(PyObject* obj, PY_UINT64_T tp_dict_version, PY_UINT64_T obj_dict_version);
+#else
+#define __PYX_GET_DICT_VERSION(dict)  (0)
+#define __PYX_UPDATE_DICT_CACHE(dict, value, cache_var, version_var)
+#define __PYX_PY_DICT_LOOKUP_IF_MODIFIED(VAR, DICT, LOOKUP)  (VAR) = (LOOKUP);
+#endif
 
 /* CLineInTraceback.proto */
 #ifdef CYTHON_CLINE_IN_TRACEBACK
@@ -2657,9 +2644,8 @@ static const char __pyx_k_s[] = "s";
 static const char __pyx_k__6[] = "";
 static const char __pyx_k_gc[] = "gc";
 static const char __pyx_k_re[] = "re";
-static const char __pyx_k__16[] = "'";
-static const char __pyx_k__17[] = "*";
-static const char __pyx_k__67[] = "?";
+static const char __pyx_k__14[] = "*";
+static const char __pyx_k__63[] = "?";
 static const char __pyx_k_bra[] = "bra";
 static const char __pyx_k_exp[] = "exp";
 static const char __pyx_k_ket[] = "ket";
@@ -2679,10 +2665,6 @@ static const char __pyx_k_spec[] = "__spec__";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_c_str[] = "c_str";
 static const char __pyx_k_close[] = "close";
-static const char __pyx_k_group[] = "group";
-static const char __pyx_k_here1[] = "here1";
-static const char __pyx_k_here2[] = "here2";
-static const char __pyx_k_match[] = "match";
 static const char __pyx_k_print[] = "print";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_right[] = "right";
@@ -2697,7 +2679,6 @@ static const char __pyx_k_paulis[] = "paulis";
 static const char __pyx_k_py_str[] = "py_str";
 static const char __pyx_k_py_wfn[] = "py_wfn";
 static const char __pyx_k_reduce[] = "__reduce__";
-static const char __pyx_k_s_IXYZ[] = "\\(([^)]+)\\)\\s*([IXYZ]+)";
 static const char __pyx_k_scalar[] = "scalar";
 static const char __pyx_k_adjoint[] = "adjoint";
 static const char __pyx_k_disable[] = "disable";
@@ -2713,7 +2694,6 @@ static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_c_pString[] = "c_pString";
 static const char __pyx_k_isenabled[] = "isenabled";
-static const char __pyx_k_pauli_str[] = "pauli_str";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_PauliSum_p[] = "PauliSum.p";
@@ -2759,14 +2739,12 @@ static const char __pyx_k_Wavefunction___reduce_cython[] = "Wavefunction.__reduc
 static const char __pyx_k_not_found_in_tomography_data[] = "' not found in tomography data";
 static const char __pyx_k_PauliString___setstate_cython[] = "PauliString.__setstate_cython__";
 static const char __pyx_k_Wavefunction___setstate_cython[] = "Wavefunction.__setstate_cython__";
-static const char __pyx_k_evaluate_pauli_sum_expectation[] = "evaluate_pauli_sum_expectation";
 static const char __pyx_k_pauli_sum_collect_measurements[] = "pauli_sum_collect_measurements";
+static const char __pyx_k_pauli_sum_evaluate_expectation[] = "pauli_sum_evaluate_expectation";
 static const char __pyx_k_Failed_to_allocate_PauliStringC[] = "Failed to allocate PauliStringC";
 static const char __pyx_k_pauli_sum_scalar_multiplication[] = "pauli_sum_scalar_multiplication_c returned NULL";
 static const char __pyx_k_wavefunction_adjoint_c_returned[] = "wavefunction_adjoint_c returned NULL";
 static const char __pyx_k_Each_Pauli_character_must_be_a_s[] = "Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])";
-static const char __pyx_k_Error_Failed_to_convert_PauliStr[] = "Error: Failed to convert PauliString to string";
-static const char __pyx_k_Error_Invalid_PauliString_format[] = "Error: Invalid PauliString format '";
 static const char __pyx_k_Failed_to_allocate_SlaterDetermi[] = "Failed to allocate SlaterDeterminantC";
 static const char __pyx_k_Failed_to_allocate_WavefunctionC[] = "Failed to allocate WavefunctionC";
 static const char __pyx_k_Failed_to_allocate_memory_for_or[] = "Failed to allocate memory for orbitals array";
@@ -2775,6 +2753,7 @@ static const char __pyx_k_SlaterDeterminant___setstate_cyt[] = "SlaterDeterminan
 static const char __pyx_k_Wavefunction_append_slater_deter[] = "Wavefunction.append_slater_determinant";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_pauli_string_scalar_multiplicati[] = "pauli_string_scalar_multiplication_c returned NULL";
+static const char __pyx_k_pauli_sum_addition_c_returned_NU[] = "pauli_sum_addition_c returned NULL";
 static const char __pyx_k_pauli_sum_multiplication_c_retur[] = "pauli_sum_multiplication_c returned NULL";
 static const char __pyx_k_wavefunction_pauli_string_evolut[] = "wavefunction_pauli_string_evolution";
 static const char __pyx_k_wavefunction_pauli_string_multip[] = "wavefunction_pauli_string_multiplication";
@@ -2829,8 +2808,8 @@ static PyObject *__pyx_pf_10sparse_sim_14pauli_string_multiplication(CYTHON_UNUS
 static PyObject *__pyx_pf_10sparse_sim_16pauli_sum_scalar_multiplication(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_pSum, __pyx_t_double_complex __pyx_v_scalar); /* proto */
 static PyObject *__pyx_pf_10sparse_sim_18pauli_sum_multiplication(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_left, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_right); /* proto */
 static PyObject *__pyx_pf_10sparse_sim_20pauli_sum_collect_measurements(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_pSum); /* proto */
-static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_pSum, PyObject *__pyx_v_tomography); /* proto */
-static PyObject *__pyx_pf_10sparse_sim_24pauli_sum_addition(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_left, CYTHON_UNUSED struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_right); /* proto */
+static PyObject *__pyx_pf_10sparse_sim_22pauli_sum_evaluate_expectation(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_pSum, PyObject *__pyx_v_tomography); /* proto */
+static PyObject *__pyx_pf_10sparse_sim_24pauli_sum_addition(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_left, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_right); /* proto */
 static PyObject *__pyx_tp_new_10sparse_sim_SlaterDeterminant(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_10sparse_sim_Wavefunction(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_10sparse_sim_PauliString(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -2882,8 +2861,6 @@ typedef struct {
   PyTypeObject *__pyx_ptype_10sparse_sim_PauliSum;
   PyTypeObject *__pyx_ptype_10sparse_sim___pyx_scope_struct__genexpr;
   PyObject *__pyx_kp_s_Each_Pauli_character_must_be_a_s;
-  PyObject *__pyx_kp_s_Error_Failed_to_convert_PauliStr;
-  PyObject *__pyx_kp_u_Error_Invalid_PauliString_format;
   PyObject *__pyx_kp_u_Error_PauliString;
   PyObject *__pyx_kp_s_Failed_to_allocate_PauliStringC;
   PyObject *__pyx_kp_s_Failed_to_allocate_PauliSum;
@@ -2915,10 +2892,9 @@ typedef struct {
   PyObject *__pyx_kp_s_Wavefunction_is_empty;
   PyObject *__pyx_n_s_Wavefunction_norm;
   PyObject *__pyx_n_s_Wavefunction_s;
-  PyObject *__pyx_kp_u__16;
-  PyObject *__pyx_n_s__17;
+  PyObject *__pyx_n_s__14;
   PyObject *__pyx_kp_s__6;
-  PyObject *__pyx_n_s__67;
+  PyObject *__pyx_n_s__63;
   PyObject *__pyx_n_s_adjoint;
   PyObject *__pyx_n_s_append_pauli_string;
   PyObject *__pyx_n_s_append_slater_determinant;
@@ -2938,14 +2914,10 @@ typedef struct {
   PyObject *__pyx_kp_u_enable;
   PyObject *__pyx_n_s_encode;
   PyObject *__pyx_n_s_epsilon;
-  PyObject *__pyx_n_s_evaluate_pauli_sum_expectation;
   PyObject *__pyx_n_s_exp;
   PyObject *__pyx_kp_u_gc;
   PyObject *__pyx_n_s_genexpr;
   PyObject *__pyx_n_s_getstate;
-  PyObject *__pyx_n_s_group;
-  PyObject *__pyx_n_s_here1;
-  PyObject *__pyx_n_s_here2;
   PyObject *__pyx_n_s_import;
   PyObject *__pyx_n_s_init___locals_genexpr;
   PyObject *__pyx_n_s_initializing;
@@ -2957,7 +2929,6 @@ typedef struct {
   PyObject *__pyx_n_s_ket;
   PyObject *__pyx_n_s_left;
   PyObject *__pyx_n_s_main;
-  PyObject *__pyx_n_s_match;
   PyObject *__pyx_n_s_name;
   PyObject *__pyx_n_s_new_pString;
   PyObject *__pyx_n_s_new_pSum;
@@ -2969,12 +2940,13 @@ typedef struct {
   PyObject *__pyx_n_s_p;
   PyObject *__pyx_n_s_pString;
   PyObject *__pyx_n_s_pSum;
-  PyObject *__pyx_n_s_pauli_str;
   PyObject *__pyx_n_s_pauli_string_multiplication;
   PyObject *__pyx_kp_s_pauli_string_scalar_multiplicati;
   PyObject *__pyx_n_s_pauli_string_scalar_multiplicati_2;
   PyObject *__pyx_n_s_pauli_sum_addition;
+  PyObject *__pyx_kp_s_pauli_sum_addition_c_returned_NU;
   PyObject *__pyx_n_s_pauli_sum_collect_measurements;
+  PyObject *__pyx_n_s_pauli_sum_evaluate_expectation;
   PyObject *__pyx_n_s_pauli_sum_multiplication;
   PyObject *__pyx_kp_s_pauli_sum_multiplication_c_retur;
   PyObject *__pyx_kp_s_pauli_sum_scalar_multiplication;
@@ -2993,7 +2965,6 @@ typedef struct {
   PyObject *__pyx_n_s_reduce_ex;
   PyObject *__pyx_n_s_right;
   PyObject *__pyx_n_s_s;
-  PyObject *__pyx_kp_s_s_IXYZ;
   PyObject *__pyx_n_s_scalar;
   PyObject *__pyx_n_s_sdet;
   PyObject *__pyx_n_s_self;
@@ -3017,8 +2988,6 @@ typedef struct {
   PyObject *__pyx_kp_s_wavefunction_scalar_multiplicati;
   PyObject *__pyx_n_s_wavefunction_scalar_multiplicati_2;
   PyObject *__pyx_n_s_wfn;
-  PyObject *__pyx_int_1;
-  PyObject *__pyx_int_2;
   PyObject *__pyx_tuple_;
   PyObject *__pyx_tuple__2;
   PyObject *__pyx_tuple__3;
@@ -3031,57 +3000,54 @@ typedef struct {
   PyObject *__pyx_tuple__11;
   PyObject *__pyx_tuple__12;
   PyObject *__pyx_tuple__13;
-  PyObject *__pyx_tuple__14;
   PyObject *__pyx_tuple__15;
-  PyObject *__pyx_tuple__18;
+  PyObject *__pyx_tuple__17;
   PyObject *__pyx_tuple__20;
-  PyObject *__pyx_tuple__23;
-  PyObject *__pyx_tuple__25;
-  PyObject *__pyx_tuple__30;
-  PyObject *__pyx_tuple__34;
-  PyObject *__pyx_tuple__36;
-  PyObject *__pyx_tuple__41;
-  PyObject *__pyx_tuple__43;
-  PyObject *__pyx_tuple__45;
-  PyObject *__pyx_tuple__47;
-  PyObject *__pyx_tuple__49;
-  PyObject *__pyx_tuple__51;
-  PyObject *__pyx_tuple__53;
-  PyObject *__pyx_tuple__55;
-  PyObject *__pyx_tuple__57;
-  PyObject *__pyx_tuple__59;
-  PyObject *__pyx_tuple__61;
-  PyObject *__pyx_tuple__63;
-  PyObject *__pyx_tuple__65;
+  PyObject *__pyx_tuple__22;
+  PyObject *__pyx_tuple__27;
+  PyObject *__pyx_tuple__31;
+  PyObject *__pyx_tuple__33;
+  PyObject *__pyx_tuple__38;
+  PyObject *__pyx_tuple__40;
+  PyObject *__pyx_tuple__42;
+  PyObject *__pyx_tuple__44;
+  PyObject *__pyx_tuple__46;
+  PyObject *__pyx_tuple__48;
+  PyObject *__pyx_tuple__50;
+  PyObject *__pyx_tuple__52;
+  PyObject *__pyx_tuple__54;
+  PyObject *__pyx_tuple__56;
+  PyObject *__pyx_tuple__58;
+  PyObject *__pyx_tuple__60;
+  PyObject *__pyx_codeobj__16;
+  PyObject *__pyx_codeobj__18;
   PyObject *__pyx_codeobj__19;
   PyObject *__pyx_codeobj__21;
-  PyObject *__pyx_codeobj__22;
+  PyObject *__pyx_codeobj__23;
   PyObject *__pyx_codeobj__24;
+  PyObject *__pyx_codeobj__25;
   PyObject *__pyx_codeobj__26;
-  PyObject *__pyx_codeobj__27;
   PyObject *__pyx_codeobj__28;
   PyObject *__pyx_codeobj__29;
-  PyObject *__pyx_codeobj__31;
+  PyObject *__pyx_codeobj__30;
   PyObject *__pyx_codeobj__32;
-  PyObject *__pyx_codeobj__33;
+  PyObject *__pyx_codeobj__34;
   PyObject *__pyx_codeobj__35;
+  PyObject *__pyx_codeobj__36;
   PyObject *__pyx_codeobj__37;
-  PyObject *__pyx_codeobj__38;
   PyObject *__pyx_codeobj__39;
-  PyObject *__pyx_codeobj__40;
-  PyObject *__pyx_codeobj__42;
-  PyObject *__pyx_codeobj__44;
-  PyObject *__pyx_codeobj__46;
-  PyObject *__pyx_codeobj__48;
-  PyObject *__pyx_codeobj__50;
-  PyObject *__pyx_codeobj__52;
-  PyObject *__pyx_codeobj__54;
-  PyObject *__pyx_codeobj__56;
-  PyObject *__pyx_codeobj__58;
-  PyObject *__pyx_codeobj__60;
+  PyObject *__pyx_codeobj__41;
+  PyObject *__pyx_codeobj__43;
+  PyObject *__pyx_codeobj__45;
+  PyObject *__pyx_codeobj__47;
+  PyObject *__pyx_codeobj__49;
+  PyObject *__pyx_codeobj__51;
+  PyObject *__pyx_codeobj__53;
+  PyObject *__pyx_codeobj__55;
+  PyObject *__pyx_codeobj__57;
+  PyObject *__pyx_codeobj__59;
+  PyObject *__pyx_codeobj__61;
   PyObject *__pyx_codeobj__62;
-  PyObject *__pyx_codeobj__64;
-  PyObject *__pyx_codeobj__66;
 } __pyx_mstate;
 
 #if CYTHON_USE_MODULE_STATE
@@ -3135,8 +3101,6 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_ptype_10sparse_sim___pyx_scope_struct__genexpr);
   Py_CLEAR(clear_module_state->__pyx_type_10sparse_sim___pyx_scope_struct__genexpr);
   Py_CLEAR(clear_module_state->__pyx_kp_s_Each_Pauli_character_must_be_a_s);
-  Py_CLEAR(clear_module_state->__pyx_kp_s_Error_Failed_to_convert_PauliStr);
-  Py_CLEAR(clear_module_state->__pyx_kp_u_Error_Invalid_PauliString_format);
   Py_CLEAR(clear_module_state->__pyx_kp_u_Error_PauliString);
   Py_CLEAR(clear_module_state->__pyx_kp_s_Failed_to_allocate_PauliStringC);
   Py_CLEAR(clear_module_state->__pyx_kp_s_Failed_to_allocate_PauliSum);
@@ -3168,10 +3132,9 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_s_Wavefunction_is_empty);
   Py_CLEAR(clear_module_state->__pyx_n_s_Wavefunction_norm);
   Py_CLEAR(clear_module_state->__pyx_n_s_Wavefunction_s);
-  Py_CLEAR(clear_module_state->__pyx_kp_u__16);
-  Py_CLEAR(clear_module_state->__pyx_n_s__17);
+  Py_CLEAR(clear_module_state->__pyx_n_s__14);
   Py_CLEAR(clear_module_state->__pyx_kp_s__6);
-  Py_CLEAR(clear_module_state->__pyx_n_s__67);
+  Py_CLEAR(clear_module_state->__pyx_n_s__63);
   Py_CLEAR(clear_module_state->__pyx_n_s_adjoint);
   Py_CLEAR(clear_module_state->__pyx_n_s_append_pauli_string);
   Py_CLEAR(clear_module_state->__pyx_n_s_append_slater_determinant);
@@ -3191,14 +3154,10 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_u_enable);
   Py_CLEAR(clear_module_state->__pyx_n_s_encode);
   Py_CLEAR(clear_module_state->__pyx_n_s_epsilon);
-  Py_CLEAR(clear_module_state->__pyx_n_s_evaluate_pauli_sum_expectation);
   Py_CLEAR(clear_module_state->__pyx_n_s_exp);
   Py_CLEAR(clear_module_state->__pyx_kp_u_gc);
   Py_CLEAR(clear_module_state->__pyx_n_s_genexpr);
   Py_CLEAR(clear_module_state->__pyx_n_s_getstate);
-  Py_CLEAR(clear_module_state->__pyx_n_s_group);
-  Py_CLEAR(clear_module_state->__pyx_n_s_here1);
-  Py_CLEAR(clear_module_state->__pyx_n_s_here2);
   Py_CLEAR(clear_module_state->__pyx_n_s_import);
   Py_CLEAR(clear_module_state->__pyx_n_s_init___locals_genexpr);
   Py_CLEAR(clear_module_state->__pyx_n_s_initializing);
@@ -3210,7 +3169,6 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_ket);
   Py_CLEAR(clear_module_state->__pyx_n_s_left);
   Py_CLEAR(clear_module_state->__pyx_n_s_main);
-  Py_CLEAR(clear_module_state->__pyx_n_s_match);
   Py_CLEAR(clear_module_state->__pyx_n_s_name);
   Py_CLEAR(clear_module_state->__pyx_n_s_new_pString);
   Py_CLEAR(clear_module_state->__pyx_n_s_new_pSum);
@@ -3222,12 +3180,13 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_p);
   Py_CLEAR(clear_module_state->__pyx_n_s_pString);
   Py_CLEAR(clear_module_state->__pyx_n_s_pSum);
-  Py_CLEAR(clear_module_state->__pyx_n_s_pauli_str);
   Py_CLEAR(clear_module_state->__pyx_n_s_pauli_string_multiplication);
   Py_CLEAR(clear_module_state->__pyx_kp_s_pauli_string_scalar_multiplicati);
   Py_CLEAR(clear_module_state->__pyx_n_s_pauli_string_scalar_multiplicati_2);
   Py_CLEAR(clear_module_state->__pyx_n_s_pauli_sum_addition);
+  Py_CLEAR(clear_module_state->__pyx_kp_s_pauli_sum_addition_c_returned_NU);
   Py_CLEAR(clear_module_state->__pyx_n_s_pauli_sum_collect_measurements);
+  Py_CLEAR(clear_module_state->__pyx_n_s_pauli_sum_evaluate_expectation);
   Py_CLEAR(clear_module_state->__pyx_n_s_pauli_sum_multiplication);
   Py_CLEAR(clear_module_state->__pyx_kp_s_pauli_sum_multiplication_c_retur);
   Py_CLEAR(clear_module_state->__pyx_kp_s_pauli_sum_scalar_multiplication);
@@ -3246,7 +3205,6 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_reduce_ex);
   Py_CLEAR(clear_module_state->__pyx_n_s_right);
   Py_CLEAR(clear_module_state->__pyx_n_s_s);
-  Py_CLEAR(clear_module_state->__pyx_kp_s_s_IXYZ);
   Py_CLEAR(clear_module_state->__pyx_n_s_scalar);
   Py_CLEAR(clear_module_state->__pyx_n_s_sdet);
   Py_CLEAR(clear_module_state->__pyx_n_s_self);
@@ -3270,8 +3228,6 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_s_wavefunction_scalar_multiplicati);
   Py_CLEAR(clear_module_state->__pyx_n_s_wavefunction_scalar_multiplicati_2);
   Py_CLEAR(clear_module_state->__pyx_n_s_wfn);
-  Py_CLEAR(clear_module_state->__pyx_int_1);
-  Py_CLEAR(clear_module_state->__pyx_int_2);
   Py_CLEAR(clear_module_state->__pyx_tuple_);
   Py_CLEAR(clear_module_state->__pyx_tuple__2);
   Py_CLEAR(clear_module_state->__pyx_tuple__3);
@@ -3284,57 +3240,54 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_tuple__11);
   Py_CLEAR(clear_module_state->__pyx_tuple__12);
   Py_CLEAR(clear_module_state->__pyx_tuple__13);
-  Py_CLEAR(clear_module_state->__pyx_tuple__14);
   Py_CLEAR(clear_module_state->__pyx_tuple__15);
-  Py_CLEAR(clear_module_state->__pyx_tuple__18);
+  Py_CLEAR(clear_module_state->__pyx_tuple__17);
   Py_CLEAR(clear_module_state->__pyx_tuple__20);
-  Py_CLEAR(clear_module_state->__pyx_tuple__23);
-  Py_CLEAR(clear_module_state->__pyx_tuple__25);
-  Py_CLEAR(clear_module_state->__pyx_tuple__30);
-  Py_CLEAR(clear_module_state->__pyx_tuple__34);
-  Py_CLEAR(clear_module_state->__pyx_tuple__36);
-  Py_CLEAR(clear_module_state->__pyx_tuple__41);
-  Py_CLEAR(clear_module_state->__pyx_tuple__43);
-  Py_CLEAR(clear_module_state->__pyx_tuple__45);
-  Py_CLEAR(clear_module_state->__pyx_tuple__47);
-  Py_CLEAR(clear_module_state->__pyx_tuple__49);
-  Py_CLEAR(clear_module_state->__pyx_tuple__51);
-  Py_CLEAR(clear_module_state->__pyx_tuple__53);
-  Py_CLEAR(clear_module_state->__pyx_tuple__55);
-  Py_CLEAR(clear_module_state->__pyx_tuple__57);
-  Py_CLEAR(clear_module_state->__pyx_tuple__59);
-  Py_CLEAR(clear_module_state->__pyx_tuple__61);
-  Py_CLEAR(clear_module_state->__pyx_tuple__63);
-  Py_CLEAR(clear_module_state->__pyx_tuple__65);
+  Py_CLEAR(clear_module_state->__pyx_tuple__22);
+  Py_CLEAR(clear_module_state->__pyx_tuple__27);
+  Py_CLEAR(clear_module_state->__pyx_tuple__31);
+  Py_CLEAR(clear_module_state->__pyx_tuple__33);
+  Py_CLEAR(clear_module_state->__pyx_tuple__38);
+  Py_CLEAR(clear_module_state->__pyx_tuple__40);
+  Py_CLEAR(clear_module_state->__pyx_tuple__42);
+  Py_CLEAR(clear_module_state->__pyx_tuple__44);
+  Py_CLEAR(clear_module_state->__pyx_tuple__46);
+  Py_CLEAR(clear_module_state->__pyx_tuple__48);
+  Py_CLEAR(clear_module_state->__pyx_tuple__50);
+  Py_CLEAR(clear_module_state->__pyx_tuple__52);
+  Py_CLEAR(clear_module_state->__pyx_tuple__54);
+  Py_CLEAR(clear_module_state->__pyx_tuple__56);
+  Py_CLEAR(clear_module_state->__pyx_tuple__58);
+  Py_CLEAR(clear_module_state->__pyx_tuple__60);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__16);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__18);
   Py_CLEAR(clear_module_state->__pyx_codeobj__19);
   Py_CLEAR(clear_module_state->__pyx_codeobj__21);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__22);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__23);
   Py_CLEAR(clear_module_state->__pyx_codeobj__24);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__25);
   Py_CLEAR(clear_module_state->__pyx_codeobj__26);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__27);
   Py_CLEAR(clear_module_state->__pyx_codeobj__28);
   Py_CLEAR(clear_module_state->__pyx_codeobj__29);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__31);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__30);
   Py_CLEAR(clear_module_state->__pyx_codeobj__32);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__33);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__34);
   Py_CLEAR(clear_module_state->__pyx_codeobj__35);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__36);
   Py_CLEAR(clear_module_state->__pyx_codeobj__37);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__38);
   Py_CLEAR(clear_module_state->__pyx_codeobj__39);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__40);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__42);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__44);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__46);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__48);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__50);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__52);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__54);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__56);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__58);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__60);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__41);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__43);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__45);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__47);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__49);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__51);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__53);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__55);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__57);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__59);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__61);
   Py_CLEAR(clear_module_state->__pyx_codeobj__62);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__64);
-  Py_CLEAR(clear_module_state->__pyx_codeobj__66);
   return 0;
 }
 #endif
@@ -3366,8 +3319,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_ptype_10sparse_sim___pyx_scope_struct__genexpr);
   Py_VISIT(traverse_module_state->__pyx_type_10sparse_sim___pyx_scope_struct__genexpr);
   Py_VISIT(traverse_module_state->__pyx_kp_s_Each_Pauli_character_must_be_a_s);
-  Py_VISIT(traverse_module_state->__pyx_kp_s_Error_Failed_to_convert_PauliStr);
-  Py_VISIT(traverse_module_state->__pyx_kp_u_Error_Invalid_PauliString_format);
   Py_VISIT(traverse_module_state->__pyx_kp_u_Error_PauliString);
   Py_VISIT(traverse_module_state->__pyx_kp_s_Failed_to_allocate_PauliStringC);
   Py_VISIT(traverse_module_state->__pyx_kp_s_Failed_to_allocate_PauliSum);
@@ -3399,10 +3350,9 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_s_Wavefunction_is_empty);
   Py_VISIT(traverse_module_state->__pyx_n_s_Wavefunction_norm);
   Py_VISIT(traverse_module_state->__pyx_n_s_Wavefunction_s);
-  Py_VISIT(traverse_module_state->__pyx_kp_u__16);
-  Py_VISIT(traverse_module_state->__pyx_n_s__17);
+  Py_VISIT(traverse_module_state->__pyx_n_s__14);
   Py_VISIT(traverse_module_state->__pyx_kp_s__6);
-  Py_VISIT(traverse_module_state->__pyx_n_s__67);
+  Py_VISIT(traverse_module_state->__pyx_n_s__63);
   Py_VISIT(traverse_module_state->__pyx_n_s_adjoint);
   Py_VISIT(traverse_module_state->__pyx_n_s_append_pauli_string);
   Py_VISIT(traverse_module_state->__pyx_n_s_append_slater_determinant);
@@ -3422,14 +3372,10 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_u_enable);
   Py_VISIT(traverse_module_state->__pyx_n_s_encode);
   Py_VISIT(traverse_module_state->__pyx_n_s_epsilon);
-  Py_VISIT(traverse_module_state->__pyx_n_s_evaluate_pauli_sum_expectation);
   Py_VISIT(traverse_module_state->__pyx_n_s_exp);
   Py_VISIT(traverse_module_state->__pyx_kp_u_gc);
   Py_VISIT(traverse_module_state->__pyx_n_s_genexpr);
   Py_VISIT(traverse_module_state->__pyx_n_s_getstate);
-  Py_VISIT(traverse_module_state->__pyx_n_s_group);
-  Py_VISIT(traverse_module_state->__pyx_n_s_here1);
-  Py_VISIT(traverse_module_state->__pyx_n_s_here2);
   Py_VISIT(traverse_module_state->__pyx_n_s_import);
   Py_VISIT(traverse_module_state->__pyx_n_s_init___locals_genexpr);
   Py_VISIT(traverse_module_state->__pyx_n_s_initializing);
@@ -3441,7 +3387,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_ket);
   Py_VISIT(traverse_module_state->__pyx_n_s_left);
   Py_VISIT(traverse_module_state->__pyx_n_s_main);
-  Py_VISIT(traverse_module_state->__pyx_n_s_match);
   Py_VISIT(traverse_module_state->__pyx_n_s_name);
   Py_VISIT(traverse_module_state->__pyx_n_s_new_pString);
   Py_VISIT(traverse_module_state->__pyx_n_s_new_pSum);
@@ -3453,12 +3398,13 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_p);
   Py_VISIT(traverse_module_state->__pyx_n_s_pString);
   Py_VISIT(traverse_module_state->__pyx_n_s_pSum);
-  Py_VISIT(traverse_module_state->__pyx_n_s_pauli_str);
   Py_VISIT(traverse_module_state->__pyx_n_s_pauli_string_multiplication);
   Py_VISIT(traverse_module_state->__pyx_kp_s_pauli_string_scalar_multiplicati);
   Py_VISIT(traverse_module_state->__pyx_n_s_pauli_string_scalar_multiplicati_2);
   Py_VISIT(traverse_module_state->__pyx_n_s_pauli_sum_addition);
+  Py_VISIT(traverse_module_state->__pyx_kp_s_pauli_sum_addition_c_returned_NU);
   Py_VISIT(traverse_module_state->__pyx_n_s_pauli_sum_collect_measurements);
+  Py_VISIT(traverse_module_state->__pyx_n_s_pauli_sum_evaluate_expectation);
   Py_VISIT(traverse_module_state->__pyx_n_s_pauli_sum_multiplication);
   Py_VISIT(traverse_module_state->__pyx_kp_s_pauli_sum_multiplication_c_retur);
   Py_VISIT(traverse_module_state->__pyx_kp_s_pauli_sum_scalar_multiplication);
@@ -3477,7 +3423,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_reduce_ex);
   Py_VISIT(traverse_module_state->__pyx_n_s_right);
   Py_VISIT(traverse_module_state->__pyx_n_s_s);
-  Py_VISIT(traverse_module_state->__pyx_kp_s_s_IXYZ);
   Py_VISIT(traverse_module_state->__pyx_n_s_scalar);
   Py_VISIT(traverse_module_state->__pyx_n_s_sdet);
   Py_VISIT(traverse_module_state->__pyx_n_s_self);
@@ -3501,8 +3446,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_s_wavefunction_scalar_multiplicati);
   Py_VISIT(traverse_module_state->__pyx_n_s_wavefunction_scalar_multiplicati_2);
   Py_VISIT(traverse_module_state->__pyx_n_s_wfn);
-  Py_VISIT(traverse_module_state->__pyx_int_1);
-  Py_VISIT(traverse_module_state->__pyx_int_2);
   Py_VISIT(traverse_module_state->__pyx_tuple_);
   Py_VISIT(traverse_module_state->__pyx_tuple__2);
   Py_VISIT(traverse_module_state->__pyx_tuple__3);
@@ -3515,57 +3458,54 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_tuple__11);
   Py_VISIT(traverse_module_state->__pyx_tuple__12);
   Py_VISIT(traverse_module_state->__pyx_tuple__13);
-  Py_VISIT(traverse_module_state->__pyx_tuple__14);
   Py_VISIT(traverse_module_state->__pyx_tuple__15);
-  Py_VISIT(traverse_module_state->__pyx_tuple__18);
+  Py_VISIT(traverse_module_state->__pyx_tuple__17);
   Py_VISIT(traverse_module_state->__pyx_tuple__20);
-  Py_VISIT(traverse_module_state->__pyx_tuple__23);
-  Py_VISIT(traverse_module_state->__pyx_tuple__25);
-  Py_VISIT(traverse_module_state->__pyx_tuple__30);
-  Py_VISIT(traverse_module_state->__pyx_tuple__34);
-  Py_VISIT(traverse_module_state->__pyx_tuple__36);
-  Py_VISIT(traverse_module_state->__pyx_tuple__41);
-  Py_VISIT(traverse_module_state->__pyx_tuple__43);
-  Py_VISIT(traverse_module_state->__pyx_tuple__45);
-  Py_VISIT(traverse_module_state->__pyx_tuple__47);
-  Py_VISIT(traverse_module_state->__pyx_tuple__49);
-  Py_VISIT(traverse_module_state->__pyx_tuple__51);
-  Py_VISIT(traverse_module_state->__pyx_tuple__53);
-  Py_VISIT(traverse_module_state->__pyx_tuple__55);
-  Py_VISIT(traverse_module_state->__pyx_tuple__57);
-  Py_VISIT(traverse_module_state->__pyx_tuple__59);
-  Py_VISIT(traverse_module_state->__pyx_tuple__61);
-  Py_VISIT(traverse_module_state->__pyx_tuple__63);
-  Py_VISIT(traverse_module_state->__pyx_tuple__65);
+  Py_VISIT(traverse_module_state->__pyx_tuple__22);
+  Py_VISIT(traverse_module_state->__pyx_tuple__27);
+  Py_VISIT(traverse_module_state->__pyx_tuple__31);
+  Py_VISIT(traverse_module_state->__pyx_tuple__33);
+  Py_VISIT(traverse_module_state->__pyx_tuple__38);
+  Py_VISIT(traverse_module_state->__pyx_tuple__40);
+  Py_VISIT(traverse_module_state->__pyx_tuple__42);
+  Py_VISIT(traverse_module_state->__pyx_tuple__44);
+  Py_VISIT(traverse_module_state->__pyx_tuple__46);
+  Py_VISIT(traverse_module_state->__pyx_tuple__48);
+  Py_VISIT(traverse_module_state->__pyx_tuple__50);
+  Py_VISIT(traverse_module_state->__pyx_tuple__52);
+  Py_VISIT(traverse_module_state->__pyx_tuple__54);
+  Py_VISIT(traverse_module_state->__pyx_tuple__56);
+  Py_VISIT(traverse_module_state->__pyx_tuple__58);
+  Py_VISIT(traverse_module_state->__pyx_tuple__60);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__16);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__18);
   Py_VISIT(traverse_module_state->__pyx_codeobj__19);
   Py_VISIT(traverse_module_state->__pyx_codeobj__21);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__22);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__23);
   Py_VISIT(traverse_module_state->__pyx_codeobj__24);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__25);
   Py_VISIT(traverse_module_state->__pyx_codeobj__26);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__27);
   Py_VISIT(traverse_module_state->__pyx_codeobj__28);
   Py_VISIT(traverse_module_state->__pyx_codeobj__29);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__31);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__30);
   Py_VISIT(traverse_module_state->__pyx_codeobj__32);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__33);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__34);
   Py_VISIT(traverse_module_state->__pyx_codeobj__35);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__36);
   Py_VISIT(traverse_module_state->__pyx_codeobj__37);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__38);
   Py_VISIT(traverse_module_state->__pyx_codeobj__39);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__40);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__42);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__44);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__46);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__48);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__50);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__52);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__54);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__56);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__58);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__60);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__41);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__43);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__45);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__47);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__49);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__51);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__53);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__55);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__57);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__59);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__61);
   Py_VISIT(traverse_module_state->__pyx_codeobj__62);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__64);
-  Py_VISIT(traverse_module_state->__pyx_codeobj__66);
   return 0;
 }
 #endif
@@ -3613,8 +3553,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_ptype_10sparse_sim_PauliSum __pyx_mstate_global->__pyx_ptype_10sparse_sim_PauliSum
 #define __pyx_ptype_10sparse_sim___pyx_scope_struct__genexpr __pyx_mstate_global->__pyx_ptype_10sparse_sim___pyx_scope_struct__genexpr
 #define __pyx_kp_s_Each_Pauli_character_must_be_a_s __pyx_mstate_global->__pyx_kp_s_Each_Pauli_character_must_be_a_s
-#define __pyx_kp_s_Error_Failed_to_convert_PauliStr __pyx_mstate_global->__pyx_kp_s_Error_Failed_to_convert_PauliStr
-#define __pyx_kp_u_Error_Invalid_PauliString_format __pyx_mstate_global->__pyx_kp_u_Error_Invalid_PauliString_format
 #define __pyx_kp_u_Error_PauliString __pyx_mstate_global->__pyx_kp_u_Error_PauliString
 #define __pyx_kp_s_Failed_to_allocate_PauliStringC __pyx_mstate_global->__pyx_kp_s_Failed_to_allocate_PauliStringC
 #define __pyx_kp_s_Failed_to_allocate_PauliSum __pyx_mstate_global->__pyx_kp_s_Failed_to_allocate_PauliSum
@@ -3646,10 +3584,9 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_s_Wavefunction_is_empty __pyx_mstate_global->__pyx_kp_s_Wavefunction_is_empty
 #define __pyx_n_s_Wavefunction_norm __pyx_mstate_global->__pyx_n_s_Wavefunction_norm
 #define __pyx_n_s_Wavefunction_s __pyx_mstate_global->__pyx_n_s_Wavefunction_s
-#define __pyx_kp_u__16 __pyx_mstate_global->__pyx_kp_u__16
-#define __pyx_n_s__17 __pyx_mstate_global->__pyx_n_s__17
+#define __pyx_n_s__14 __pyx_mstate_global->__pyx_n_s__14
 #define __pyx_kp_s__6 __pyx_mstate_global->__pyx_kp_s__6
-#define __pyx_n_s__67 __pyx_mstate_global->__pyx_n_s__67
+#define __pyx_n_s__63 __pyx_mstate_global->__pyx_n_s__63
 #define __pyx_n_s_adjoint __pyx_mstate_global->__pyx_n_s_adjoint
 #define __pyx_n_s_append_pauli_string __pyx_mstate_global->__pyx_n_s_append_pauli_string
 #define __pyx_n_s_append_slater_determinant __pyx_mstate_global->__pyx_n_s_append_slater_determinant
@@ -3669,14 +3606,10 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_u_enable __pyx_mstate_global->__pyx_kp_u_enable
 #define __pyx_n_s_encode __pyx_mstate_global->__pyx_n_s_encode
 #define __pyx_n_s_epsilon __pyx_mstate_global->__pyx_n_s_epsilon
-#define __pyx_n_s_evaluate_pauli_sum_expectation __pyx_mstate_global->__pyx_n_s_evaluate_pauli_sum_expectation
 #define __pyx_n_s_exp __pyx_mstate_global->__pyx_n_s_exp
 #define __pyx_kp_u_gc __pyx_mstate_global->__pyx_kp_u_gc
 #define __pyx_n_s_genexpr __pyx_mstate_global->__pyx_n_s_genexpr
 #define __pyx_n_s_getstate __pyx_mstate_global->__pyx_n_s_getstate
-#define __pyx_n_s_group __pyx_mstate_global->__pyx_n_s_group
-#define __pyx_n_s_here1 __pyx_mstate_global->__pyx_n_s_here1
-#define __pyx_n_s_here2 __pyx_mstate_global->__pyx_n_s_here2
 #define __pyx_n_s_import __pyx_mstate_global->__pyx_n_s_import
 #define __pyx_n_s_init___locals_genexpr __pyx_mstate_global->__pyx_n_s_init___locals_genexpr
 #define __pyx_n_s_initializing __pyx_mstate_global->__pyx_n_s_initializing
@@ -3688,7 +3621,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_ket __pyx_mstate_global->__pyx_n_s_ket
 #define __pyx_n_s_left __pyx_mstate_global->__pyx_n_s_left
 #define __pyx_n_s_main __pyx_mstate_global->__pyx_n_s_main
-#define __pyx_n_s_match __pyx_mstate_global->__pyx_n_s_match
 #define __pyx_n_s_name __pyx_mstate_global->__pyx_n_s_name
 #define __pyx_n_s_new_pString __pyx_mstate_global->__pyx_n_s_new_pString
 #define __pyx_n_s_new_pSum __pyx_mstate_global->__pyx_n_s_new_pSum
@@ -3700,12 +3632,13 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_p __pyx_mstate_global->__pyx_n_s_p
 #define __pyx_n_s_pString __pyx_mstate_global->__pyx_n_s_pString
 #define __pyx_n_s_pSum __pyx_mstate_global->__pyx_n_s_pSum
-#define __pyx_n_s_pauli_str __pyx_mstate_global->__pyx_n_s_pauli_str
 #define __pyx_n_s_pauli_string_multiplication __pyx_mstate_global->__pyx_n_s_pauli_string_multiplication
 #define __pyx_kp_s_pauli_string_scalar_multiplicati __pyx_mstate_global->__pyx_kp_s_pauli_string_scalar_multiplicati
 #define __pyx_n_s_pauli_string_scalar_multiplicati_2 __pyx_mstate_global->__pyx_n_s_pauli_string_scalar_multiplicati_2
 #define __pyx_n_s_pauli_sum_addition __pyx_mstate_global->__pyx_n_s_pauli_sum_addition
+#define __pyx_kp_s_pauli_sum_addition_c_returned_NU __pyx_mstate_global->__pyx_kp_s_pauli_sum_addition_c_returned_NU
 #define __pyx_n_s_pauli_sum_collect_measurements __pyx_mstate_global->__pyx_n_s_pauli_sum_collect_measurements
+#define __pyx_n_s_pauli_sum_evaluate_expectation __pyx_mstate_global->__pyx_n_s_pauli_sum_evaluate_expectation
 #define __pyx_n_s_pauli_sum_multiplication __pyx_mstate_global->__pyx_n_s_pauli_sum_multiplication
 #define __pyx_kp_s_pauli_sum_multiplication_c_retur __pyx_mstate_global->__pyx_kp_s_pauli_sum_multiplication_c_retur
 #define __pyx_kp_s_pauli_sum_scalar_multiplication __pyx_mstate_global->__pyx_kp_s_pauli_sum_scalar_multiplication
@@ -3724,7 +3657,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_reduce_ex __pyx_mstate_global->__pyx_n_s_reduce_ex
 #define __pyx_n_s_right __pyx_mstate_global->__pyx_n_s_right
 #define __pyx_n_s_s __pyx_mstate_global->__pyx_n_s_s
-#define __pyx_kp_s_s_IXYZ __pyx_mstate_global->__pyx_kp_s_s_IXYZ
 #define __pyx_n_s_scalar __pyx_mstate_global->__pyx_n_s_scalar
 #define __pyx_n_s_sdet __pyx_mstate_global->__pyx_n_s_sdet
 #define __pyx_n_s_self __pyx_mstate_global->__pyx_n_s_self
@@ -3748,8 +3680,6 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_s_wavefunction_scalar_multiplicati __pyx_mstate_global->__pyx_kp_s_wavefunction_scalar_multiplicati
 #define __pyx_n_s_wavefunction_scalar_multiplicati_2 __pyx_mstate_global->__pyx_n_s_wavefunction_scalar_multiplicati_2
 #define __pyx_n_s_wfn __pyx_mstate_global->__pyx_n_s_wfn
-#define __pyx_int_1 __pyx_mstate_global->__pyx_int_1
-#define __pyx_int_2 __pyx_mstate_global->__pyx_int_2
 #define __pyx_tuple_ __pyx_mstate_global->__pyx_tuple_
 #define __pyx_tuple__2 __pyx_mstate_global->__pyx_tuple__2
 #define __pyx_tuple__3 __pyx_mstate_global->__pyx_tuple__3
@@ -3762,60 +3692,57 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_tuple__11 __pyx_mstate_global->__pyx_tuple__11
 #define __pyx_tuple__12 __pyx_mstate_global->__pyx_tuple__12
 #define __pyx_tuple__13 __pyx_mstate_global->__pyx_tuple__13
-#define __pyx_tuple__14 __pyx_mstate_global->__pyx_tuple__14
 #define __pyx_tuple__15 __pyx_mstate_global->__pyx_tuple__15
-#define __pyx_tuple__18 __pyx_mstate_global->__pyx_tuple__18
+#define __pyx_tuple__17 __pyx_mstate_global->__pyx_tuple__17
 #define __pyx_tuple__20 __pyx_mstate_global->__pyx_tuple__20
-#define __pyx_tuple__23 __pyx_mstate_global->__pyx_tuple__23
-#define __pyx_tuple__25 __pyx_mstate_global->__pyx_tuple__25
-#define __pyx_tuple__30 __pyx_mstate_global->__pyx_tuple__30
-#define __pyx_tuple__34 __pyx_mstate_global->__pyx_tuple__34
-#define __pyx_tuple__36 __pyx_mstate_global->__pyx_tuple__36
-#define __pyx_tuple__41 __pyx_mstate_global->__pyx_tuple__41
-#define __pyx_tuple__43 __pyx_mstate_global->__pyx_tuple__43
-#define __pyx_tuple__45 __pyx_mstate_global->__pyx_tuple__45
-#define __pyx_tuple__47 __pyx_mstate_global->__pyx_tuple__47
-#define __pyx_tuple__49 __pyx_mstate_global->__pyx_tuple__49
-#define __pyx_tuple__51 __pyx_mstate_global->__pyx_tuple__51
-#define __pyx_tuple__53 __pyx_mstate_global->__pyx_tuple__53
-#define __pyx_tuple__55 __pyx_mstate_global->__pyx_tuple__55
-#define __pyx_tuple__57 __pyx_mstate_global->__pyx_tuple__57
-#define __pyx_tuple__59 __pyx_mstate_global->__pyx_tuple__59
-#define __pyx_tuple__61 __pyx_mstate_global->__pyx_tuple__61
-#define __pyx_tuple__63 __pyx_mstate_global->__pyx_tuple__63
-#define __pyx_tuple__65 __pyx_mstate_global->__pyx_tuple__65
+#define __pyx_tuple__22 __pyx_mstate_global->__pyx_tuple__22
+#define __pyx_tuple__27 __pyx_mstate_global->__pyx_tuple__27
+#define __pyx_tuple__31 __pyx_mstate_global->__pyx_tuple__31
+#define __pyx_tuple__33 __pyx_mstate_global->__pyx_tuple__33
+#define __pyx_tuple__38 __pyx_mstate_global->__pyx_tuple__38
+#define __pyx_tuple__40 __pyx_mstate_global->__pyx_tuple__40
+#define __pyx_tuple__42 __pyx_mstate_global->__pyx_tuple__42
+#define __pyx_tuple__44 __pyx_mstate_global->__pyx_tuple__44
+#define __pyx_tuple__46 __pyx_mstate_global->__pyx_tuple__46
+#define __pyx_tuple__48 __pyx_mstate_global->__pyx_tuple__48
+#define __pyx_tuple__50 __pyx_mstate_global->__pyx_tuple__50
+#define __pyx_tuple__52 __pyx_mstate_global->__pyx_tuple__52
+#define __pyx_tuple__54 __pyx_mstate_global->__pyx_tuple__54
+#define __pyx_tuple__56 __pyx_mstate_global->__pyx_tuple__56
+#define __pyx_tuple__58 __pyx_mstate_global->__pyx_tuple__58
+#define __pyx_tuple__60 __pyx_mstate_global->__pyx_tuple__60
+#define __pyx_codeobj__16 __pyx_mstate_global->__pyx_codeobj__16
+#define __pyx_codeobj__18 __pyx_mstate_global->__pyx_codeobj__18
 #define __pyx_codeobj__19 __pyx_mstate_global->__pyx_codeobj__19
 #define __pyx_codeobj__21 __pyx_mstate_global->__pyx_codeobj__21
-#define __pyx_codeobj__22 __pyx_mstate_global->__pyx_codeobj__22
+#define __pyx_codeobj__23 __pyx_mstate_global->__pyx_codeobj__23
 #define __pyx_codeobj__24 __pyx_mstate_global->__pyx_codeobj__24
+#define __pyx_codeobj__25 __pyx_mstate_global->__pyx_codeobj__25
 #define __pyx_codeobj__26 __pyx_mstate_global->__pyx_codeobj__26
-#define __pyx_codeobj__27 __pyx_mstate_global->__pyx_codeobj__27
 #define __pyx_codeobj__28 __pyx_mstate_global->__pyx_codeobj__28
 #define __pyx_codeobj__29 __pyx_mstate_global->__pyx_codeobj__29
-#define __pyx_codeobj__31 __pyx_mstate_global->__pyx_codeobj__31
+#define __pyx_codeobj__30 __pyx_mstate_global->__pyx_codeobj__30
 #define __pyx_codeobj__32 __pyx_mstate_global->__pyx_codeobj__32
-#define __pyx_codeobj__33 __pyx_mstate_global->__pyx_codeobj__33
+#define __pyx_codeobj__34 __pyx_mstate_global->__pyx_codeobj__34
 #define __pyx_codeobj__35 __pyx_mstate_global->__pyx_codeobj__35
+#define __pyx_codeobj__36 __pyx_mstate_global->__pyx_codeobj__36
 #define __pyx_codeobj__37 __pyx_mstate_global->__pyx_codeobj__37
-#define __pyx_codeobj__38 __pyx_mstate_global->__pyx_codeobj__38
 #define __pyx_codeobj__39 __pyx_mstate_global->__pyx_codeobj__39
-#define __pyx_codeobj__40 __pyx_mstate_global->__pyx_codeobj__40
-#define __pyx_codeobj__42 __pyx_mstate_global->__pyx_codeobj__42
-#define __pyx_codeobj__44 __pyx_mstate_global->__pyx_codeobj__44
-#define __pyx_codeobj__46 __pyx_mstate_global->__pyx_codeobj__46
-#define __pyx_codeobj__48 __pyx_mstate_global->__pyx_codeobj__48
-#define __pyx_codeobj__50 __pyx_mstate_global->__pyx_codeobj__50
-#define __pyx_codeobj__52 __pyx_mstate_global->__pyx_codeobj__52
-#define __pyx_codeobj__54 __pyx_mstate_global->__pyx_codeobj__54
-#define __pyx_codeobj__56 __pyx_mstate_global->__pyx_codeobj__56
-#define __pyx_codeobj__58 __pyx_mstate_global->__pyx_codeobj__58
-#define __pyx_codeobj__60 __pyx_mstate_global->__pyx_codeobj__60
+#define __pyx_codeobj__41 __pyx_mstate_global->__pyx_codeobj__41
+#define __pyx_codeobj__43 __pyx_mstate_global->__pyx_codeobj__43
+#define __pyx_codeobj__45 __pyx_mstate_global->__pyx_codeobj__45
+#define __pyx_codeobj__47 __pyx_mstate_global->__pyx_codeobj__47
+#define __pyx_codeobj__49 __pyx_mstate_global->__pyx_codeobj__49
+#define __pyx_codeobj__51 __pyx_mstate_global->__pyx_codeobj__51
+#define __pyx_codeobj__53 __pyx_mstate_global->__pyx_codeobj__53
+#define __pyx_codeobj__55 __pyx_mstate_global->__pyx_codeobj__55
+#define __pyx_codeobj__57 __pyx_mstate_global->__pyx_codeobj__57
+#define __pyx_codeobj__59 __pyx_mstate_global->__pyx_codeobj__59
+#define __pyx_codeobj__61 __pyx_mstate_global->__pyx_codeobj__61
 #define __pyx_codeobj__62 __pyx_mstate_global->__pyx_codeobj__62
-#define __pyx_codeobj__64 __pyx_mstate_global->__pyx_codeobj__64
-#define __pyx_codeobj__66 __pyx_mstate_global->__pyx_codeobj__66
 /* #### Code section: module_code ### */
 
-/* "sparse_sim.pyx":121
+/* "sparse_sim.pyx":123
  *     cdef bint _in_wfn
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -3855,7 +3782,7 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant___cinit__(CYTHON_UNUSED str
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":124
+/* "sparse_sim.pyx":126
  *         pass
  * 
  *     def __init__(self, unsigned int N, double complex coef, list orbitals):             # <<<<<<<<<<<<<<
@@ -3905,7 +3832,7 @@ static int __pyx_pw_10sparse_sim_17SlaterDeterminant_3__init__(PyObject *__pyx_v
           (void)__Pyx_Arg_NewRef_VARARGS(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 124, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -3913,9 +3840,9 @@ static int __pyx_pw_10sparse_sim_17SlaterDeterminant_3__init__(PyObject *__pyx_v
           (void)__Pyx_Arg_NewRef_VARARGS(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 124, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 124, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 126, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -3923,14 +3850,14 @@ static int __pyx_pw_10sparse_sim_17SlaterDeterminant_3__init__(PyObject *__pyx_v
           (void)__Pyx_Arg_NewRef_VARARGS(values[2]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 124, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 124, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 126, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 124, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 126, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
@@ -3939,13 +3866,13 @@ static int __pyx_pw_10sparse_sim_17SlaterDeterminant_3__init__(PyObject *__pyx_v
       values[1] = __Pyx_Arg_VARARGS(__pyx_args, 1);
       values[2] = __Pyx_Arg_VARARGS(__pyx_args, 2);
     }
-    __pyx_v_N = __Pyx_PyInt_As_unsigned_int(values[0]); if (unlikely((__pyx_v_N == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 124, __pyx_L3_error)
-    __pyx_v_coef = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 124, __pyx_L3_error)
+    __pyx_v_N = __Pyx_PyInt_As_unsigned_int(values[0]); if (unlikely((__pyx_v_N == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L3_error)
+    __pyx_v_coef = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 126, __pyx_L3_error)
     __pyx_v_orbitals = ((PyObject*)values[2]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 124, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 126, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3959,7 +3886,7 @@ static int __pyx_pw_10sparse_sim_17SlaterDeterminant_3__init__(PyObject *__pyx_v
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_orbitals), (&PyList_Type), 1, "orbitals", 1))) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_orbitals), (&PyList_Type), 1, "orbitals", 1))) __PYX_ERR(0, 126, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(((struct __pyx_obj_10sparse_sim_SlaterDeterminant *)__pyx_v_self), __pyx_v_N, __pyx_v_coef, __pyx_v_orbitals);
 
   /* function exit code */
@@ -3994,17 +3921,17 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 1);
 
-  /* "sparse_sim.pyx":128
+  /* "sparse_sim.pyx":129
+ *         cdef unsigned int *c_orbitals
  * 
- *         # Allocate memory for C array
  *         c_orbitals = <unsigned int *> malloc(N * sizeof(unsigned int))             # <<<<<<<<<<<<<<
  *         if not c_orbitals:
  *             raise MemoryError("Failed to allocate memory for orbitals array")
  */
   __pyx_v_c_orbitals = ((unsigned int *)malloc((__pyx_v_N * (sizeof(unsigned int)))));
 
-  /* "sparse_sim.pyx":129
- *         # Allocate memory for C array
+  /* "sparse_sim.pyx":130
+ * 
  *         c_orbitals = <unsigned int *> malloc(N * sizeof(unsigned int))
  *         if not c_orbitals:             # <<<<<<<<<<<<<<
  *             raise MemoryError("Failed to allocate memory for orbitals array")
@@ -4013,21 +3940,21 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
   __pyx_t_1 = (!(__pyx_v_c_orbitals != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":130
+    /* "sparse_sim.pyx":131
  *         c_orbitals = <unsigned int *> malloc(N * sizeof(unsigned int))
  *         if not c_orbitals:
  *             raise MemoryError("Failed to allocate memory for orbitals array")             # <<<<<<<<<<<<<<
  * 
  *         cdef int i
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 130, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 130, __pyx_L1_error)
+    __PYX_ERR(0, 131, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":129
- *         # Allocate memory for C array
+    /* "sparse_sim.pyx":130
+ * 
  *         c_orbitals = <unsigned int *> malloc(N * sizeof(unsigned int))
  *         if not c_orbitals:             # <<<<<<<<<<<<<<
  *             raise MemoryError("Failed to allocate memory for orbitals array")
@@ -4035,7 +3962,7 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
  */
   }
 
-  /* "sparse_sim.pyx":133
+  /* "sparse_sim.pyx":134
  * 
  *         cdef int i
  *         for i in range(int(N)):             # <<<<<<<<<<<<<<
@@ -4047,7 +3974,7 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
   for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
     __pyx_v_i = __pyx_t_5;
 
-    /* "sparse_sim.pyx":134
+    /* "sparse_sim.pyx":135
  *         cdef int i
  *         for i in range(int(N)):
  *             c_orbitals[i] = orbitals[i]             # <<<<<<<<<<<<<<
@@ -4056,16 +3983,16 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
  */
     if (unlikely(__pyx_v_orbitals == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 134, __pyx_L1_error)
+      __PYX_ERR(0, 135, __pyx_L1_error)
     }
-    __pyx_t_2 = __Pyx_GetItemInt_List(__pyx_v_orbitals, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 1, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt_List(__pyx_v_orbitals, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 1, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 135, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 135, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     (__pyx_v_c_orbitals[__pyx_v_i]) = __pyx_t_6;
   }
 
-  /* "sparse_sim.pyx":136
+  /* "sparse_sim.pyx":137
  *             c_orbitals[i] = orbitals[i]
  * 
  *         cdef SlaterDeterminantC *c_sd = slater_determinant_init_c(N, coef, c_orbitals)             # <<<<<<<<<<<<<<
@@ -4074,7 +4001,7 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
  */
   __pyx_v_c_sd = slater_determinant_init_c(__pyx_v_N, __pyx_v_coef, __pyx_v_c_orbitals);
 
-  /* "sparse_sim.pyx":137
+  /* "sparse_sim.pyx":138
  * 
  *         cdef SlaterDeterminantC *c_sd = slater_determinant_init_c(N, coef, c_orbitals)
  *         if not c_sd:             # <<<<<<<<<<<<<<
@@ -4084,20 +4011,20 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
   __pyx_t_1 = (!(__pyx_v_c_sd != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":138
+    /* "sparse_sim.pyx":139
  *         cdef SlaterDeterminantC *c_sd = slater_determinant_init_c(N, coef, c_orbitals)
  *         if not c_sd:
  *             raise MemoryError("Failed to allocate SlaterDeterminantC")             # <<<<<<<<<<<<<<
  *         self._c_sd = <uintptr_t> c_sd
  *         self._in_wfn = False
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 138, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 139, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 138, __pyx_L1_error)
+    __PYX_ERR(0, 139, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":137
+    /* "sparse_sim.pyx":138
  * 
  *         cdef SlaterDeterminantC *c_sd = slater_determinant_init_c(N, coef, c_orbitals)
  *         if not c_sd:             # <<<<<<<<<<<<<<
@@ -4106,7 +4033,7 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
  */
   }
 
-  /* "sparse_sim.pyx":139
+  /* "sparse_sim.pyx":140
  *         if not c_sd:
  *             raise MemoryError("Failed to allocate SlaterDeterminantC")
  *         self._c_sd = <uintptr_t> c_sd             # <<<<<<<<<<<<<<
@@ -4115,7 +4042,7 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
  */
   __pyx_v_self->_c_sd = ((uintptr_t)__pyx_v_c_sd);
 
-  /* "sparse_sim.pyx":140
+  /* "sparse_sim.pyx":141
  *             raise MemoryError("Failed to allocate SlaterDeterminantC")
  *         self._c_sd = <uintptr_t> c_sd
  *         self._in_wfn = False             # <<<<<<<<<<<<<<
@@ -4124,7 +4051,7 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
  */
   __pyx_v_self->_in_wfn = 0;
 
-  /* "sparse_sim.pyx":124
+  /* "sparse_sim.pyx":126
  *         pass
  * 
  *     def __init__(self, unsigned int N, double complex coef, list orbitals):             # <<<<<<<<<<<<<<
@@ -4144,7 +4071,7 @@ static int __pyx_pf_10sparse_sim_17SlaterDeterminant_2__init__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":143
+/* "sparse_sim.pyx":144
  * 
  *     @staticmethod
  *     cdef SlaterDeterminant _init_from_c(SlaterDeterminantC* ptr):             # <<<<<<<<<<<<<<
@@ -4162,31 +4089,31 @@ static struct __pyx_obj_10sparse_sim_SlaterDeterminant *__pyx_f_10sparse_sim_17S
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_init_from_c", 1);
 
-  /* "sparse_sim.pyx":148
+  /* "sparse_sim.pyx":149
  *         This bypasses the usual __cinit__ so we don't re-allocate or re-initialize.
  *         """
  *         cdef SlaterDeterminant sDet = SlaterDeterminant.__new__(SlaterDeterminant)             # <<<<<<<<<<<<<<
  *         sDet._c_sDet = <uintptr_t> ptr
  *         sDet._in_wfn = False
  */
-  __pyx_t_1 = ((PyObject *)__pyx_tp_new_10sparse_sim_SlaterDeterminant(((PyTypeObject *)__pyx_ptype_10sparse_sim_SlaterDeterminant), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_tp_new_10sparse_sim_SlaterDeterminant(((PyTypeObject *)__pyx_ptype_10sparse_sim_SlaterDeterminant), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_GOTREF((PyObject *)__pyx_t_1);
   __pyx_v_sDet = ((struct __pyx_obj_10sparse_sim_SlaterDeterminant *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sparse_sim.pyx":149
+  /* "sparse_sim.pyx":150
  *         """
  *         cdef SlaterDeterminant sDet = SlaterDeterminant.__new__(SlaterDeterminant)
  *         sDet._c_sDet = <uintptr_t> ptr             # <<<<<<<<<<<<<<
  *         sDet._in_wfn = False
  *         return sDet
  */
-  __pyx_t_1 = __Pyx_PyInt_FromSize_t(((uintptr_t)__pyx_v_ptr)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_FromSize_t(((uintptr_t)__pyx_v_ptr)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_sDet), __pyx_n_s_c_sDet, __pyx_t_1) < 0) __PYX_ERR(0, 149, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_sDet), __pyx_n_s_c_sDet, __pyx_t_1) < 0) __PYX_ERR(0, 150, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sparse_sim.pyx":150
+  /* "sparse_sim.pyx":151
  *         cdef SlaterDeterminant sDet = SlaterDeterminant.__new__(SlaterDeterminant)
  *         sDet._c_sDet = <uintptr_t> ptr
  *         sDet._in_wfn = False             # <<<<<<<<<<<<<<
@@ -4195,7 +4122,7 @@ static struct __pyx_obj_10sparse_sim_SlaterDeterminant *__pyx_f_10sparse_sim_17S
  */
   __pyx_v_sDet->_in_wfn = 0;
 
-  /* "sparse_sim.pyx":151
+  /* "sparse_sim.pyx":152
  *         sDet._c_sDet = <uintptr_t> ptr
  *         sDet._in_wfn = False
  *         return sDet             # <<<<<<<<<<<<<<
@@ -4207,7 +4134,7 @@ static struct __pyx_obj_10sparse_sim_SlaterDeterminant *__pyx_f_10sparse_sim_17S
   __pyx_r = __pyx_v_sDet;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":143
+  /* "sparse_sim.pyx":144
  * 
  *     @staticmethod
  *     cdef SlaterDeterminant _init_from_c(SlaterDeterminantC* ptr):             # <<<<<<<<<<<<<<
@@ -4227,7 +4154,7 @@ static struct __pyx_obj_10sparse_sim_SlaterDeterminant *__pyx_f_10sparse_sim_17S
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":153
+/* "sparse_sim.pyx":154
  *         return sDet
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -4251,7 +4178,7 @@ static void __pyx_pw_10sparse_sim_17SlaterDeterminant_5__dealloc__(PyObject *__p
 static void __pyx_pf_10sparse_sim_17SlaterDeterminant_4__dealloc__(struct __pyx_obj_10sparse_sim_SlaterDeterminant *__pyx_v_self) {
   int __pyx_t_1;
 
-  /* "sparse_sim.pyx":154
+  /* "sparse_sim.pyx":155
  * 
  *     def __dealloc__(self):
  *         if not self._in_wfn:             # <<<<<<<<<<<<<<
@@ -4261,7 +4188,7 @@ static void __pyx_pf_10sparse_sim_17SlaterDeterminant_4__dealloc__(struct __pyx_
   __pyx_t_1 = (!__pyx_v_self->_in_wfn);
   if (__pyx_t_1) {
 
-    /* "sparse_sim.pyx":155
+    /* "sparse_sim.pyx":156
  *     def __dealloc__(self):
  *         if not self._in_wfn:
  *             free_slater_determinant_c(<SlaterDeterminantC *> self._c_sd)             # <<<<<<<<<<<<<<
@@ -4270,7 +4197,7 @@ static void __pyx_pf_10sparse_sim_17SlaterDeterminant_4__dealloc__(struct __pyx_
  */
     free_slater_determinant_c(((struct SlaterDeterminantC *)__pyx_v_self->_c_sd));
 
-    /* "sparse_sim.pyx":154
+    /* "sparse_sim.pyx":155
  * 
  *     def __dealloc__(self):
  *         if not self._in_wfn:             # <<<<<<<<<<<<<<
@@ -4279,7 +4206,7 @@ static void __pyx_pf_10sparse_sim_17SlaterDeterminant_4__dealloc__(struct __pyx_
  */
   }
 
-  /* "sparse_sim.pyx":153
+  /* "sparse_sim.pyx":154
  *         return sDet
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -4290,7 +4217,7 @@ static void __pyx_pf_10sparse_sim_17SlaterDeterminant_4__dealloc__(struct __pyx_
   /* function exit code */
 }
 
-/* "sparse_sim.pyx":157
+/* "sparse_sim.pyx":158
  *             free_slater_determinant_c(<SlaterDeterminantC *> self._c_sd)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -4325,7 +4252,7 @@ static PyObject *__pyx_pf_10sparse_sim_17SlaterDeterminant_6__str__(struct __pyx
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__str__", 1);
 
-  /* "sparse_sim.pyx":158
+  /* "sparse_sim.pyx":159
  * 
  *     def __str__(self):
  *         cdef char *c_str = slater_determinant_to_string_c(<SlaterDeterminantC *> self._c_sd, b'k')             # <<<<<<<<<<<<<<
@@ -4334,20 +4261,20 @@ static PyObject *__pyx_pf_10sparse_sim_17SlaterDeterminant_6__str__(struct __pyx
  */
   __pyx_v_c_str = slater_determinant_to_string_c(((struct SlaterDeterminantC *)__pyx_v_self->_c_sd), 'k');
 
-  /* "sparse_sim.pyx":159
+  /* "sparse_sim.pyx":160
  *     def __str__(self):
  *         cdef char *c_str = slater_determinant_to_string_c(<SlaterDeterminantC *> self._c_sd, b'k')
  *         py_str = c_str.decode('utf-8')             # <<<<<<<<<<<<<<
  *         free(c_str)
  *         return py_str
  */
-  __pyx_t_1 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 159, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_1, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_1, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_py_str = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":160
+  /* "sparse_sim.pyx":161
  *         cdef char *c_str = slater_determinant_to_string_c(<SlaterDeterminantC *> self._c_sd, b'k')
  *         py_str = c_str.decode('utf-8')
  *         free(c_str)             # <<<<<<<<<<<<<<
@@ -4356,7 +4283,7 @@ static PyObject *__pyx_pf_10sparse_sim_17SlaterDeterminant_6__str__(struct __pyx
  */
   free(__pyx_v_c_str);
 
-  /* "sparse_sim.pyx":161
+  /* "sparse_sim.pyx":162
  *         py_str = c_str.decode('utf-8')
  *         free(c_str)
  *         return py_str             # <<<<<<<<<<<<<<
@@ -4368,7 +4295,7 @@ static PyObject *__pyx_pf_10sparse_sim_17SlaterDeterminant_6__str__(struct __pyx
   __pyx_r = __pyx_v_py_str;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":157
+  /* "sparse_sim.pyx":158
  *             free_slater_determinant_c(<SlaterDeterminantC *> self._c_sd)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -4602,7 +4529,7 @@ static PyObject *__pyx_pf_10sparse_sim_17SlaterDeterminant_10__setstate_cython__
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":167
+/* "sparse_sim.pyx":168
  *     cdef char bra_or_ket
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -4642,7 +4569,7 @@ static int __pyx_pf_10sparse_sim_12Wavefunction___cinit__(CYTHON_UNUSED struct _
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":170
+/* "sparse_sim.pyx":171
  *         pass
  * 
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -4686,7 +4613,7 @@ static int __pyx_pf_10sparse_sim_12Wavefunction_2__init__(struct __pyx_obj_10spa
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 1);
 
-  /* "sparse_sim.pyx":171
+  /* "sparse_sim.pyx":172
  * 
  *     def __init__(self):
  *         cdef WavefunctionC *c_wfn = wavefunction_init_c()             # <<<<<<<<<<<<<<
@@ -4695,7 +4622,7 @@ static int __pyx_pf_10sparse_sim_12Wavefunction_2__init__(struct __pyx_obj_10spa
  */
   __pyx_v_c_wfn = wavefunction_init_c();
 
-  /* "sparse_sim.pyx":172
+  /* "sparse_sim.pyx":173
  *     def __init__(self):
  *         cdef WavefunctionC *c_wfn = wavefunction_init_c()
  *         if not c_wfn:             # <<<<<<<<<<<<<<
@@ -4705,20 +4632,20 @@ static int __pyx_pf_10sparse_sim_12Wavefunction_2__init__(struct __pyx_obj_10spa
   __pyx_t_1 = (!(__pyx_v_c_wfn != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":173
+    /* "sparse_sim.pyx":174
  *         cdef WavefunctionC *c_wfn = wavefunction_init_c()
  *         if not c_wfn:
  *             raise MemoryError("Failed to allocate WavefunctionC")             # <<<<<<<<<<<<<<
  *         self._c_wfn = <uintptr_t> c_wfn
  *         self.bra_or_ket = b'k'[0]
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 173, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 173, __pyx_L1_error)
+    __PYX_ERR(0, 174, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":172
+    /* "sparse_sim.pyx":173
  *     def __init__(self):
  *         cdef WavefunctionC *c_wfn = wavefunction_init_c()
  *         if not c_wfn:             # <<<<<<<<<<<<<<
@@ -4727,7 +4654,7 @@ static int __pyx_pf_10sparse_sim_12Wavefunction_2__init__(struct __pyx_obj_10spa
  */
   }
 
-  /* "sparse_sim.pyx":174
+  /* "sparse_sim.pyx":175
  *         if not c_wfn:
  *             raise MemoryError("Failed to allocate WavefunctionC")
  *         self._c_wfn = <uintptr_t> c_wfn             # <<<<<<<<<<<<<<
@@ -4736,17 +4663,17 @@ static int __pyx_pf_10sparse_sim_12Wavefunction_2__init__(struct __pyx_obj_10spa
  */
   __pyx_v_self->_c_wfn = ((uintptr_t)__pyx_v_c_wfn);
 
-  /* "sparse_sim.pyx":175
+  /* "sparse_sim.pyx":176
  *             raise MemoryError("Failed to allocate WavefunctionC")
  *         self._c_wfn = <uintptr_t> c_wfn
  *         self.bra_or_ket = b'k'[0]             # <<<<<<<<<<<<<<
  * 
  *     @staticmethod
  */
-  __pyx_t_3 = __Pyx_PyBytes_GetItemInt(__pyx_n_b_k, 0, 1); if (unlikely(__pyx_t_3 == ((char)((char)-1)) && PyErr_Occurred())) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyBytes_GetItemInt(__pyx_n_b_k, 0, 1); if (unlikely(__pyx_t_3 == ((char)((char)-1)) && PyErr_Occurred())) __PYX_ERR(0, 176, __pyx_L1_error)
   __pyx_v_self->bra_or_ket = __pyx_t_3;
 
-  /* "sparse_sim.pyx":170
+  /* "sparse_sim.pyx":171
  *         pass
  * 
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -4766,7 +4693,7 @@ static int __pyx_pf_10sparse_sim_12Wavefunction_2__init__(struct __pyx_obj_10spa
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":178
+/* "sparse_sim.pyx":179
  * 
  *     @staticmethod
  *     cdef Wavefunction _init_from_c(WavefunctionC* ptr):             # <<<<<<<<<<<<<<
@@ -4785,19 +4712,19 @@ static struct __pyx_obj_10sparse_sim_Wavefunction *__pyx_f_10sparse_sim_12Wavefu
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_init_from_c", 1);
 
-  /* "sparse_sim.pyx":183
+  /* "sparse_sim.pyx":184
  *         This bypasses the usual __cinit__ so we don't re-allocate or re-initialize.
  *         """
  *         cdef Wavefunction wfn = Wavefunction.__new__(Wavefunction)             # <<<<<<<<<<<<<<
  *         wfn._c_wfn = <uintptr_t> ptr
  *         wfn.bra_or_ket = b'k'[0]
  */
-  __pyx_t_1 = ((PyObject *)__pyx_tp_new_10sparse_sim_Wavefunction(((PyTypeObject *)__pyx_ptype_10sparse_sim_Wavefunction), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_tp_new_10sparse_sim_Wavefunction(((PyTypeObject *)__pyx_ptype_10sparse_sim_Wavefunction), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_GOTREF((PyObject *)__pyx_t_1);
   __pyx_v_wfn = ((struct __pyx_obj_10sparse_sim_Wavefunction *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sparse_sim.pyx":184
+  /* "sparse_sim.pyx":185
  *         """
  *         cdef Wavefunction wfn = Wavefunction.__new__(Wavefunction)
  *         wfn._c_wfn = <uintptr_t> ptr             # <<<<<<<<<<<<<<
@@ -4806,17 +4733,17 @@ static struct __pyx_obj_10sparse_sim_Wavefunction *__pyx_f_10sparse_sim_12Wavefu
  */
   __pyx_v_wfn->_c_wfn = ((uintptr_t)__pyx_v_ptr);
 
-  /* "sparse_sim.pyx":185
+  /* "sparse_sim.pyx":186
  *         cdef Wavefunction wfn = Wavefunction.__new__(Wavefunction)
  *         wfn._c_wfn = <uintptr_t> ptr
  *         wfn.bra_or_ket = b'k'[0]             # <<<<<<<<<<<<<<
  *         return wfn
  * 
  */
-  __pyx_t_2 = __Pyx_PyBytes_GetItemInt(__pyx_n_b_k, 0, 1); if (unlikely(__pyx_t_2 == ((char)((char)-1)) && PyErr_Occurred())) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBytes_GetItemInt(__pyx_n_b_k, 0, 1); if (unlikely(__pyx_t_2 == ((char)((char)-1)) && PyErr_Occurred())) __PYX_ERR(0, 186, __pyx_L1_error)
   __pyx_v_wfn->bra_or_ket = __pyx_t_2;
 
-  /* "sparse_sim.pyx":186
+  /* "sparse_sim.pyx":187
  *         wfn._c_wfn = <uintptr_t> ptr
  *         wfn.bra_or_ket = b'k'[0]
  *         return wfn             # <<<<<<<<<<<<<<
@@ -4828,7 +4755,7 @@ static struct __pyx_obj_10sparse_sim_Wavefunction *__pyx_f_10sparse_sim_12Wavefu
   __pyx_r = __pyx_v_wfn;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":178
+  /* "sparse_sim.pyx":179
  * 
  *     @staticmethod
  *     cdef Wavefunction _init_from_c(WavefunctionC* ptr):             # <<<<<<<<<<<<<<
@@ -4848,7 +4775,7 @@ static struct __pyx_obj_10sparse_sim_Wavefunction *__pyx_f_10sparse_sim_12Wavefu
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":188
+/* "sparse_sim.pyx":189
  *         return wfn
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -4871,7 +4798,7 @@ static void __pyx_pw_10sparse_sim_12Wavefunction_5__dealloc__(PyObject *__pyx_v_
 
 static void __pyx_pf_10sparse_sim_12Wavefunction_4__dealloc__(struct __pyx_obj_10sparse_sim_Wavefunction *__pyx_v_self) {
 
-  /* "sparse_sim.pyx":189
+  /* "sparse_sim.pyx":190
  * 
  *     def __dealloc__(self):
  *         free_wavefunction_c(<WavefunctionC *> self._c_wfn)             # <<<<<<<<<<<<<<
@@ -4880,7 +4807,7 @@ static void __pyx_pf_10sparse_sim_12Wavefunction_4__dealloc__(struct __pyx_obj_1
  */
   free_wavefunction_c(((struct WavefunctionC *)__pyx_v_self->_c_wfn));
 
-  /* "sparse_sim.pyx":188
+  /* "sparse_sim.pyx":189
  *         return wfn
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -4891,7 +4818,7 @@ static void __pyx_pf_10sparse_sim_12Wavefunction_4__dealloc__(struct __pyx_obj_1
   /* function exit code */
 }
 
-/* "sparse_sim.pyx":191
+/* "sparse_sim.pyx":192
  *         free_wavefunction_c(<WavefunctionC *> self._c_wfn)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -4929,7 +4856,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_6__str__(struct __pyx_obj_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__str__", 1);
 
-  /* "sparse_sim.pyx":192
+  /* "sparse_sim.pyx":193
  * 
  *     def __str__(self):
  *         cdef char bra_or_ket = self.bra_or_ket             # <<<<<<<<<<<<<<
@@ -4939,7 +4866,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_6__str__(struct __pyx_obj_
   __pyx_t_1 = __pyx_v_self->bra_or_ket;
   __pyx_v_bra_or_ket = __pyx_t_1;
 
-  /* "sparse_sim.pyx":193
+  /* "sparse_sim.pyx":194
  *     def __str__(self):
  *         cdef char bra_or_ket = self.bra_or_ket
  *         if not self._c_wfn:             # <<<<<<<<<<<<<<
@@ -4949,7 +4876,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_6__str__(struct __pyx_obj_
   __pyx_t_2 = (!(__pyx_v_self->_c_wfn != 0));
   if (__pyx_t_2) {
 
-    /* "sparse_sim.pyx":194
+    /* "sparse_sim.pyx":195
  *         cdef char bra_or_ket = self.bra_or_ket
  *         if not self._c_wfn:
  *             return "Wavefunction is empty"             # <<<<<<<<<<<<<<
@@ -4961,7 +4888,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_6__str__(struct __pyx_obj_
     __pyx_r = __pyx_kp_s_Wavefunction_is_empty;
     goto __pyx_L0;
 
-    /* "sparse_sim.pyx":193
+    /* "sparse_sim.pyx":194
  *     def __str__(self):
  *         cdef char bra_or_ket = self.bra_or_ket
  *         if not self._c_wfn:             # <<<<<<<<<<<<<<
@@ -4970,7 +4897,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_6__str__(struct __pyx_obj_
  */
   }
 
-  /* "sparse_sim.pyx":195
+  /* "sparse_sim.pyx":196
  *         if not self._c_wfn:
  *             return "Wavefunction is empty"
  *         cdef char* c_str = wavefunction_to_string_c(<WavefunctionC *> self._c_wfn, bra_or_ket)             # <<<<<<<<<<<<<<
@@ -4979,20 +4906,20 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_6__str__(struct __pyx_obj_
  */
   __pyx_v_c_str = wavefunction_to_string_c(((struct WavefunctionC *)__pyx_v_self->_c_wfn), __pyx_v_bra_or_ket);
 
-  /* "sparse_sim.pyx":196
+  /* "sparse_sim.pyx":197
  *             return "Wavefunction is empty"
  *         cdef char* c_str = wavefunction_to_string_c(<WavefunctionC *> self._c_wfn, bra_or_ket)
  *         py_str = c_str.decode('utf-8')             # <<<<<<<<<<<<<<
  *         free(c_str)
  *         return py_str
  */
-  __pyx_t_3 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_3 == ((Py_ssize_t)-1))) __PYX_ERR(0, 196, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_3, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_3 == ((Py_ssize_t)-1))) __PYX_ERR(0, 197, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_3, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_v_py_str = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "sparse_sim.pyx":197
+  /* "sparse_sim.pyx":198
  *         cdef char* c_str = wavefunction_to_string_c(<WavefunctionC *> self._c_wfn, bra_or_ket)
  *         py_str = c_str.decode('utf-8')
  *         free(c_str)             # <<<<<<<<<<<<<<
@@ -5001,7 +4928,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_6__str__(struct __pyx_obj_
  */
   free(__pyx_v_c_str);
 
-  /* "sparse_sim.pyx":198
+  /* "sparse_sim.pyx":199
  *         py_str = c_str.decode('utf-8')
  *         free(c_str)
  *         return py_str             # <<<<<<<<<<<<<<
@@ -5013,7 +4940,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_6__str__(struct __pyx_obj_
   __pyx_r = __pyx_v_py_str;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":191
+  /* "sparse_sim.pyx":192
  *         free_wavefunction_c(<WavefunctionC *> self._c_wfn)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -5033,7 +4960,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_6__str__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":200
+/* "sparse_sim.pyx":201
  *         return py_str
  * 
  *     def norm(self):             # <<<<<<<<<<<<<<
@@ -5091,7 +5018,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_8norm(struct __pyx_obj_10s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("norm", 1);
 
-  /* "sparse_sim.pyx":201
+  /* "sparse_sim.pyx":202
  * 
  *     def norm(self):
  *         return wavefunction_norm_c(<WavefunctionC *> self._c_wfn)             # <<<<<<<<<<<<<<
@@ -5099,13 +5026,13 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_8norm(struct __pyx_obj_10s
  *     def append_slater_determinant(self, SlaterDeterminant sdet):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(wavefunction_norm_c(((struct WavefunctionC *)__pyx_v_self->_c_wfn))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(wavefunction_norm_c(((struct WavefunctionC *)__pyx_v_self->_c_wfn))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":200
+  /* "sparse_sim.pyx":201
  *         return py_str
  * 
  *     def norm(self):             # <<<<<<<<<<<<<<
@@ -5124,7 +5051,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_8norm(struct __pyx_obj_10s
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":203
+/* "sparse_sim.pyx":204
  *         return wavefunction_norm_c(<WavefunctionC *> self._c_wfn)
  * 
  *     def append_slater_determinant(self, SlaterDeterminant sdet):             # <<<<<<<<<<<<<<
@@ -5185,12 +5112,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 203, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 204, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "append_slater_determinant") < 0)) __PYX_ERR(0, 203, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "append_slater_determinant") < 0)) __PYX_ERR(0, 204, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -5201,7 +5128,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("append_slater_determinant", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 203, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("append_slater_determinant", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 204, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5215,7 +5142,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_sdet), __pyx_ptype_10sparse_sim_SlaterDeterminant, 1, "sdet", 0))) __PYX_ERR(0, 203, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_sdet), __pyx_ptype_10sparse_sim_SlaterDeterminant, 1, "sdet", 0))) __PYX_ERR(0, 204, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_12Wavefunction_10append_slater_determinant(((struct __pyx_obj_10sparse_sim_Wavefunction *)__pyx_v_self), __pyx_v_sdet);
 
   /* function exit code */
@@ -5238,7 +5165,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_10append_slater_determinan
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("append_slater_determinant", 1);
 
-  /* "sparse_sim.pyx":204
+  /* "sparse_sim.pyx":205
  * 
  *     def append_slater_determinant(self, SlaterDeterminant sdet):
  *         sdet._in_wfn = True             # <<<<<<<<<<<<<<
@@ -5247,7 +5174,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_10append_slater_determinan
  */
   __pyx_v_sdet->_in_wfn = 1;
 
-  /* "sparse_sim.pyx":205
+  /* "sparse_sim.pyx":206
  *     def append_slater_determinant(self, SlaterDeterminant sdet):
  *         sdet._in_wfn = True
  *         wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)             # <<<<<<<<<<<<<<
@@ -5256,7 +5183,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_10append_slater_determinan
  */
   wavefunction_append_slater_determinant_c(((struct WavefunctionC *)__pyx_v_self->_c_wfn), ((struct SlaterDeterminantC *)__pyx_v_sdet->_c_sd));
 
-  /* "sparse_sim.pyx":203
+  /* "sparse_sim.pyx":204
  *         return wavefunction_norm_c(<WavefunctionC *> self._c_wfn)
  * 
  *     def append_slater_determinant(self, SlaterDeterminant sdet):             # <<<<<<<<<<<<<<
@@ -5271,7 +5198,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_10append_slater_determinan
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":207
+/* "sparse_sim.pyx":208
  *         wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
@@ -5335,7 +5262,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_12adjoint(struct __pyx_obj
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("adjoint", 1);
 
-  /* "sparse_sim.pyx":208
+  /* "sparse_sim.pyx":209
  * 
  *     def adjoint(self):
  *         cdef WavefunctionC *new_wfn = wavefunction_adjoint_c(<WavefunctionC *> self._c_wfn)             # <<<<<<<<<<<<<<
@@ -5344,7 +5271,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_12adjoint(struct __pyx_obj
  */
   __pyx_v_new_wfn = wavefunction_adjoint_c(((struct WavefunctionC *)__pyx_v_self->_c_wfn));
 
-  /* "sparse_sim.pyx":209
+  /* "sparse_sim.pyx":210
  *     def adjoint(self):
  *         cdef WavefunctionC *new_wfn = wavefunction_adjoint_c(<WavefunctionC *> self._c_wfn)
  *         if not new_wfn:             # <<<<<<<<<<<<<<
@@ -5354,20 +5281,20 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_12adjoint(struct __pyx_obj
   __pyx_t_1 = (!(__pyx_v_new_wfn != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":210
+    /* "sparse_sim.pyx":211
  *         cdef WavefunctionC *new_wfn = wavefunction_adjoint_c(<WavefunctionC *> self._c_wfn)
  *         if not new_wfn:
  *             raise MemoryError("wavefunction_adjoint_c returned NULL")             # <<<<<<<<<<<<<<
  *         py_wfn = Wavefunction._init_from_c(new_wfn)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 210, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 210, __pyx_L1_error)
+    __PYX_ERR(0, 211, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":209
+    /* "sparse_sim.pyx":210
  *     def adjoint(self):
  *         cdef WavefunctionC *new_wfn = wavefunction_adjoint_c(<WavefunctionC *> self._c_wfn)
  *         if not new_wfn:             # <<<<<<<<<<<<<<
@@ -5376,47 +5303,47 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_12adjoint(struct __pyx_obj
  */
   }
 
-  /* "sparse_sim.pyx":211
+  /* "sparse_sim.pyx":212
  *         if not new_wfn:
  *             raise MemoryError("wavefunction_adjoint_c returned NULL")
  *         py_wfn = Wavefunction._init_from_c(new_wfn)             # <<<<<<<<<<<<<<
  * 
  *         if self.bra_or_ket == b'b'[0]:
  */
-  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_py_wfn = ((struct __pyx_obj_10sparse_sim_Wavefunction *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":213
+  /* "sparse_sim.pyx":214
  *         py_wfn = Wavefunction._init_from_c(new_wfn)
  * 
  *         if self.bra_or_ket == b'b'[0]:             # <<<<<<<<<<<<<<
  *             py_wfn.bra_or_ket = b'k'[0]
  *         else:
  */
-  __pyx_t_2 = __Pyx_PyInt_From_char(__pyx_v_self->bra_or_ket); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_char(__pyx_v_self->bra_or_ket); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 214, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_n_b_b, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(__pyx_n_b_b, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 214, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyObject_RichCompare(__pyx_t_2, __pyx_t_3, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_4 = PyObject_RichCompare(__pyx_t_2, __pyx_t_3, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 214, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_1 < 0))) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely((__pyx_t_1 < 0))) __PYX_ERR(0, 214, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_1) {
 
-    /* "sparse_sim.pyx":214
+    /* "sparse_sim.pyx":215
  * 
  *         if self.bra_or_ket == b'b'[0]:
  *             py_wfn.bra_or_ket = b'k'[0]             # <<<<<<<<<<<<<<
  *         else:
  *             py_wfn.bra_or_ket = b'b'[0]
  */
-    __pyx_t_5 = __Pyx_PyBytes_GetItemInt(__pyx_n_b_k, 0, 1); if (unlikely(__pyx_t_5 == ((char)((char)-1)) && PyErr_Occurred())) __PYX_ERR(0, 214, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyBytes_GetItemInt(__pyx_n_b_k, 0, 1); if (unlikely(__pyx_t_5 == ((char)((char)-1)) && PyErr_Occurred())) __PYX_ERR(0, 215, __pyx_L1_error)
     __pyx_v_py_wfn->bra_or_ket = __pyx_t_5;
 
-    /* "sparse_sim.pyx":213
+    /* "sparse_sim.pyx":214
  *         py_wfn = Wavefunction._init_from_c(new_wfn)
  * 
  *         if self.bra_or_ket == b'b'[0]:             # <<<<<<<<<<<<<<
@@ -5426,7 +5353,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_12adjoint(struct __pyx_obj
     goto __pyx_L4;
   }
 
-  /* "sparse_sim.pyx":216
+  /* "sparse_sim.pyx":217
  *             py_wfn.bra_or_ket = b'k'[0]
  *         else:
  *             py_wfn.bra_or_ket = b'b'[0]             # <<<<<<<<<<<<<<
@@ -5434,12 +5361,12 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_12adjoint(struct __pyx_obj
  * 
  */
   /*else*/ {
-    __pyx_t_5 = __Pyx_PyBytes_GetItemInt(__pyx_n_b_b, 0, 1); if (unlikely(__pyx_t_5 == ((char)((char)-1)) && PyErr_Occurred())) __PYX_ERR(0, 216, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyBytes_GetItemInt(__pyx_n_b_b, 0, 1); if (unlikely(__pyx_t_5 == ((char)((char)-1)) && PyErr_Occurred())) __PYX_ERR(0, 217, __pyx_L1_error)
     __pyx_v_py_wfn->bra_or_ket = __pyx_t_5;
   }
   __pyx_L4:;
 
-  /* "sparse_sim.pyx":217
+  /* "sparse_sim.pyx":218
  *         else:
  *             py_wfn.bra_or_ket = b'b'[0]
  *         return py_wfn             # <<<<<<<<<<<<<<
@@ -5451,7 +5378,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_12adjoint(struct __pyx_obj
   __pyx_r = ((PyObject *)__pyx_v_py_wfn);
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":207
+  /* "sparse_sim.pyx":208
  *         wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
@@ -5473,7 +5400,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_12adjoint(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":219
+/* "sparse_sim.pyx":220
  *         return py_wfn
  * 
  *     def s(self):             # <<<<<<<<<<<<<<
@@ -5531,7 +5458,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_14s(struct __pyx_obj_10spa
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("s", 1);
 
-  /* "sparse_sim.pyx":220
+  /* "sparse_sim.pyx":221
  * 
  *     def s(self):
  *         return (<WavefunctionC *> self._c_wfn).s             # <<<<<<<<<<<<<<
@@ -5539,13 +5466,13 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_14s(struct __pyx_obj_10spa
  * cdef class PauliString:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(((struct WavefunctionC *)__pyx_v_self->_c_wfn)->s); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(((struct WavefunctionC *)__pyx_v_self->_c_wfn)->s); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 221, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":219
+  /* "sparse_sim.pyx":220
  *         return py_wfn
  * 
  *     def s(self):             # <<<<<<<<<<<<<<
@@ -5778,7 +5705,7 @@ static PyObject *__pyx_pf_10sparse_sim_12Wavefunction_18__setstate_cython__(CYTH
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":226
+/* "sparse_sim.pyx":227
  *     cdef bint _in_sum
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -5818,12 +5745,12 @@ static int __pyx_pf_10sparse_sim_11PauliString___cinit__(CYTHON_UNUSED struct __
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":229
+/* "sparse_sim.pyx":230
  *         pass
  * 
  *     def __init__(self, unsigned int N, double complex coef, list paulis):             # <<<<<<<<<<<<<<
- *         # Ensure paulis is a list of single-character strings
  *         if any(len(p) != 1 for p in paulis):
+ *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")
  */
 
 /* Python wrapper */
@@ -5868,7 +5795,7 @@ static int __pyx_pw_10sparse_sim_11PauliString_3__init__(PyObject *__pyx_v_self,
           (void)__Pyx_Arg_NewRef_VARARGS(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 230, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -5876,9 +5803,9 @@ static int __pyx_pw_10sparse_sim_11PauliString_3__init__(PyObject *__pyx_v_self,
           (void)__Pyx_Arg_NewRef_VARARGS(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 230, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 229, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 230, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -5886,14 +5813,14 @@ static int __pyx_pw_10sparse_sim_11PauliString_3__init__(PyObject *__pyx_v_self,
           (void)__Pyx_Arg_NewRef_VARARGS(values[2]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 230, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 229, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 230, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 229, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "__init__") < 0)) __PYX_ERR(0, 230, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
@@ -5902,13 +5829,13 @@ static int __pyx_pw_10sparse_sim_11PauliString_3__init__(PyObject *__pyx_v_self,
       values[1] = __Pyx_Arg_VARARGS(__pyx_args, 1);
       values[2] = __Pyx_Arg_VARARGS(__pyx_args, 2);
     }
-    __pyx_v_N = __Pyx_PyInt_As_unsigned_int(values[0]); if (unlikely((__pyx_v_N == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L3_error)
-    __pyx_v_coef = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 229, __pyx_L3_error)
+    __pyx_v_N = __Pyx_PyInt_As_unsigned_int(values[0]); if (unlikely((__pyx_v_N == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 230, __pyx_L3_error)
+    __pyx_v_coef = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 230, __pyx_L3_error)
     __pyx_v_paulis = ((PyObject*)values[2]);
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 229, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 230, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -5922,7 +5849,7 @@ static int __pyx_pw_10sparse_sim_11PauliString_3__init__(PyObject *__pyx_v_self,
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_paulis), (&PyList_Type), 1, "paulis", 1))) __PYX_ERR(0, 229, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_paulis), (&PyList_Type), 1, "paulis", 1))) __PYX_ERR(0, 230, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_11PauliString_2__init__(((struct __pyx_obj_10sparse_sim_PauliString *)__pyx_v_self), __pyx_v_N, __pyx_v_coef, __pyx_v_paulis);
 
   /* function exit code */
@@ -5942,8 +5869,8 @@ static int __pyx_pw_10sparse_sim_11PauliString_3__init__(PyObject *__pyx_v_self,
 static PyObject *__pyx_gb_10sparse_sim_11PauliString_8__init___2generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
 /* "sparse_sim.pyx":231
+ * 
  *     def __init__(self, unsigned int N, double complex coef, list paulis):
- *         # Ensure paulis is a list of single-character strings
  *         if any(len(p) != 1 for p in paulis):             # <<<<<<<<<<<<<<
  *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")
  * 
@@ -6069,12 +5996,12 @@ static PyObject *__pyx_gb_10sparse_sim_11PauliString_8__init___2generator(__pyx_
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":229
+/* "sparse_sim.pyx":230
  *         pass
  * 
  *     def __init__(self, unsigned int N, double complex coef, list paulis):             # <<<<<<<<<<<<<<
- *         # Ensure paulis is a list of single-character strings
  *         if any(len(p) != 1 for p in paulis):
+ *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")
  */
 
 static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10sparse_sim_PauliString *__pyx_v_self, unsigned int __pyx_v_N, __pyx_t_double_complex __pyx_v_coef, PyObject *__pyx_v_paulis) {
@@ -6096,8 +6023,8 @@ static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10spar
   __Pyx_RefNannySetupContext("__init__", 1);
 
   /* "sparse_sim.pyx":231
+ * 
  *     def __init__(self, unsigned int N, double complex coef, list paulis):
- *         # Ensure paulis is a list of single-character strings
  *         if any(len(p) != 1 for p in paulis):             # <<<<<<<<<<<<<<
  *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")
  * 
@@ -6112,11 +6039,11 @@ static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10spar
   if (unlikely(__pyx_t_3)) {
 
     /* "sparse_sim.pyx":232
- *         # Ensure paulis is a list of single-character strings
+ *     def __init__(self, unsigned int N, double complex coef, list paulis):
  *         if any(len(p) != 1 for p in paulis):
  *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")             # <<<<<<<<<<<<<<
  * 
- *         # Convert list of strings into a C-compatible char* array
+ *         pauli_bytes = "".join(paulis).encode("utf-8")
  */
     __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -6125,24 +6052,24 @@ static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10spar
     __PYX_ERR(0, 232, __pyx_L1_error)
 
     /* "sparse_sim.pyx":231
+ * 
  *     def __init__(self, unsigned int N, double complex coef, list paulis):
- *         # Ensure paulis is a list of single-character strings
  *         if any(len(p) != 1 for p in paulis):             # <<<<<<<<<<<<<<
  *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")
  * 
  */
   }
 
-  /* "sparse_sim.pyx":235
+  /* "sparse_sim.pyx":234
+ *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")
  * 
- *         # Convert list of strings into a C-compatible char* array
- *         pauli_bytes = "".join(paulis).encode("utf-8")  # Convert list to bytes             # <<<<<<<<<<<<<<
- *         cdef char *c_paulis = pauli_bytes  # This works as a C string
+ *         pauli_bytes = "".join(paulis).encode("utf-8")             # <<<<<<<<<<<<<<
+ *         cdef char *c_paulis = pauli_bytes
  * 
  */
-  __pyx_t_1 = __Pyx_PyString_Join(__pyx_kp_s__6, __pyx_v_paulis); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 235, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyString_Join(__pyx_kp_s__6, __pyx_v_paulis); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 234, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_encode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 235, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_encode); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 234, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = NULL;
@@ -6163,34 +6090,34 @@ static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10spar
     PyObject *__pyx_callargs[2] = {__pyx_t_1, __pyx_kp_s_utf_8};
     __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_4, __pyx_callargs+1-__pyx_t_5, 1+__pyx_t_5);
     __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 235, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 234, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
   __pyx_v_pauli_bytes = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":236
- *         # Convert list of strings into a C-compatible char* array
- *         pauli_bytes = "".join(paulis).encode("utf-8")  # Convert list to bytes
- *         cdef char *c_paulis = pauli_bytes  # This works as a C string             # <<<<<<<<<<<<<<
+  /* "sparse_sim.pyx":235
  * 
- *         # Call the C function
+ *         pauli_bytes = "".join(paulis).encode("utf-8")
+ *         cdef char *c_paulis = pauli_bytes             # <<<<<<<<<<<<<<
+ * 
+ *         cdef PauliStringC *c_pString = pauli_string_init_as_chars_c(N, coef, c_paulis)
  */
-  __pyx_t_6 = __Pyx_PyObject_AsWritableString(__pyx_v_pauli_bytes); if (unlikely((!__pyx_t_6) && PyErr_Occurred())) __PYX_ERR(0, 236, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_AsWritableString(__pyx_v_pauli_bytes); if (unlikely((!__pyx_t_6) && PyErr_Occurred())) __PYX_ERR(0, 235, __pyx_L1_error)
   __pyx_v_c_paulis = __pyx_t_6;
 
-  /* "sparse_sim.pyx":239
+  /* "sparse_sim.pyx":237
+ *         cdef char *c_paulis = pauli_bytes
  * 
- *         # Call the C function
  *         cdef PauliStringC *c_pString = pauli_string_init_as_chars_c(N, coef, c_paulis)             # <<<<<<<<<<<<<<
  *         if not c_pString:
  *             raise MemoryError("Failed to allocate PauliStringC")
  */
   __pyx_v_c_pString = pauli_string_init_as_chars_c(__pyx_v_N, __pyx_v_coef, __pyx_v_c_paulis);
 
-  /* "sparse_sim.pyx":240
- *         # Call the C function
+  /* "sparse_sim.pyx":238
+ * 
  *         cdef PauliStringC *c_pString = pauli_string_init_as_chars_c(N, coef, c_paulis)
  *         if not c_pString:             # <<<<<<<<<<<<<<
  *             raise MemoryError("Failed to allocate PauliStringC")
@@ -6199,21 +6126,21 @@ static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10spar
   __pyx_t_3 = (!(__pyx_v_c_pString != 0));
   if (unlikely(__pyx_t_3)) {
 
-    /* "sparse_sim.pyx":241
+    /* "sparse_sim.pyx":239
  *         cdef PauliStringC *c_pString = pauli_string_init_as_chars_c(N, coef, c_paulis)
  *         if not c_pString:
  *             raise MemoryError("Failed to allocate PauliStringC")             # <<<<<<<<<<<<<<
  * 
  *         self._c_pString = <uintptr_t> c_pString
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 239, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 241, __pyx_L1_error)
+    __PYX_ERR(0, 239, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":240
- *         # Call the C function
+    /* "sparse_sim.pyx":238
+ * 
  *         cdef PauliStringC *c_pString = pauli_string_init_as_chars_c(N, coef, c_paulis)
  *         if not c_pString:             # <<<<<<<<<<<<<<
  *             raise MemoryError("Failed to allocate PauliStringC")
@@ -6221,7 +6148,7 @@ static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10spar
  */
   }
 
-  /* "sparse_sim.pyx":243
+  /* "sparse_sim.pyx":241
  *             raise MemoryError("Failed to allocate PauliStringC")
  * 
  *         self._c_pString = <uintptr_t> c_pString             # <<<<<<<<<<<<<<
@@ -6230,7 +6157,7 @@ static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10spar
  */
   __pyx_v_self->_c_pString = ((uintptr_t)__pyx_v_c_pString);
 
-  /* "sparse_sim.pyx":244
+  /* "sparse_sim.pyx":242
  * 
  *         self._c_pString = <uintptr_t> c_pString
  *         self._in_sum = False             # <<<<<<<<<<<<<<
@@ -6239,12 +6166,12 @@ static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10spar
  */
   __pyx_v_self->_in_sum = 0;
 
-  /* "sparse_sim.pyx":229
+  /* "sparse_sim.pyx":230
  *         pass
  * 
  *     def __init__(self, unsigned int N, double complex coef, list paulis):             # <<<<<<<<<<<<<<
- *         # Ensure paulis is a list of single-character strings
  *         if any(len(p) != 1 for p in paulis):
+ *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")
  */
 
   /* function exit code */
@@ -6263,7 +6190,7 @@ static int __pyx_pf_10sparse_sim_11PauliString_2__init__(struct __pyx_obj_10spar
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":247
+/* "sparse_sim.pyx":245
  * 
  *     @staticmethod
  *     cdef PauliString _init_from_c(PauliStringC* ptr):             # <<<<<<<<<<<<<<
@@ -6281,19 +6208,19 @@ static struct __pyx_obj_10sparse_sim_PauliString *__pyx_f_10sparse_sim_11PauliSt
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_init_from_c", 1);
 
-  /* "sparse_sim.pyx":252
+  /* "sparse_sim.pyx":250
  *         This bypasses the usual __cinit__ so we don't re-allocate or re-initialize.
  *         """
  *         cdef PauliString pString = PauliString.__new__(PauliString)             # <<<<<<<<<<<<<<
  *         pString._c_pString = <uintptr_t> ptr
  *         pString._in_sum = False
  */
-  __pyx_t_1 = ((PyObject *)__pyx_tp_new_10sparse_sim_PauliString(((PyTypeObject *)__pyx_ptype_10sparse_sim_PauliString), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_tp_new_10sparse_sim_PauliString(((PyTypeObject *)__pyx_ptype_10sparse_sim_PauliString), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF((PyObject *)__pyx_t_1);
   __pyx_v_pString = ((struct __pyx_obj_10sparse_sim_PauliString *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sparse_sim.pyx":253
+  /* "sparse_sim.pyx":251
  *         """
  *         cdef PauliString pString = PauliString.__new__(PauliString)
  *         pString._c_pString = <uintptr_t> ptr             # <<<<<<<<<<<<<<
@@ -6302,7 +6229,7 @@ static struct __pyx_obj_10sparse_sim_PauliString *__pyx_f_10sparse_sim_11PauliSt
  */
   __pyx_v_pString->_c_pString = ((uintptr_t)__pyx_v_ptr);
 
-  /* "sparse_sim.pyx":254
+  /* "sparse_sim.pyx":252
  *         cdef PauliString pString = PauliString.__new__(PauliString)
  *         pString._c_pString = <uintptr_t> ptr
  *         pString._in_sum = False             # <<<<<<<<<<<<<<
@@ -6311,7 +6238,7 @@ static struct __pyx_obj_10sparse_sim_PauliString *__pyx_f_10sparse_sim_11PauliSt
  */
   __pyx_v_pString->_in_sum = 0;
 
-  /* "sparse_sim.pyx":255
+  /* "sparse_sim.pyx":253
  *         pString._c_pString = <uintptr_t> ptr
  *         pString._in_sum = False
  *         return pString             # <<<<<<<<<<<<<<
@@ -6323,7 +6250,7 @@ static struct __pyx_obj_10sparse_sim_PauliString *__pyx_f_10sparse_sim_11PauliSt
   __pyx_r = __pyx_v_pString;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":247
+  /* "sparse_sim.pyx":245
  * 
  *     @staticmethod
  *     cdef PauliString _init_from_c(PauliStringC* ptr):             # <<<<<<<<<<<<<<
@@ -6343,7 +6270,7 @@ static struct __pyx_obj_10sparse_sim_PauliString *__pyx_f_10sparse_sim_11PauliSt
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":257
+/* "sparse_sim.pyx":255
  *         return pString
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -6367,7 +6294,7 @@ static void __pyx_pw_10sparse_sim_11PauliString_5__dealloc__(PyObject *__pyx_v_s
 static void __pyx_pf_10sparse_sim_11PauliString_4__dealloc__(struct __pyx_obj_10sparse_sim_PauliString *__pyx_v_self) {
   int __pyx_t_1;
 
-  /* "sparse_sim.pyx":258
+  /* "sparse_sim.pyx":256
  * 
  *     def __dealloc__(self):
  *         if not self._in_sum:             # <<<<<<<<<<<<<<
@@ -6377,7 +6304,7 @@ static void __pyx_pf_10sparse_sim_11PauliString_4__dealloc__(struct __pyx_obj_10
   __pyx_t_1 = (!__pyx_v_self->_in_sum);
   if (__pyx_t_1) {
 
-    /* "sparse_sim.pyx":259
+    /* "sparse_sim.pyx":257
  *     def __dealloc__(self):
  *         if not self._in_sum:
  *             free_pauli_string_c(<PauliStringC *> self._c_pString)             # <<<<<<<<<<<<<<
@@ -6386,7 +6313,7 @@ static void __pyx_pf_10sparse_sim_11PauliString_4__dealloc__(struct __pyx_obj_10
  */
     free_pauli_string_c(((struct PauliStringC *)__pyx_v_self->_c_pString));
 
-    /* "sparse_sim.pyx":258
+    /* "sparse_sim.pyx":256
  * 
  *     def __dealloc__(self):
  *         if not self._in_sum:             # <<<<<<<<<<<<<<
@@ -6395,7 +6322,7 @@ static void __pyx_pf_10sparse_sim_11PauliString_4__dealloc__(struct __pyx_obj_10
  */
   }
 
-  /* "sparse_sim.pyx":257
+  /* "sparse_sim.pyx":255
  *         return pString
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -6406,7 +6333,7 @@ static void __pyx_pf_10sparse_sim_11PauliString_4__dealloc__(struct __pyx_obj_10
   /* function exit code */
 }
 
-/* "sparse_sim.pyx":261
+/* "sparse_sim.pyx":259
  *             free_pauli_string_c(<PauliStringC *> self._c_pString)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -6441,7 +6368,7 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_6__str__(struct __pyx_obj_1
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__str__", 1);
 
-  /* "sparse_sim.pyx":262
+  /* "sparse_sim.pyx":260
  * 
  *     def __str__(self):
  *         cdef char *c_str = pauli_string_to_string_c(<PauliStringC *> self._c_pString)             # <<<<<<<<<<<<<<
@@ -6450,20 +6377,20 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_6__str__(struct __pyx_obj_1
  */
   __pyx_v_c_str = pauli_string_to_string_c(((struct PauliStringC *)__pyx_v_self->_c_pString));
 
-  /* "sparse_sim.pyx":263
+  /* "sparse_sim.pyx":261
  *     def __str__(self):
  *         cdef char *c_str = pauli_string_to_string_c(<PauliStringC *> self._c_pString)
  *         py_str = c_str.decode('utf-8')             # <<<<<<<<<<<<<<
  *         free(c_str)
  *         return py_str
  */
-  __pyx_t_1 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 263, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_1, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 263, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 261, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_1, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 261, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_py_str = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":264
+  /* "sparse_sim.pyx":262
  *         cdef char *c_str = pauli_string_to_string_c(<PauliStringC *> self._c_pString)
  *         py_str = c_str.decode('utf-8')
  *         free(c_str)             # <<<<<<<<<<<<<<
@@ -6472,7 +6399,7 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_6__str__(struct __pyx_obj_1
  */
   free(__pyx_v_c_str);
 
-  /* "sparse_sim.pyx":265
+  /* "sparse_sim.pyx":263
  *         py_str = c_str.decode('utf-8')
  *         free(c_str)
  *         return py_str             # <<<<<<<<<<<<<<
@@ -6484,7 +6411,7 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_6__str__(struct __pyx_obj_1
   __pyx_r = __pyx_v_py_str;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":261
+  /* "sparse_sim.pyx":259
  *             free_pauli_string_c(<PauliStringC *> self._c_pString)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -6504,7 +6431,7 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_6__str__(struct __pyx_obj_1
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":267
+/* "sparse_sim.pyx":265
  *         return py_str
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
@@ -6564,7 +6491,7 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_8adjoint(struct __pyx_obj_1
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("adjoint", 1);
 
-  /* "sparse_sim.pyx":268
+  /* "sparse_sim.pyx":266
  * 
  *     def adjoint(self):
  *         cdef PauliStringC *new_pString = pauli_string_adjoint_c(<PauliStringC *> self._c_pString)             # <<<<<<<<<<<<<<
@@ -6573,19 +6500,19 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_8adjoint(struct __pyx_obj_1
  */
   __pyx_v_new_pString = pauli_string_adjoint_c(((struct PauliStringC *)__pyx_v_self->_c_pString));
 
-  /* "sparse_sim.pyx":269
+  /* "sparse_sim.pyx":267
  *     def adjoint(self):
  *         cdef PauliStringC *new_pString = pauli_string_adjoint_c(<PauliStringC *> self._c_pString)
  *         py_pString = PauliString._init_from_c(new_pString)             # <<<<<<<<<<<<<<
  *         py_pString._in_sum = False
  *         return py_pString
  */
-  __pyx_t_1 = ((PyObject *)__pyx_f_10sparse_sim_11PauliString__init_from_c(__pyx_v_new_pString)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 269, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_10sparse_sim_11PauliString__init_from_c(__pyx_v_new_pString)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 267, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_py_pString = ((struct __pyx_obj_10sparse_sim_PauliString *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sparse_sim.pyx":270
+  /* "sparse_sim.pyx":268
  *         cdef PauliStringC *new_pString = pauli_string_adjoint_c(<PauliStringC *> self._c_pString)
  *         py_pString = PauliString._init_from_c(new_pString)
  *         py_pString._in_sum = False             # <<<<<<<<<<<<<<
@@ -6594,7 +6521,7 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_8adjoint(struct __pyx_obj_1
  */
   __pyx_v_py_pString->_in_sum = 0;
 
-  /* "sparse_sim.pyx":271
+  /* "sparse_sim.pyx":269
  *         py_pString = PauliString._init_from_c(new_pString)
  *         py_pString._in_sum = False
  *         return py_pString             # <<<<<<<<<<<<<<
@@ -6606,7 +6533,7 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_8adjoint(struct __pyx_obj_1
   __pyx_r = ((PyObject *)__pyx_v_py_pString);
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":267
+  /* "sparse_sim.pyx":265
  *         return py_str
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
@@ -6840,7 +6767,7 @@ static PyObject *__pyx_pf_10sparse_sim_11PauliString_12__setstate_cython__(CYTHO
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":276
+/* "sparse_sim.pyx":274
  *     cdef uintptr_t _c_pSum
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -6880,7 +6807,7 @@ static int __pyx_pf_10sparse_sim_8PauliSum___cinit__(CYTHON_UNUSED struct __pyx_
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":279
+/* "sparse_sim.pyx":277
  *         pass
  * 
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -6923,7 +6850,7 @@ static int __pyx_pf_10sparse_sim_8PauliSum_2__init__(struct __pyx_obj_10sparse_s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 1);
 
-  /* "sparse_sim.pyx":280
+  /* "sparse_sim.pyx":278
  * 
  *     def __init__(self):
  *         cdef PauliSumC *c_pSum = pauli_sum_init_c()             # <<<<<<<<<<<<<<
@@ -6932,7 +6859,7 @@ static int __pyx_pf_10sparse_sim_8PauliSum_2__init__(struct __pyx_obj_10sparse_s
  */
   __pyx_v_c_pSum = pauli_sum_init_c();
 
-  /* "sparse_sim.pyx":281
+  /* "sparse_sim.pyx":279
  *     def __init__(self):
  *         cdef PauliSumC *c_pSum = pauli_sum_init_c()
  *         if not c_pSum:             # <<<<<<<<<<<<<<
@@ -6942,20 +6869,20 @@ static int __pyx_pf_10sparse_sim_8PauliSum_2__init__(struct __pyx_obj_10sparse_s
   __pyx_t_1 = (!(__pyx_v_c_pSum != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":282
+    /* "sparse_sim.pyx":280
  *         cdef PauliSumC *c_pSum = pauli_sum_init_c()
  *         if not c_pSum:
  *             raise MemoryError("Failed to allocate PauliSum")             # <<<<<<<<<<<<<<
  *         self._c_pSum = <uintptr_t> c_pSum
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 280, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 282, __pyx_L1_error)
+    __PYX_ERR(0, 280, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":281
+    /* "sparse_sim.pyx":279
  *     def __init__(self):
  *         cdef PauliSumC *c_pSum = pauli_sum_init_c()
  *         if not c_pSum:             # <<<<<<<<<<<<<<
@@ -6964,7 +6891,7 @@ static int __pyx_pf_10sparse_sim_8PauliSum_2__init__(struct __pyx_obj_10sparse_s
  */
   }
 
-  /* "sparse_sim.pyx":283
+  /* "sparse_sim.pyx":281
  *         if not c_pSum:
  *             raise MemoryError("Failed to allocate PauliSum")
  *         self._c_pSum = <uintptr_t> c_pSum             # <<<<<<<<<<<<<<
@@ -6973,7 +6900,7 @@ static int __pyx_pf_10sparse_sim_8PauliSum_2__init__(struct __pyx_obj_10sparse_s
  */
   __pyx_v_self->_c_pSum = ((uintptr_t)__pyx_v_c_pSum);
 
-  /* "sparse_sim.pyx":279
+  /* "sparse_sim.pyx":277
  *         pass
  * 
  *     def __init__(self):             # <<<<<<<<<<<<<<
@@ -6993,7 +6920,7 @@ static int __pyx_pf_10sparse_sim_8PauliSum_2__init__(struct __pyx_obj_10sparse_s
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":286
+/* "sparse_sim.pyx":284
  * 
  *     @staticmethod
  *     cdef PauliSum _init_from_c(PauliSumC* ptr):             # <<<<<<<<<<<<<<
@@ -7011,51 +6938,29 @@ static struct __pyx_obj_10sparse_sim_PauliSum *__pyx_f_10sparse_sim_8PauliSum__i
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_init_from_c", 1);
 
-  /* "sparse_sim.pyx":291
+  /* "sparse_sim.pyx":289
  *         This bypasses the usual __cinit__ so we don't re-allocate or re-initialize.
  *         """
- *         print("here1")             # <<<<<<<<<<<<<<
- *         cdef PauliSum pSum = PauliSum.__new__(PauliSum)
- *         print("here2")
- */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "sparse_sim.pyx":292
- *         """
- *         print("here1")
  *         cdef PauliSum pSum = PauliSum.__new__(PauliSum)             # <<<<<<<<<<<<<<
- *         print("here2")
  *         pSum._c_pSum = <uintptr_t> ptr
+ *         return pSum
  */
-  __pyx_t_1 = ((PyObject *)__pyx_tp_new_10sparse_sim_PauliSum(((PyTypeObject *)__pyx_ptype_10sparse_sim_PauliSum), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_tp_new_10sparse_sim_PauliSum(((PyTypeObject *)__pyx_ptype_10sparse_sim_PauliSum), __pyx_empty_tuple, NULL)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF((PyObject *)__pyx_t_1);
   __pyx_v_pSum = ((struct __pyx_obj_10sparse_sim_PauliSum *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sparse_sim.pyx":293
- *         print("here1")
+  /* "sparse_sim.pyx":290
+ *         """
  *         cdef PauliSum pSum = PauliSum.__new__(PauliSum)
- *         print("here2")             # <<<<<<<<<<<<<<
- *         pSum._c_pSum = <uintptr_t> ptr
- *         return pSum
- */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 293, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "sparse_sim.pyx":294
- *         cdef PauliSum pSum = PauliSum.__new__(PauliSum)
- *         print("here2")
  *         pSum._c_pSum = <uintptr_t> ptr             # <<<<<<<<<<<<<<
  *         return pSum
  * 
  */
   __pyx_v_pSum->_c_pSum = ((uintptr_t)__pyx_v_ptr);
 
-  /* "sparse_sim.pyx":295
- *         print("here2")
+  /* "sparse_sim.pyx":291
+ *         cdef PauliSum pSum = PauliSum.__new__(PauliSum)
  *         pSum._c_pSum = <uintptr_t> ptr
  *         return pSum             # <<<<<<<<<<<<<<
  * 
@@ -7066,7 +6971,7 @@ static struct __pyx_obj_10sparse_sim_PauliSum *__pyx_f_10sparse_sim_8PauliSum__i
   __pyx_r = __pyx_v_pSum;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":286
+  /* "sparse_sim.pyx":284
  * 
  *     @staticmethod
  *     cdef PauliSum _init_from_c(PauliSumC* ptr):             # <<<<<<<<<<<<<<
@@ -7086,7 +6991,7 @@ static struct __pyx_obj_10sparse_sim_PauliSum *__pyx_f_10sparse_sim_8PauliSum__i
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":297
+/* "sparse_sim.pyx":293
  *         return pSum
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -7109,7 +7014,7 @@ static void __pyx_pw_10sparse_sim_8PauliSum_5__dealloc__(PyObject *__pyx_v_self)
 
 static void __pyx_pf_10sparse_sim_8PauliSum_4__dealloc__(struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_self) {
 
-  /* "sparse_sim.pyx":298
+  /* "sparse_sim.pyx":294
  * 
  *     def __dealloc__(self):
  *         free_pauli_sum_c(<PauliSumC *> self._c_pSum)             # <<<<<<<<<<<<<<
@@ -7118,7 +7023,7 @@ static void __pyx_pf_10sparse_sim_8PauliSum_4__dealloc__(struct __pyx_obj_10spar
  */
   free_pauli_sum_c(((struct PauliSumC *)__pyx_v_self->_c_pSum));
 
-  /* "sparse_sim.pyx":297
+  /* "sparse_sim.pyx":293
  *         return pSum
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -7129,7 +7034,7 @@ static void __pyx_pf_10sparse_sim_8PauliSum_4__dealloc__(struct __pyx_obj_10spar
   /* function exit code */
 }
 
-/* "sparse_sim.pyx":300
+/* "sparse_sim.pyx":296
  *         free_pauli_sum_c(<PauliSumC *> self._c_pSum)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -7164,7 +7069,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_6__str__(struct __pyx_obj_10spa
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__str__", 1);
 
-  /* "sparse_sim.pyx":301
+  /* "sparse_sim.pyx":297
  * 
  *     def __str__(self):
  *         cdef char *c_str = pauli_sum_to_string_c(<PauliSumC *> self._c_pSum)             # <<<<<<<<<<<<<<
@@ -7173,20 +7078,20 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_6__str__(struct __pyx_obj_10spa
  */
   __pyx_v_c_str = pauli_sum_to_string_c(((struct PauliSumC *)__pyx_v_self->_c_pSum));
 
-  /* "sparse_sim.pyx":302
+  /* "sparse_sim.pyx":298
  *     def __str__(self):
  *         cdef char *c_str = pauli_sum_to_string_c(<PauliSumC *> self._c_pSum)
  *         py_str = c_str.decode('utf-8')             # <<<<<<<<<<<<<<
  *         free(c_str)
  *         return py_str
  */
-  __pyx_t_1 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 302, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_1, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 302, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 298, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_1, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_py_str = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":303
+  /* "sparse_sim.pyx":299
  *         cdef char *c_str = pauli_sum_to_string_c(<PauliSumC *> self._c_pSum)
  *         py_str = c_str.decode('utf-8')
  *         free(c_str)             # <<<<<<<<<<<<<<
@@ -7195,7 +7100,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_6__str__(struct __pyx_obj_10spa
  */
   free(__pyx_v_c_str);
 
-  /* "sparse_sim.pyx":304
+  /* "sparse_sim.pyx":300
  *         py_str = c_str.decode('utf-8')
  *         free(c_str)
  *         return py_str             # <<<<<<<<<<<<<<
@@ -7207,7 +7112,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_6__str__(struct __pyx_obj_10spa
   __pyx_r = __pyx_v_py_str;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":300
+  /* "sparse_sim.pyx":296
  *         free_pauli_sum_c(<PauliSumC *> self._c_pSum)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -7227,7 +7132,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_6__str__(struct __pyx_obj_10spa
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":306
+/* "sparse_sim.pyx":302
  *         return py_str
  * 
  *     def append_pauli_string(self, PauliString pString):             # <<<<<<<<<<<<<<
@@ -7288,12 +7193,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 306, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 302, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "append_pauli_string") < 0)) __PYX_ERR(0, 306, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "append_pauli_string") < 0)) __PYX_ERR(0, 302, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -7304,7 +7209,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("append_pauli_string", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 306, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("append_pauli_string", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 302, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7318,7 +7223,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pString), __pyx_ptype_10sparse_sim_PauliString, 1, "pString", 0))) __PYX_ERR(0, 306, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pString), __pyx_ptype_10sparse_sim_PauliString, 1, "pString", 0))) __PYX_ERR(0, 302, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_8PauliSum_8append_pauli_string(((struct __pyx_obj_10sparse_sim_PauliSum *)__pyx_v_self), __pyx_v_pString);
 
   /* function exit code */
@@ -7341,7 +7246,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_8append_pauli_string(struct __p
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("append_pauli_string", 1);
 
-  /* "sparse_sim.pyx":307
+  /* "sparse_sim.pyx":303
  * 
  *     def append_pauli_string(self, PauliString pString):
  *         pString._in_sum = True             # <<<<<<<<<<<<<<
@@ -7350,7 +7255,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_8append_pauli_string(struct __p
  */
   __pyx_v_pString->_in_sum = 1;
 
-  /* "sparse_sim.pyx":308
+  /* "sparse_sim.pyx":304
  *     def append_pauli_string(self, PauliString pString):
  *         pString._in_sum = True
  *         pauli_sum_append_pauli_string_c(<PauliSumC *> self._c_pSum, <PauliStringC *> pString._c_pString)             # <<<<<<<<<<<<<<
@@ -7359,7 +7264,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_8append_pauli_string(struct __p
  */
   pauli_sum_append_pauli_string_c(((struct PauliSumC *)__pyx_v_self->_c_pSum), ((struct PauliStringC *)__pyx_v_pString->_c_pString));
 
-  /* "sparse_sim.pyx":306
+  /* "sparse_sim.pyx":302
  *         return py_str
  * 
  *     def append_pauli_string(self, PauliString pString):             # <<<<<<<<<<<<<<
@@ -7374,7 +7279,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_8append_pauli_string(struct __p
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":310
+/* "sparse_sim.pyx":306
  *         pauli_sum_append_pauli_string_c(<PauliSumC *> self._c_pSum, <PauliStringC *> pString._c_pString)
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
@@ -7434,7 +7339,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_10adjoint(struct __pyx_obj_10sp
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("adjoint", 1);
 
-  /* "sparse_sim.pyx":311
+  /* "sparse_sim.pyx":307
  * 
  *     def adjoint(self):
  *         cdef PauliSumC *new_pSum = pauli_sum_adjoint_c(<PauliSumC *> self._c_pSum)             # <<<<<<<<<<<<<<
@@ -7443,19 +7348,19 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_10adjoint(struct __pyx_obj_10sp
  */
   __pyx_v_new_pSum = pauli_sum_adjoint_c(((struct PauliSumC *)__pyx_v_self->_c_pSum));
 
-  /* "sparse_sim.pyx":312
+  /* "sparse_sim.pyx":308
  *     def adjoint(self):
  *         cdef PauliSumC *new_pSum = pauli_sum_adjoint_c(<PauliSumC *> self._c_pSum)
  *         pSum = PauliSum._init_from_c(new_pSum)             # <<<<<<<<<<<<<<
  *         return pSum
  * 
  */
-  __pyx_t_1 = ((PyObject *)__pyx_f_10sparse_sim_8PauliSum__init_from_c(__pyx_v_new_pSum)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 312, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_10sparse_sim_8PauliSum__init_from_c(__pyx_v_new_pSum)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 308, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_pSum = ((struct __pyx_obj_10sparse_sim_PauliSum *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sparse_sim.pyx":313
+  /* "sparse_sim.pyx":309
  *         cdef PauliSumC *new_pSum = pauli_sum_adjoint_c(<PauliSumC *> self._c_pSum)
  *         pSum = PauliSum._init_from_c(new_pSum)
  *         return pSum             # <<<<<<<<<<<<<<
@@ -7467,7 +7372,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_10adjoint(struct __pyx_obj_10sp
   __pyx_r = ((PyObject *)__pyx_v_pSum);
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":310
+  /* "sparse_sim.pyx":306
  *         pauli_sum_append_pauli_string_c(<PauliSumC *> self._c_pSum, <PauliStringC *> pString._c_pString)
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
@@ -7487,7 +7392,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_10adjoint(struct __pyx_obj_10sp
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":315
+/* "sparse_sim.pyx":311
  *         return pSum
  * 
  *     def p(self):             # <<<<<<<<<<<<<<
@@ -7545,7 +7450,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_12p(struct __pyx_obj_10sparse_s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("p", 1);
 
-  /* "sparse_sim.pyx":316
+  /* "sparse_sim.pyx":312
  * 
  *     def p(self):
  *         return (<PauliSumC *> self._c_pSum).p             # <<<<<<<<<<<<<<
@@ -7553,13 +7458,13 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_12p(struct __pyx_obj_10sparse_s
  * def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(((struct PauliSumC *)__pyx_v_self->_c_pSum)->p); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(((struct PauliSumC *)__pyx_v_self->_c_pSum)->p); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 312, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":315
+  /* "sparse_sim.pyx":311
  *         return pSum
  * 
  *     def p(self):             # <<<<<<<<<<<<<<
@@ -7792,7 +7697,7 @@ static PyObject *__pyx_pf_10sparse_sim_8PauliSum_16__setstate_cython__(CYTHON_UN
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":318
+/* "sparse_sim.pyx":314
  *         return (<PauliSumC *> self._c_pSum).p
  * 
  * def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):             # <<<<<<<<<<<<<<
@@ -7857,7 +7762,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 318, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 314, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -7865,14 +7770,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 318, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 314, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("wavefunction_scalar_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 318, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("wavefunction_scalar_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 314, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_scalar_multiplication") < 0)) __PYX_ERR(0, 318, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_scalar_multiplication") < 0)) __PYX_ERR(0, 314, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -7881,11 +7786,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
     }
     __pyx_v_wfn = ((struct __pyx_obj_10sparse_sim_Wavefunction *)values[0]);
-    __pyx_v_scalar = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 318, __pyx_L3_error)
+    __pyx_v_scalar = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 314, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("wavefunction_scalar_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 318, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("wavefunction_scalar_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 314, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7899,7 +7804,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 318, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 314, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_wavefunction_scalar_multiplication(__pyx_self, __pyx_v_wfn, __pyx_v_scalar);
 
   /* function exit code */
@@ -7928,7 +7833,7 @@ static PyObject *__pyx_pf_10sparse_sim_wavefunction_scalar_multiplication(CYTHON
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("wavefunction_scalar_multiplication", 1);
 
-  /* "sparse_sim.pyx":320
+  /* "sparse_sim.pyx":316
  * def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):
  *     """Multiply a wavefunction by a scalar."""
  *     cdef WavefunctionC *new_wfn = wavefunction_scalar_multiplication_c(<WavefunctionC *> wfn._c_wfn, scalar)             # <<<<<<<<<<<<<<
@@ -7937,7 +7842,7 @@ static PyObject *__pyx_pf_10sparse_sim_wavefunction_scalar_multiplication(CYTHON
  */
   __pyx_v_new_wfn = wavefunction_scalar_multiplication_c(((struct WavefunctionC *)__pyx_v_wfn->_c_wfn), __pyx_v_scalar);
 
-  /* "sparse_sim.pyx":321
+  /* "sparse_sim.pyx":317
  *     """Multiply a wavefunction by a scalar."""
  *     cdef WavefunctionC *new_wfn = wavefunction_scalar_multiplication_c(<WavefunctionC *> wfn._c_wfn, scalar)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -7947,20 +7852,20 @@ static PyObject *__pyx_pf_10sparse_sim_wavefunction_scalar_multiplication(CYTHON
   __pyx_t_1 = (!(__pyx_v_new_wfn != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":322
+    /* "sparse_sim.pyx":318
  *     cdef WavefunctionC *new_wfn = wavefunction_scalar_multiplication_c(<WavefunctionC *> wfn._c_wfn, scalar)
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 322, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 318, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 322, __pyx_L1_error)
+    __PYX_ERR(0, 318, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":321
+    /* "sparse_sim.pyx":317
  *     """Multiply a wavefunction by a scalar."""
  *     cdef WavefunctionC *new_wfn = wavefunction_scalar_multiplication_c(<WavefunctionC *> wfn._c_wfn, scalar)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -7969,7 +7874,7 @@ static PyObject *__pyx_pf_10sparse_sim_wavefunction_scalar_multiplication(CYTHON
  */
   }
 
-  /* "sparse_sim.pyx":323
+  /* "sparse_sim.pyx":319
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
  *     return Wavefunction._init_from_c(new_wfn)             # <<<<<<<<<<<<<<
@@ -7977,13 +7882,13 @@ static PyObject *__pyx_pf_10sparse_sim_wavefunction_scalar_multiplication(CYTHON
  * def wavefunction_multiplication(Wavefunction bra, Wavefunction ket):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":318
+  /* "sparse_sim.pyx":314
  *         return (<PauliSumC *> self._c_pSum).p
  * 
  * def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):             # <<<<<<<<<<<<<<
@@ -8002,7 +7907,7 @@ static PyObject *__pyx_pf_10sparse_sim_wavefunction_scalar_multiplication(CYTHON
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":325
+/* "sparse_sim.pyx":321
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_multiplication(Wavefunction bra, Wavefunction ket):             # <<<<<<<<<<<<<<
@@ -8067,7 +7972,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 325, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 321, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -8075,14 +7980,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 325, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 321, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("wavefunction_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 325, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("wavefunction_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 321, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_multiplication") < 0)) __PYX_ERR(0, 325, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_multiplication") < 0)) __PYX_ERR(0, 321, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -8095,7 +8000,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("wavefunction_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 325, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("wavefunction_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 321, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8109,8 +8014,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_bra), __pyx_ptype_10sparse_sim_Wavefunction, 1, "bra", 0))) __PYX_ERR(0, 325, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ket), __pyx_ptype_10sparse_sim_Wavefunction, 1, "ket", 0))) __PYX_ERR(0, 325, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_bra), __pyx_ptype_10sparse_sim_Wavefunction, 1, "bra", 0))) __PYX_ERR(0, 321, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_ket), __pyx_ptype_10sparse_sim_Wavefunction, 1, "ket", 0))) __PYX_ERR(0, 321, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_2wavefunction_multiplication(__pyx_self, __pyx_v_bra, __pyx_v_ket);
 
   /* function exit code */
@@ -8138,7 +8043,7 @@ static PyObject *__pyx_pf_10sparse_sim_2wavefunction_multiplication(CYTHON_UNUSE
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("wavefunction_multiplication", 1);
 
-  /* "sparse_sim.pyx":327
+  /* "sparse_sim.pyx":323
  * def wavefunction_multiplication(Wavefunction bra, Wavefunction ket):
  *     """Compute the inner product of two wavefunctions."""
  *     return wavefunction_multiplication_c(<WavefunctionC *> bra._c_wfn, <WavefunctionC *> ket._c_wfn)             # <<<<<<<<<<<<<<
@@ -8147,13 +8052,13 @@ static PyObject *__pyx_pf_10sparse_sim_2wavefunction_multiplication(CYTHON_UNUSE
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = wavefunction_multiplication_c(((struct WavefunctionC *)__pyx_v_bra->_c_wfn), ((struct WavefunctionC *)__pyx_v_ket->_c_wfn));
-  __pyx_t_2 = __pyx_PyComplex_FromComplex(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 327, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyComplex_FromComplex(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 323, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":325
+  /* "sparse_sim.pyx":321
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_multiplication(Wavefunction bra, Wavefunction ket):             # <<<<<<<<<<<<<<
@@ -8172,7 +8077,7 @@ static PyObject *__pyx_pf_10sparse_sim_2wavefunction_multiplication(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":329
+/* "sparse_sim.pyx":325
  *     return wavefunction_multiplication_c(<WavefunctionC *> bra._c_wfn, <WavefunctionC *> ket._c_wfn)
  * 
  * def wavefunction_pauli_string_multiplication(PauliString pString, Wavefunction wfn):             # <<<<<<<<<<<<<<
@@ -8237,7 +8142,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 329, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 325, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -8245,14 +8150,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 329, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 325, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 329, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 325, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_pauli_string_multiplication") < 0)) __PYX_ERR(0, 329, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_pauli_string_multiplication") < 0)) __PYX_ERR(0, 325, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -8265,7 +8170,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 329, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 325, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8279,8 +8184,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pString), __pyx_ptype_10sparse_sim_PauliString, 1, "pString", 0))) __PYX_ERR(0, 329, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 329, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pString), __pyx_ptype_10sparse_sim_PauliString, 1, "pString", 0))) __PYX_ERR(0, 325, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 325, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_4wavefunction_pauli_string_multiplication(__pyx_self, __pyx_v_pString, __pyx_v_wfn);
 
   /* function exit code */
@@ -8309,7 +8214,7 @@ static PyObject *__pyx_pf_10sparse_sim_4wavefunction_pauli_string_multiplication
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("wavefunction_pauli_string_multiplication", 1);
 
-  /* "sparse_sim.pyx":331
+  /* "sparse_sim.pyx":327
  * def wavefunction_pauli_string_multiplication(PauliString pString, Wavefunction wfn):
  *     """Apply a Pauli string to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_multiplication_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn)             # <<<<<<<<<<<<<<
@@ -8318,7 +8223,7 @@ static PyObject *__pyx_pf_10sparse_sim_4wavefunction_pauli_string_multiplication
  */
   __pyx_v_new_wfn = wavefunction_pauli_string_multiplication_c(((struct PauliStringC *)__pyx_v_pString->_c_pString), ((struct WavefunctionC *)__pyx_v_wfn->_c_wfn));
 
-  /* "sparse_sim.pyx":332
+  /* "sparse_sim.pyx":328
  *     """Apply a Pauli string to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_multiplication_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -8328,20 +8233,20 @@ static PyObject *__pyx_pf_10sparse_sim_4wavefunction_pauli_string_multiplication
   __pyx_t_1 = (!(__pyx_v_new_wfn != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":333
+    /* "sparse_sim.pyx":329
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_multiplication_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn)
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 333, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 329, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 333, __pyx_L1_error)
+    __PYX_ERR(0, 329, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":332
+    /* "sparse_sim.pyx":328
  *     """Apply a Pauli string to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_multiplication_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -8350,7 +8255,7 @@ static PyObject *__pyx_pf_10sparse_sim_4wavefunction_pauli_string_multiplication
  */
   }
 
-  /* "sparse_sim.pyx":334
+  /* "sparse_sim.pyx":330
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
  *     return Wavefunction._init_from_c(new_wfn)             # <<<<<<<<<<<<<<
@@ -8358,13 +8263,13 @@ static PyObject *__pyx_pf_10sparse_sim_4wavefunction_pauli_string_multiplication
  * def wavefunction_pauli_sum_multiplication(PauliSum pSum, Wavefunction wfn):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 334, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 330, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":329
+  /* "sparse_sim.pyx":325
  *     return wavefunction_multiplication_c(<WavefunctionC *> bra._c_wfn, <WavefunctionC *> ket._c_wfn)
  * 
  * def wavefunction_pauli_string_multiplication(PauliString pString, Wavefunction wfn):             # <<<<<<<<<<<<<<
@@ -8383,7 +8288,7 @@ static PyObject *__pyx_pf_10sparse_sim_4wavefunction_pauli_string_multiplication
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":336
+/* "sparse_sim.pyx":332
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_sum_multiplication(PauliSum pSum, Wavefunction wfn):             # <<<<<<<<<<<<<<
@@ -8448,7 +8353,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 336, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 332, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -8456,14 +8361,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 336, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 332, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 336, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 332, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_pauli_sum_multiplication") < 0)) __PYX_ERR(0, 336, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_pauli_sum_multiplication") < 0)) __PYX_ERR(0, 332, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -8476,7 +8381,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 336, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 332, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8490,8 +8395,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 336, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 336, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 332, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 332, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_6wavefunction_pauli_sum_multiplication(__pyx_self, __pyx_v_pSum, __pyx_v_wfn);
 
   /* function exit code */
@@ -8520,7 +8425,7 @@ static PyObject *__pyx_pf_10sparse_sim_6wavefunction_pauli_sum_multiplication(CY
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("wavefunction_pauli_sum_multiplication", 1);
 
-  /* "sparse_sim.pyx":338
+  /* "sparse_sim.pyx":334
  * def wavefunction_pauli_sum_multiplication(PauliSum pSum, Wavefunction wfn):
  *     """Apply a Pauli sum to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_multiplication_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn)             # <<<<<<<<<<<<<<
@@ -8529,7 +8434,7 @@ static PyObject *__pyx_pf_10sparse_sim_6wavefunction_pauli_sum_multiplication(CY
  */
   __pyx_v_new_wfn = wavefunction_pauli_sum_multiplication_c(((struct PauliSumC *)__pyx_v_pSum->_c_pSum), ((struct WavefunctionC *)__pyx_v_wfn->_c_wfn));
 
-  /* "sparse_sim.pyx":339
+  /* "sparse_sim.pyx":335
  *     """Apply a Pauli sum to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_multiplication_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -8539,20 +8444,20 @@ static PyObject *__pyx_pf_10sparse_sim_6wavefunction_pauli_sum_multiplication(CY
   __pyx_t_1 = (!(__pyx_v_new_wfn != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":340
+    /* "sparse_sim.pyx":336
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_multiplication_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn)
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 340, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 336, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 340, __pyx_L1_error)
+    __PYX_ERR(0, 336, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":339
+    /* "sparse_sim.pyx":335
  *     """Apply a Pauli sum to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_multiplication_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -8561,7 +8466,7 @@ static PyObject *__pyx_pf_10sparse_sim_6wavefunction_pauli_sum_multiplication(CY
  */
   }
 
-  /* "sparse_sim.pyx":341
+  /* "sparse_sim.pyx":337
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
  *     return Wavefunction._init_from_c(new_wfn)             # <<<<<<<<<<<<<<
@@ -8569,13 +8474,13 @@ static PyObject *__pyx_pf_10sparse_sim_6wavefunction_pauli_sum_multiplication(CY
  * def wavefunction_pauli_string_evolution(PauliString pString, Wavefunction wfn, double epsilon):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 341, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 337, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":336
+  /* "sparse_sim.pyx":332
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_sum_multiplication(PauliSum pSum, Wavefunction wfn):             # <<<<<<<<<<<<<<
@@ -8594,7 +8499,7 @@ static PyObject *__pyx_pf_10sparse_sim_6wavefunction_pauli_sum_multiplication(CY
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":343
+/* "sparse_sim.pyx":339
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_string_evolution(PauliString pString, Wavefunction wfn, double epsilon):             # <<<<<<<<<<<<<<
@@ -8662,7 +8567,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 343, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 339, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -8670,9 +8575,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 343, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 339, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_evolution", 1, 3, 3, 1); __PYX_ERR(0, 343, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_evolution", 1, 3, 3, 1); __PYX_ERR(0, 339, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -8680,14 +8585,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[2]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 343, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 339, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_evolution", 1, 3, 3, 2); __PYX_ERR(0, 343, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_evolution", 1, 3, 3, 2); __PYX_ERR(0, 339, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_pauli_string_evolution") < 0)) __PYX_ERR(0, 343, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_pauli_string_evolution") < 0)) __PYX_ERR(0, 339, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
@@ -8698,11 +8603,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
     }
     __pyx_v_pString = ((struct __pyx_obj_10sparse_sim_PauliString *)values[0]);
     __pyx_v_wfn = ((struct __pyx_obj_10sparse_sim_Wavefunction *)values[1]);
-    __pyx_v_epsilon = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_epsilon == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 343, __pyx_L3_error)
+    __pyx_v_epsilon = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_epsilon == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 339, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_evolution", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 343, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_string_evolution", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 339, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8716,8 +8621,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pString), __pyx_ptype_10sparse_sim_PauliString, 1, "pString", 0))) __PYX_ERR(0, 343, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 343, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pString), __pyx_ptype_10sparse_sim_PauliString, 1, "pString", 0))) __PYX_ERR(0, 339, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 339, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_8wavefunction_pauli_string_evolution(__pyx_self, __pyx_v_pString, __pyx_v_wfn, __pyx_v_epsilon);
 
   /* function exit code */
@@ -8746,7 +8651,7 @@ static PyObject *__pyx_pf_10sparse_sim_8wavefunction_pauli_string_evolution(CYTH
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("wavefunction_pauli_string_evolution", 1);
 
-  /* "sparse_sim.pyx":345
+  /* "sparse_sim.pyx":341
  * def wavefunction_pauli_string_evolution(PauliString pString, Wavefunction wfn, double epsilon):
  *     """Evolve a wavefunction under a Pauli string using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_evolution_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn, epsilon)             # <<<<<<<<<<<<<<
@@ -8755,7 +8660,7 @@ static PyObject *__pyx_pf_10sparse_sim_8wavefunction_pauli_string_evolution(CYTH
  */
   __pyx_v_new_wfn = wavefunction_pauli_string_evolution_c(((struct PauliStringC *)__pyx_v_pString->_c_pString), ((struct WavefunctionC *)__pyx_v_wfn->_c_wfn), __pyx_v_epsilon);
 
-  /* "sparse_sim.pyx":346
+  /* "sparse_sim.pyx":342
  *     """Evolve a wavefunction under a Pauli string using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_evolution_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn, epsilon)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -8765,20 +8670,20 @@ static PyObject *__pyx_pf_10sparse_sim_8wavefunction_pauli_string_evolution(CYTH
   __pyx_t_1 = (!(__pyx_v_new_wfn != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":347
+    /* "sparse_sim.pyx":343
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_evolution_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn, epsilon)
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 347, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 343, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 347, __pyx_L1_error)
+    __PYX_ERR(0, 343, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":346
+    /* "sparse_sim.pyx":342
  *     """Evolve a wavefunction under a Pauli string using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_evolution_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn, epsilon)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -8787,7 +8692,7 @@ static PyObject *__pyx_pf_10sparse_sim_8wavefunction_pauli_string_evolution(CYTH
  */
   }
 
-  /* "sparse_sim.pyx":348
+  /* "sparse_sim.pyx":344
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
  *     return Wavefunction._init_from_c(new_wfn)             # <<<<<<<<<<<<<<
@@ -8795,13 +8700,13 @@ static PyObject *__pyx_pf_10sparse_sim_8wavefunction_pauli_string_evolution(CYTH
  * def wavefunction_pauli_sum_evolution(PauliSum pSum, Wavefunction wfn, double epsilon):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 348, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 344, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":343
+  /* "sparse_sim.pyx":339
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_string_evolution(PauliString pString, Wavefunction wfn, double epsilon):             # <<<<<<<<<<<<<<
@@ -8820,7 +8725,7 @@ static PyObject *__pyx_pf_10sparse_sim_8wavefunction_pauli_string_evolution(CYTH
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":350
+/* "sparse_sim.pyx":346
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_sum_evolution(PauliSum pSum, Wavefunction wfn, double epsilon):             # <<<<<<<<<<<<<<
@@ -8888,7 +8793,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 350, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 346, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -8896,9 +8801,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 350, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 346, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_evolution", 1, 3, 3, 1); __PYX_ERR(0, 350, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_evolution", 1, 3, 3, 1); __PYX_ERR(0, 346, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -8906,14 +8811,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[2]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 350, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 346, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_evolution", 1, 3, 3, 2); __PYX_ERR(0, 350, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_evolution", 1, 3, 3, 2); __PYX_ERR(0, 346, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_pauli_sum_evolution") < 0)) __PYX_ERR(0, 350, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_pauli_sum_evolution") < 0)) __PYX_ERR(0, 346, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 3)) {
       goto __pyx_L5_argtuple_error;
@@ -8924,11 +8829,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
     }
     __pyx_v_pSum = ((struct __pyx_obj_10sparse_sim_PauliSum *)values[0]);
     __pyx_v_wfn = ((struct __pyx_obj_10sparse_sim_Wavefunction *)values[1]);
-    __pyx_v_epsilon = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_epsilon == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 350, __pyx_L3_error)
+    __pyx_v_epsilon = __pyx_PyFloat_AsDouble(values[2]); if (unlikely((__pyx_v_epsilon == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 346, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_evolution", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 350, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("wavefunction_pauli_sum_evolution", 1, 3, 3, __pyx_nargs); __PYX_ERR(0, 346, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8942,8 +8847,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 350, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 350, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 346, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 346, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_10wavefunction_pauli_sum_evolution(__pyx_self, __pyx_v_pSum, __pyx_v_wfn, __pyx_v_epsilon);
 
   /* function exit code */
@@ -8972,7 +8877,7 @@ static PyObject *__pyx_pf_10sparse_sim_10wavefunction_pauli_sum_evolution(CYTHON
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("wavefunction_pauli_sum_evolution", 1);
 
-  /* "sparse_sim.pyx":352
+  /* "sparse_sim.pyx":348
  * def wavefunction_pauli_sum_evolution(PauliSum pSum, Wavefunction wfn, double epsilon):
  *     """Evolve a wavefunction under a Pauli sum using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_evolution_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn, epsilon)             # <<<<<<<<<<<<<<
@@ -8981,7 +8886,7 @@ static PyObject *__pyx_pf_10sparse_sim_10wavefunction_pauli_sum_evolution(CYTHON
  */
   __pyx_v_new_wfn = wavefunction_pauli_sum_evolution_c(((struct PauliSumC *)__pyx_v_pSum->_c_pSum), ((struct WavefunctionC *)__pyx_v_wfn->_c_wfn), __pyx_v_epsilon);
 
-  /* "sparse_sim.pyx":353
+  /* "sparse_sim.pyx":349
  *     """Evolve a wavefunction under a Pauli sum using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_evolution_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn, epsilon)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -8991,20 +8896,20 @@ static PyObject *__pyx_pf_10sparse_sim_10wavefunction_pauli_sum_evolution(CYTHON
   __pyx_t_1 = (!(__pyx_v_new_wfn != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":354
+    /* "sparse_sim.pyx":350
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_evolution_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn, epsilon)
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 354, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 350, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 354, __pyx_L1_error)
+    __PYX_ERR(0, 350, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":353
+    /* "sparse_sim.pyx":349
  *     """Evolve a wavefunction under a Pauli sum using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_evolution_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn, epsilon)
  *     if not new_wfn:             # <<<<<<<<<<<<<<
@@ -9013,7 +8918,7 @@ static PyObject *__pyx_pf_10sparse_sim_10wavefunction_pauli_sum_evolution(CYTHON
  */
   }
 
-  /* "sparse_sim.pyx":355
+  /* "sparse_sim.pyx":351
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
  *     return Wavefunction._init_from_c(new_wfn)             # <<<<<<<<<<<<<<
@@ -9021,13 +8926,13 @@ static PyObject *__pyx_pf_10sparse_sim_10wavefunction_pauli_sum_evolution(CYTHON
  * def pauli_string_scalar_multiplication(PauliString pString, complex scalar):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 355, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_12Wavefunction__init_from_c(__pyx_v_new_wfn)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 351, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":350
+  /* "sparse_sim.pyx":346
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_sum_evolution(PauliSum pSum, Wavefunction wfn, double epsilon):             # <<<<<<<<<<<<<<
@@ -9046,7 +8951,7 @@ static PyObject *__pyx_pf_10sparse_sim_10wavefunction_pauli_sum_evolution(CYTHON
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":357
+/* "sparse_sim.pyx":353
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def pauli_string_scalar_multiplication(PauliString pString, complex scalar):             # <<<<<<<<<<<<<<
@@ -9111,7 +9016,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 357, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 353, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -9119,14 +9024,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 357, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 353, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("pauli_string_scalar_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 357, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("pauli_string_scalar_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 353, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_string_scalar_multiplication") < 0)) __PYX_ERR(0, 357, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_string_scalar_multiplication") < 0)) __PYX_ERR(0, 353, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -9135,11 +9040,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
     }
     __pyx_v_pString = ((struct __pyx_obj_10sparse_sim_PauliString *)values[0]);
-    __pyx_v_scalar = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 357, __pyx_L3_error)
+    __pyx_v_scalar = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 353, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("pauli_string_scalar_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 357, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("pauli_string_scalar_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 353, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9153,7 +9058,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pString), __pyx_ptype_10sparse_sim_PauliString, 1, "pString", 0))) __PYX_ERR(0, 357, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pString), __pyx_ptype_10sparse_sim_PauliString, 1, "pString", 0))) __PYX_ERR(0, 353, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_12pauli_string_scalar_multiplication(__pyx_self, __pyx_v_pString, __pyx_v_scalar);
 
   /* function exit code */
@@ -9182,7 +9087,7 @@ static PyObject *__pyx_pf_10sparse_sim_12pauli_string_scalar_multiplication(CYTH
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("pauli_string_scalar_multiplication", 1);
 
-  /* "sparse_sim.pyx":359
+  /* "sparse_sim.pyx":355
  * def pauli_string_scalar_multiplication(PauliString pString, complex scalar):
  *     """Multiply a Pauli string by a scalar."""
  *     cdef PauliStringC *new_pString = pauli_string_scalar_multiplication_c(<PauliStringC *> pString._c_pString, scalar)             # <<<<<<<<<<<<<<
@@ -9191,7 +9096,7 @@ static PyObject *__pyx_pf_10sparse_sim_12pauli_string_scalar_multiplication(CYTH
  */
   __pyx_v_new_pString = pauli_string_scalar_multiplication_c(((struct PauliStringC *)__pyx_v_pString->_c_pString), __pyx_v_scalar);
 
-  /* "sparse_sim.pyx":360
+  /* "sparse_sim.pyx":356
  *     """Multiply a Pauli string by a scalar."""
  *     cdef PauliStringC *new_pString = pauli_string_scalar_multiplication_c(<PauliStringC *> pString._c_pString, scalar)
  *     if not new_pString:             # <<<<<<<<<<<<<<
@@ -9201,20 +9106,20 @@ static PyObject *__pyx_pf_10sparse_sim_12pauli_string_scalar_multiplication(CYTH
   __pyx_t_1 = (!(__pyx_v_new_pString != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":361
+    /* "sparse_sim.pyx":357
  *     cdef PauliStringC *new_pString = pauli_string_scalar_multiplication_c(<PauliStringC *> pString._c_pString, scalar)
  *     if not new_pString:
  *         raise MemoryError("pauli_string_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return PauliString._init_from_c(new_pString)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 361, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 357, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 361, __pyx_L1_error)
+    __PYX_ERR(0, 357, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":360
+    /* "sparse_sim.pyx":356
  *     """Multiply a Pauli string by a scalar."""
  *     cdef PauliStringC *new_pString = pauli_string_scalar_multiplication_c(<PauliStringC *> pString._c_pString, scalar)
  *     if not new_pString:             # <<<<<<<<<<<<<<
@@ -9223,7 +9128,7 @@ static PyObject *__pyx_pf_10sparse_sim_12pauli_string_scalar_multiplication(CYTH
  */
   }
 
-  /* "sparse_sim.pyx":362
+  /* "sparse_sim.pyx":358
  *     if not new_pString:
  *         raise MemoryError("pauli_string_scalar_multiplication_c returned NULL")
  *     return PauliString._init_from_c(new_pString)             # <<<<<<<<<<<<<<
@@ -9231,13 +9136,13 @@ static PyObject *__pyx_pf_10sparse_sim_12pauli_string_scalar_multiplication(CYTH
  * def pauli_string_multiplication(PauliString left, PauliString right):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_11PauliString__init_from_c(__pyx_v_new_pString)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_11PauliString__init_from_c(__pyx_v_new_pString)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":357
+  /* "sparse_sim.pyx":353
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def pauli_string_scalar_multiplication(PauliString pString, complex scalar):             # <<<<<<<<<<<<<<
@@ -9256,7 +9161,7 @@ static PyObject *__pyx_pf_10sparse_sim_12pauli_string_scalar_multiplication(CYTH
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":364
+/* "sparse_sim.pyx":360
  *     return PauliString._init_from_c(new_pString)
  * 
  * def pauli_string_multiplication(PauliString left, PauliString right):             # <<<<<<<<<<<<<<
@@ -9321,7 +9226,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 364, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 360, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -9329,14 +9234,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 364, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 360, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("pauli_string_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 364, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("pauli_string_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 360, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_string_multiplication") < 0)) __PYX_ERR(0, 364, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_string_multiplication") < 0)) __PYX_ERR(0, 360, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -9349,7 +9254,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("pauli_string_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 364, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("pauli_string_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 360, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9363,8 +9268,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_left), __pyx_ptype_10sparse_sim_PauliString, 1, "left", 0))) __PYX_ERR(0, 364, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_right), __pyx_ptype_10sparse_sim_PauliString, 1, "right", 0))) __PYX_ERR(0, 364, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_left), __pyx_ptype_10sparse_sim_PauliString, 1, "left", 0))) __PYX_ERR(0, 360, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_right), __pyx_ptype_10sparse_sim_PauliString, 1, "right", 0))) __PYX_ERR(0, 360, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_14pauli_string_multiplication(__pyx_self, __pyx_v_left, __pyx_v_right);
 
   /* function exit code */
@@ -9392,7 +9297,7 @@ static PyObject *__pyx_pf_10sparse_sim_14pauli_string_multiplication(CYTHON_UNUS
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("pauli_string_multiplication", 1);
 
-  /* "sparse_sim.pyx":366
+  /* "sparse_sim.pyx":362
  * def pauli_string_multiplication(PauliString left, PauliString right):
  *     """Multiply two Pauli strings."""
  *     cdef PauliStringC *new_pString = pauli_string_multiplication_c(<PauliStringC *> left._c_pString, <PauliStringC *> right._c_pString)             # <<<<<<<<<<<<<<
@@ -9401,7 +9306,7 @@ static PyObject *__pyx_pf_10sparse_sim_14pauli_string_multiplication(CYTHON_UNUS
  */
   __pyx_v_new_pString = pauli_string_multiplication_c(((struct PauliStringC *)__pyx_v_left->_c_pString), ((struct PauliStringC *)__pyx_v_right->_c_pString));
 
-  /* "sparse_sim.pyx":367
+  /* "sparse_sim.pyx":363
  *     """Multiply two Pauli strings."""
  *     cdef PauliStringC *new_pString = pauli_string_multiplication_c(<PauliStringC *> left._c_pString, <PauliStringC *> right._c_pString)
  *     return PauliString._init_from_c(new_pString)             # <<<<<<<<<<<<<<
@@ -9409,13 +9314,13 @@ static PyObject *__pyx_pf_10sparse_sim_14pauli_string_multiplication(CYTHON_UNUS
  * def pauli_sum_scalar_multiplication(PauliSum pSum, complex scalar):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_10sparse_sim_11PauliString__init_from_c(__pyx_v_new_pString)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 367, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_10sparse_sim_11PauliString__init_from_c(__pyx_v_new_pString)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 363, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":364
+  /* "sparse_sim.pyx":360
  *     return PauliString._init_from_c(new_pString)
  * 
  * def pauli_string_multiplication(PauliString left, PauliString right):             # <<<<<<<<<<<<<<
@@ -9434,7 +9339,7 @@ static PyObject *__pyx_pf_10sparse_sim_14pauli_string_multiplication(CYTHON_UNUS
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":369
+/* "sparse_sim.pyx":365
  *     return PauliString._init_from_c(new_pString)
  * 
  * def pauli_sum_scalar_multiplication(PauliSum pSum, complex scalar):             # <<<<<<<<<<<<<<
@@ -9499,7 +9404,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 365, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -9507,14 +9412,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 365, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("pauli_sum_scalar_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 369, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("pauli_sum_scalar_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 365, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_sum_scalar_multiplication") < 0)) __PYX_ERR(0, 369, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_sum_scalar_multiplication") < 0)) __PYX_ERR(0, 365, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -9523,11 +9428,11 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       values[1] = __Pyx_Arg_FASTCALL(__pyx_args, 1);
     }
     __pyx_v_pSum = ((struct __pyx_obj_10sparse_sim_PauliSum *)values[0]);
-    __pyx_v_scalar = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 369, __pyx_L3_error)
+    __pyx_v_scalar = __Pyx_PyComplex_As___pyx_t_double_complex(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 365, __pyx_L3_error)
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("pauli_sum_scalar_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 369, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("pauli_sum_scalar_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 365, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9541,7 +9446,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 369, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 365, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_16pauli_sum_scalar_multiplication(__pyx_self, __pyx_v_pSum, __pyx_v_scalar);
 
   /* function exit code */
@@ -9570,7 +9475,7 @@ static PyObject *__pyx_pf_10sparse_sim_16pauli_sum_scalar_multiplication(CYTHON_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("pauli_sum_scalar_multiplication", 1);
 
-  /* "sparse_sim.pyx":371
+  /* "sparse_sim.pyx":367
  * def pauli_sum_scalar_multiplication(PauliSum pSum, complex scalar):
  *     """Multiply a Pauli sum by a scalar."""
  *     cdef PauliSumC *new_pSum = pauli_sum_scalar_multiplication_c(<PauliSumC *> pSum._c_pSum, scalar)             # <<<<<<<<<<<<<<
@@ -9579,7 +9484,7 @@ static PyObject *__pyx_pf_10sparse_sim_16pauli_sum_scalar_multiplication(CYTHON_
  */
   __pyx_v_new_pSum = pauli_sum_scalar_multiplication_c(((struct PauliSumC *)__pyx_v_pSum->_c_pSum), __pyx_v_scalar);
 
-  /* "sparse_sim.pyx":372
+  /* "sparse_sim.pyx":368
  *     """Multiply a Pauli sum by a scalar."""
  *     cdef PauliSumC *new_pSum = pauli_sum_scalar_multiplication_c(<PauliSumC *> pSum._c_pSum, scalar)
  *     if not new_pSum:             # <<<<<<<<<<<<<<
@@ -9589,20 +9494,20 @@ static PyObject *__pyx_pf_10sparse_sim_16pauli_sum_scalar_multiplication(CYTHON_
   __pyx_t_1 = (!(__pyx_v_new_pSum != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":373
+    /* "sparse_sim.pyx":369
  *     cdef PauliSumC *new_pSum = pauli_sum_scalar_multiplication_c(<PauliSumC *> pSum._c_pSum, scalar)
  *     if not new_pSum:
  *         raise MemoryError("pauli_sum_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return PauliSum._init_from_c(new_pSum)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 373, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 369, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 373, __pyx_L1_error)
+    __PYX_ERR(0, 369, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":372
+    /* "sparse_sim.pyx":368
  *     """Multiply a Pauli sum by a scalar."""
  *     cdef PauliSumC *new_pSum = pauli_sum_scalar_multiplication_c(<PauliSumC *> pSum._c_pSum, scalar)
  *     if not new_pSum:             # <<<<<<<<<<<<<<
@@ -9611,7 +9516,7 @@ static PyObject *__pyx_pf_10sparse_sim_16pauli_sum_scalar_multiplication(CYTHON_
  */
   }
 
-  /* "sparse_sim.pyx":374
+  /* "sparse_sim.pyx":370
  *     if not new_pSum:
  *         raise MemoryError("pauli_sum_scalar_multiplication_c returned NULL")
  *     return PauliSum._init_from_c(new_pSum)             # <<<<<<<<<<<<<<
@@ -9619,13 +9524,13 @@ static PyObject *__pyx_pf_10sparse_sim_16pauli_sum_scalar_multiplication(CYTHON_
  * def pauli_sum_multiplication(PauliSum left, PauliSum right):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_8PauliSum__init_from_c(__pyx_v_new_pSum)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 374, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_8PauliSum__init_from_c(__pyx_v_new_pSum)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 370, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":369
+  /* "sparse_sim.pyx":365
  *     return PauliString._init_from_c(new_pString)
  * 
  * def pauli_sum_scalar_multiplication(PauliSum pSum, complex scalar):             # <<<<<<<<<<<<<<
@@ -9644,7 +9549,7 @@ static PyObject *__pyx_pf_10sparse_sim_16pauli_sum_scalar_multiplication(CYTHON_
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":376
+/* "sparse_sim.pyx":372
  *     return PauliSum._init_from_c(new_pSum)
  * 
  * def pauli_sum_multiplication(PauliSum left, PauliSum right):             # <<<<<<<<<<<<<<
@@ -9709,7 +9614,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 376, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 372, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -9717,14 +9622,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 376, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 372, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("pauli_sum_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 376, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("pauli_sum_multiplication", 1, 2, 2, 1); __PYX_ERR(0, 372, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_sum_multiplication") < 0)) __PYX_ERR(0, 376, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_sum_multiplication") < 0)) __PYX_ERR(0, 372, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -9737,7 +9642,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("pauli_sum_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 376, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("pauli_sum_multiplication", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 372, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9751,8 +9656,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_left), __pyx_ptype_10sparse_sim_PauliSum, 1, "left", 0))) __PYX_ERR(0, 376, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_right), __pyx_ptype_10sparse_sim_PauliSum, 1, "right", 0))) __PYX_ERR(0, 376, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_left), __pyx_ptype_10sparse_sim_PauliSum, 1, "left", 0))) __PYX_ERR(0, 372, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_right), __pyx_ptype_10sparse_sim_PauliSum, 1, "right", 0))) __PYX_ERR(0, 372, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_18pauli_sum_multiplication(__pyx_self, __pyx_v_left, __pyx_v_right);
 
   /* function exit code */
@@ -9781,7 +9686,7 @@ static PyObject *__pyx_pf_10sparse_sim_18pauli_sum_multiplication(CYTHON_UNUSED 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("pauli_sum_multiplication", 1);
 
-  /* "sparse_sim.pyx":378
+  /* "sparse_sim.pyx":374
  * def pauli_sum_multiplication(PauliSum left, PauliSum right):
  *     """Multiply two Pauli sums."""
  *     cdef PauliSumC *new_pSum = pauli_sum_multiplication_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)             # <<<<<<<<<<<<<<
@@ -9790,7 +9695,7 @@ static PyObject *__pyx_pf_10sparse_sim_18pauli_sum_multiplication(CYTHON_UNUSED 
  */
   __pyx_v_new_pSum = pauli_sum_multiplication_c(((struct PauliSumC *)__pyx_v_left->_c_pSum), ((struct PauliSumC *)__pyx_v_right->_c_pSum));
 
-  /* "sparse_sim.pyx":379
+  /* "sparse_sim.pyx":375
  *     """Multiply two Pauli sums."""
  *     cdef PauliSumC *new_pSum = pauli_sum_multiplication_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  *     if not new_pSum:             # <<<<<<<<<<<<<<
@@ -9800,20 +9705,20 @@ static PyObject *__pyx_pf_10sparse_sim_18pauli_sum_multiplication(CYTHON_UNUSED 
   __pyx_t_1 = (!(__pyx_v_new_pSum != 0));
   if (unlikely(__pyx_t_1)) {
 
-    /* "sparse_sim.pyx":380
+    /* "sparse_sim.pyx":376
  *     cdef PauliSumC *new_pSum = pauli_sum_multiplication_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  *     if not new_pSum:
  *         raise MemoryError("pauli_sum_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return PauliSum._init_from_c(new_pSum)
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__14, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 380, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 376, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 380, __pyx_L1_error)
+    __PYX_ERR(0, 376, __pyx_L1_error)
 
-    /* "sparse_sim.pyx":379
+    /* "sparse_sim.pyx":375
  *     """Multiply two Pauli sums."""
  *     cdef PauliSumC *new_pSum = pauli_sum_multiplication_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  *     if not new_pSum:             # <<<<<<<<<<<<<<
@@ -9822,7 +9727,7 @@ static PyObject *__pyx_pf_10sparse_sim_18pauli_sum_multiplication(CYTHON_UNUSED 
  */
   }
 
-  /* "sparse_sim.pyx":381
+  /* "sparse_sim.pyx":377
  *     if not new_pSum:
  *         raise MemoryError("pauli_sum_multiplication_c returned NULL")
  *     return PauliSum._init_from_c(new_pSum)             # <<<<<<<<<<<<<<
@@ -9830,13 +9735,13 @@ static PyObject *__pyx_pf_10sparse_sim_18pauli_sum_multiplication(CYTHON_UNUSED 
  * def pauli_sum_collect_measurements(PauliSum pSum):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_8PauliSum__init_from_c(__pyx_v_new_pSum)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 381, __pyx_L1_error)
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_8PauliSum__init_from_c(__pyx_v_new_pSum)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 377, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":376
+  /* "sparse_sim.pyx":372
  *     return PauliSum._init_from_c(new_pSum)
  * 
  * def pauli_sum_multiplication(PauliSum left, PauliSum right):             # <<<<<<<<<<<<<<
@@ -9855,7 +9760,7 @@ static PyObject *__pyx_pf_10sparse_sim_18pauli_sum_multiplication(CYTHON_UNUSED 
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":383
+/* "sparse_sim.pyx":379
  *     return PauliSum._init_from_c(new_pSum)
  * 
  * def pauli_sum_collect_measurements(PauliSum pSum):             # <<<<<<<<<<<<<<
@@ -9917,12 +9822,12 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 383, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 379, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_sum_collect_measurements") < 0)) __PYX_ERR(0, 383, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_sum_collect_measurements") < 0)) __PYX_ERR(0, 379, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
@@ -9933,7 +9838,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("pauli_sum_collect_measurements", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 383, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("pauli_sum_collect_measurements", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 379, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -9947,7 +9852,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 383, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 379, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_20pauli_sum_collect_measurements(__pyx_self, __pyx_v_pSum);
 
   /* function exit code */
@@ -9986,7 +9891,7 @@ static PyObject *__pyx_pf_10sparse_sim_20pauli_sum_collect_measurements(CYTHON_U
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("pauli_sum_collect_measurements", 1);
 
-  /* "sparse_sim.pyx":393
+  /* "sparse_sim.pyx":389
  *     - A set of unique Pauli strings.
  *     """
  *     cdef PauliSumC* c_pSum = <PauliSumC *> pSum._c_pSum             # <<<<<<<<<<<<<<
@@ -9995,19 +9900,19 @@ static PyObject *__pyx_pf_10sparse_sim_20pauli_sum_collect_measurements(CYTHON_U
  */
   __pyx_v_c_pSum = ((struct PauliSumC *)__pyx_v_pSum->_c_pSum);
 
-  /* "sparse_sim.pyx":398
+  /* "sparse_sim.pyx":394
  *     cdef khiter_t k
  * 
  *     unique_strings = set()             # <<<<<<<<<<<<<<
  * 
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
  */
-  __pyx_t_1 = PySet_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 398, __pyx_L1_error)
+  __pyx_t_1 = PySet_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 394, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_unique_strings = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sparse_sim.pyx":400
+  /* "sparse_sim.pyx":396
  *     unique_strings = set()
  * 
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):             # <<<<<<<<<<<<<<
@@ -10019,7 +9924,7 @@ static PyObject *__pyx_pf_10sparse_sim_20pauli_sum_collect_measurements(CYTHON_U
   for (__pyx_t_4 = kh_begin(__pyx_v_c_pSum->pauli_strings); __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
     __pyx_v_k = __pyx_t_4;
 
-    /* "sparse_sim.pyx":401
+    /* "sparse_sim.pyx":397
  * 
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
  *         if kh_exist(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
@@ -10029,67 +9934,39 @@ static PyObject *__pyx_pf_10sparse_sim_20pauli_sum_collect_measurements(CYTHON_U
     __pyx_t_5 = (kh_exist(__pyx_v_c_pSum->pauli_strings, __pyx_v_k) != 0);
     if (__pyx_t_5) {
 
-      /* "sparse_sim.pyx":402
+      /* "sparse_sim.pyx":398
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
  *         if kh_exist(c_pSum.pauli_strings, k):
  *             c_pString = kh_value(c_pSum.pauli_strings, k)             # <<<<<<<<<<<<<<
  * 
- *             c_str = pauli_string_to_string_c(c_pString)
+ *             c_str = pauli_string_to_string_no_coef_c(c_pString)
  */
       __pyx_v_c_pString = kh_value(__pyx_v_c_pSum->pauli_strings, __pyx_v_k);
 
-      /* "sparse_sim.pyx":404
+      /* "sparse_sim.pyx":400
  *             c_pString = kh_value(c_pSum.pauli_strings, k)
  * 
- *             c_str = pauli_string_to_string_c(c_pString)             # <<<<<<<<<<<<<<
- *             if not c_str:
- *                 continue
- */
-      __pyx_v_c_str = pauli_string_to_string_c(__pyx_v_c_pString);
-
-      /* "sparse_sim.pyx":405
- * 
- *             c_str = pauli_string_to_string_c(c_pString)
- *             if not c_str:             # <<<<<<<<<<<<<<
- *                 continue
- * 
- */
-      __pyx_t_5 = (!(__pyx_v_c_str != 0));
-      if (__pyx_t_5) {
-
-        /* "sparse_sim.pyx":406
- *             c_str = pauli_string_to_string_c(c_pString)
- *             if not c_str:
- *                 continue             # <<<<<<<<<<<<<<
- * 
+ *             c_str = pauli_string_to_string_no_coef_c(c_pString)             # <<<<<<<<<<<<<<
  *             py_str = c_str.decode('utf-8')
+ *             free(c_str)
  */
-        goto __pyx_L3_continue;
+      __pyx_v_c_str = pauli_string_to_string_no_coef_c(__pyx_v_c_pString);
 
-        /* "sparse_sim.pyx":405
+      /* "sparse_sim.pyx":401
  * 
- *             c_str = pauli_string_to_string_c(c_pString)
- *             if not c_str:             # <<<<<<<<<<<<<<
- *                 continue
- * 
- */
-      }
-
-      /* "sparse_sim.pyx":408
- *                 continue
- * 
+ *             c_str = pauli_string_to_string_no_coef_c(c_pString)
  *             py_str = c_str.decode('utf-8')             # <<<<<<<<<<<<<<
  *             free(c_str)
  * 
  */
-      __pyx_t_6 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 408, __pyx_L1_error)
-      __pyx_t_1 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_6, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 408, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 401, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_6, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 401, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_XDECREF_SET(__pyx_v_py_str, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "sparse_sim.pyx":409
- * 
+      /* "sparse_sim.pyx":402
+ *             c_str = pauli_string_to_string_no_coef_c(c_pString)
  *             py_str = c_str.decode('utf-8')
  *             free(c_str)             # <<<<<<<<<<<<<<
  * 
@@ -10097,16 +9974,16 @@ static PyObject *__pyx_pf_10sparse_sim_20pauli_sum_collect_measurements(CYTHON_U
  */
       free(__pyx_v_c_str);
 
-      /* "sparse_sim.pyx":411
+      /* "sparse_sim.pyx":404
  *             free(c_str)
  * 
  *             unique_strings.add(py_str)             # <<<<<<<<<<<<<<
  * 
  *     return unique_strings
  */
-      __pyx_t_7 = PySet_Add(__pyx_v_unique_strings, __pyx_v_py_str); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 411, __pyx_L1_error)
+      __pyx_t_7 = PySet_Add(__pyx_v_unique_strings, __pyx_v_py_str); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 404, __pyx_L1_error)
 
-      /* "sparse_sim.pyx":401
+      /* "sparse_sim.pyx":397
  * 
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
  *         if kh_exist(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
@@ -10114,22 +9991,21 @@ static PyObject *__pyx_pf_10sparse_sim_20pauli_sum_collect_measurements(CYTHON_U
  * 
  */
     }
-    __pyx_L3_continue:;
   }
 
-  /* "sparse_sim.pyx":413
+  /* "sparse_sim.pyx":406
  *             unique_strings.add(py_str)
  * 
  *     return unique_strings             # <<<<<<<<<<<<<<
  * 
- * def evaluate_pauli_sum_expectation(PauliSum pSum, dict tomography):
+ * def pauli_sum_evaluate_expectation(PauliSum pSum, dict tomography):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_unique_strings);
   __pyx_r = __pyx_v_unique_strings;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":383
+  /* "sparse_sim.pyx":379
  *     return PauliSum._init_from_c(new_pSum)
  * 
  * def pauli_sum_collect_measurements(PauliSum pSum):             # <<<<<<<<<<<<<<
@@ -10150,25 +10026,25 @@ static PyObject *__pyx_pf_10sparse_sim_20pauli_sum_collect_measurements(CYTHON_U
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":415
+/* "sparse_sim.pyx":408
  *     return unique_strings
  * 
- * def evaluate_pauli_sum_expectation(PauliSum pSum, dict tomography):             # <<<<<<<<<<<<<<
+ * def pauli_sum_evaluate_expectation(PauliSum pSum, dict tomography):             # <<<<<<<<<<<<<<
  *     """
  *     Computes the expectation value of a Pauli sum given tomography data.
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_10sparse_sim_23evaluate_pauli_sum_expectation(PyObject *__pyx_self, 
+static PyObject *__pyx_pw_10sparse_sim_23pauli_sum_evaluate_expectation(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-PyDoc_STRVAR(__pyx_doc_10sparse_sim_22evaluate_pauli_sum_expectation, "\n    Computes the expectation value of a Pauli sum given tomography data.\n\n    Parameters:\n    - pSum: PauliSum instance.\n    - tomography: Dictionary mapping Pauli strings to expectation values.\n\n    Returns:\n    - Complex expectation value of the Pauli sum.\n    ");
-static PyMethodDef __pyx_mdef_10sparse_sim_23evaluate_pauli_sum_expectation = {"evaluate_pauli_sum_expectation", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_10sparse_sim_23evaluate_pauli_sum_expectation, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_10sparse_sim_22evaluate_pauli_sum_expectation};
-static PyObject *__pyx_pw_10sparse_sim_23evaluate_pauli_sum_expectation(PyObject *__pyx_self, 
+PyDoc_STRVAR(__pyx_doc_10sparse_sim_22pauli_sum_evaluate_expectation, "\n    Computes the expectation value of a Pauli sum given tomography data.\n\n    Parameters:\n    - pSum: PauliSum instance.\n    - tomography: Dictionary mapping Pauli strings to expectation values.\n\n    Returns:\n    - Complex expectation value of the Pauli sum.\n    ");
+static PyMethodDef __pyx_mdef_10sparse_sim_23pauli_sum_evaluate_expectation = {"pauli_sum_evaluate_expectation", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_10sparse_sim_23pauli_sum_evaluate_expectation, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_10sparse_sim_22pauli_sum_evaluate_expectation};
+static PyObject *__pyx_pw_10sparse_sim_23pauli_sum_evaluate_expectation(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 #else
@@ -10187,7 +10063,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("evaluate_pauli_sum_expectation (wrapper)", 0);
+  __Pyx_RefNannySetupContext("pauli_sum_evaluate_expectation (wrapper)", 0);
   #if !CYTHON_METH_FASTCALL
   #if CYTHON_ASSUME_SAFE_MACROS
   __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
@@ -10215,7 +10091,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 415, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 408, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -10223,14 +10099,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 415, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 408, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("evaluate_pauli_sum_expectation", 1, 2, 2, 1); __PYX_ERR(0, 415, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("pauli_sum_evaluate_expectation", 1, 2, 2, 1); __PYX_ERR(0, 408, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "evaluate_pauli_sum_expectation") < 0)) __PYX_ERR(0, 415, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_sum_evaluate_expectation") < 0)) __PYX_ERR(0, 408, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -10243,7 +10119,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("evaluate_pauli_sum_expectation", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 415, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("pauli_sum_evaluate_expectation", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 408, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -10253,13 +10129,13 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
       __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
     }
   }
-  __Pyx_AddTraceback("sparse_sim.evaluate_pauli_sum_expectation", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("sparse_sim.pauli_sum_evaluate_expectation", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 415, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_tomography), (&PyDict_Type), 1, "tomography", 1))) __PYX_ERR(0, 415, __pyx_L1_error)
-  __pyx_r = __pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(__pyx_self, __pyx_v_pSum, __pyx_v_tomography);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_pSum), __pyx_ptype_10sparse_sim_PauliSum, 1, "pSum", 0))) __PYX_ERR(0, 408, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_tomography), (&PyDict_Type), 1, "tomography", 1))) __PYX_ERR(0, 408, __pyx_L1_error)
+  __pyx_r = __pyx_pf_10sparse_sim_22pauli_sum_evaluate_expectation(__pyx_self, __pyx_v_pSum, __pyx_v_tomography);
 
   /* function exit code */
   goto __pyx_L0;
@@ -10276,16 +10152,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_pSum, PyObject *__pyx_v_tomography) {
+static PyObject *__pyx_pf_10sparse_sim_22pauli_sum_evaluate_expectation(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_pSum, PyObject *__pyx_v_tomography) {
   struct PauliSumC *__pyx_v_c_pSum;
   struct PauliStringC *__pyx_v_c_pString;
   char *__pyx_v_c_str;
   khiter_t __pyx_v_k;
   PyObject *__pyx_v_exp = NULL;
   PyObject *__pyx_v_py_str = NULL;
-  PyObject *__pyx_v_match = NULL;
-  PyObject *__pyx_v_coef = NULL;
-  PyObject *__pyx_v_pauli_str = NULL;
+  __pyx_t_double_complex __pyx_v_coef;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __pyx_t_double_complex __pyx_t_1;
@@ -10297,14 +10171,13 @@ static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_U
   Py_ssize_t __pyx_t_7;
   PyObject *__pyx_t_8 = NULL;
   PyObject *__pyx_t_9 = NULL;
-  unsigned int __pyx_t_10;
-  Py_UCS4 __pyx_t_11;
+  Py_UCS4 __pyx_t_10;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("evaluate_pauli_sum_expectation", 1);
+  __Pyx_RefNannySetupContext("pauli_sum_evaluate_expectation", 1);
 
-  /* "sparse_sim.pyx":427
+  /* "sparse_sim.pyx":420
  *     """
  * 
  *     cdef PauliSumC* c_pSum = <PauliSumC *> pSum._c_pSum             # <<<<<<<<<<<<<<
@@ -10313,7 +10186,7 @@ static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_U
  */
   __pyx_v_c_pSum = ((struct PauliSumC *)__pyx_v_pSum->_c_pSum);
 
-  /* "sparse_sim.pyx":432
+  /* "sparse_sim.pyx":425
  *     cdef khiter_t k
  * 
  *     exp = 0 + 0j             # <<<<<<<<<<<<<<
@@ -10321,12 +10194,12 @@ static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_U
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
  */
   __pyx_t_1 = __Pyx_c_sum_double(__pyx_t_double_complex_from_parts(0, 0), __pyx_t_double_complex_from_parts(0, 0.0));
-  __pyx_t_2 = __pyx_PyComplex_FromComplex(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 432, __pyx_L1_error)
+  __pyx_t_2 = __pyx_PyComplex_FromComplex(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 425, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_exp = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":434
+  /* "sparse_sim.pyx":427
  *     exp = 0 + 0j
  * 
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):             # <<<<<<<<<<<<<<
@@ -10338,7 +10211,7 @@ static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_U
   for (__pyx_t_5 = kh_begin(__pyx_v_c_pSum->pauli_strings); __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
     __pyx_v_k = __pyx_t_5;
 
-    /* "sparse_sim.pyx":435
+    /* "sparse_sim.pyx":428
  * 
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
  *         if kh_exist(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
@@ -10348,334 +10221,143 @@ static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_U
     __pyx_t_6 = (kh_exist(__pyx_v_c_pSum->pauli_strings, __pyx_v_k) != 0);
     if (__pyx_t_6) {
 
-      /* "sparse_sim.pyx":436
+      /* "sparse_sim.pyx":429
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
  *         if kh_exist(c_pSum.pauli_strings, k):
  *             c_pString = kh_value(c_pSum.pauli_strings, k)             # <<<<<<<<<<<<<<
  * 
- *             c_str = pauli_string_to_string_c(c_pString)
+ *             c_str = pauli_string_to_string_no_coef_c(c_pString)
  */
       __pyx_v_c_pString = kh_value(__pyx_v_c_pSum->pauli_strings, __pyx_v_k);
 
-      /* "sparse_sim.pyx":438
+      /* "sparse_sim.pyx":431
  *             c_pString = kh_value(c_pSum.pauli_strings, k)
  * 
- *             c_str = pauli_string_to_string_c(c_pString)             # <<<<<<<<<<<<<<
- *             if not c_str:
- *                 print("Error: Failed to convert PauliString to string")
- */
-      __pyx_v_c_str = pauli_string_to_string_c(__pyx_v_c_pString);
-
-      /* "sparse_sim.pyx":439
- * 
- *             c_str = pauli_string_to_string_c(c_pString)
- *             if not c_str:             # <<<<<<<<<<<<<<
- *                 print("Error: Failed to convert PauliString to string")
- *                 continue
- */
-      __pyx_t_6 = (!(__pyx_v_c_str != 0));
-      if (__pyx_t_6) {
-
-        /* "sparse_sim.pyx":440
- *             c_str = pauli_string_to_string_c(c_pString)
- *             if not c_str:
- *                 print("Error: Failed to convert PauliString to string")             # <<<<<<<<<<<<<<
- *                 continue
- * 
- */
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 440, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
-        /* "sparse_sim.pyx":441
- *             if not c_str:
- *                 print("Error: Failed to convert PauliString to string")
- *                 continue             # <<<<<<<<<<<<<<
- * 
+ *             c_str = pauli_string_to_string_no_coef_c(c_pString)             # <<<<<<<<<<<<<<
  *             py_str = c_str.decode('utf-8')
+ *             free(c_str)
  */
-        goto __pyx_L3_continue;
+      __pyx_v_c_str = pauli_string_to_string_no_coef_c(__pyx_v_c_pString);
 
-        /* "sparse_sim.pyx":439
+      /* "sparse_sim.pyx":432
  * 
- *             c_str = pauli_string_to_string_c(c_pString)
- *             if not c_str:             # <<<<<<<<<<<<<<
- *                 print("Error: Failed to convert PauliString to string")
- *                 continue
- */
-      }
-
-      /* "sparse_sim.pyx":443
- *                 continue
- * 
+ *             c_str = pauli_string_to_string_no_coef_c(c_pString)
  *             py_str = c_str.decode('utf-8')             # <<<<<<<<<<<<<<
  *             free(c_str)
  * 
  */
-      __pyx_t_7 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_7 == ((Py_ssize_t)-1))) __PYX_ERR(0, 443, __pyx_L1_error)
-      __pyx_t_2 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_7, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 443, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_ssize_strlen(__pyx_v_c_str); if (unlikely(__pyx_t_7 == ((Py_ssize_t)-1))) __PYX_ERR(0, 432, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_decode_c_string(__pyx_v_c_str, 0, __pyx_t_7, NULL, NULL, PyUnicode_DecodeUTF8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 432, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_XDECREF_SET(__pyx_v_py_str, __pyx_t_2);
       __pyx_t_2 = 0;
 
-      /* "sparse_sim.pyx":444
- * 
+      /* "sparse_sim.pyx":433
+ *             c_str = pauli_string_to_string_no_coef_c(c_pString)
  *             py_str = c_str.decode('utf-8')
  *             free(c_str)             # <<<<<<<<<<<<<<
  * 
- *             match = re.match(r"\(([^)]+)\)\s*([IXYZ]+)", py_str)
+ *             if py_str in tomography:
  */
       free(__pyx_v_c_str);
 
-      /* "sparse_sim.pyx":446
+      /* "sparse_sim.pyx":435
  *             free(c_str)
  * 
- *             match = re.match(r"\(([^)]+)\)\s*([IXYZ]+)", py_str)             # <<<<<<<<<<<<<<
- *             if match:
- *                 coef = complex(match.group(1))
+ *             if py_str in tomography:             # <<<<<<<<<<<<<<
+ *                 coef = c_pString.coef
+ *                 exp += coef * tomography[py_str]
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_re); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 446, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_match); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 446, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_9);
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = NULL;
-      __pyx_t_10 = 0;
-      #if CYTHON_UNPACK_METHODS
-      if (unlikely(PyMethod_Check(__pyx_t_9))) {
-        __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_9);
-        if (likely(__pyx_t_8)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_9);
-          __Pyx_INCREF(__pyx_t_8);
-          __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_9, function);
-          __pyx_t_10 = 1;
-        }
+      if (unlikely(__pyx_v_tomography == Py_None)) {
+        PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
+        __PYX_ERR(0, 435, __pyx_L1_error)
       }
-      #endif
-      {
-        PyObject *__pyx_callargs[3] = {__pyx_t_8, __pyx_kp_s_s_IXYZ, __pyx_v_py_str};
-        __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_9, __pyx_callargs+1-__pyx_t_10, 2+__pyx_t_10);
-        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 446, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-      }
-      __Pyx_XDECREF_SET(__pyx_v_match, __pyx_t_2);
-      __pyx_t_2 = 0;
-
-      /* "sparse_sim.pyx":447
- * 
- *             match = re.match(r"\(([^)]+)\)\s*([IXYZ]+)", py_str)
- *             if match:             # <<<<<<<<<<<<<<
- *                 coef = complex(match.group(1))
- *                 pauli_str = match.group(2)
- */
-      __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_match); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 447, __pyx_L1_error)
+      __pyx_t_6 = (__Pyx_PyDict_ContainsTF(__pyx_v_py_str, __pyx_v_tomography, Py_EQ)); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 435, __pyx_L1_error)
       if (__pyx_t_6) {
 
-        /* "sparse_sim.pyx":448
- *             match = re.match(r"\(([^)]+)\)\s*([IXYZ]+)", py_str)
- *             if match:
- *                 coef = complex(match.group(1))             # <<<<<<<<<<<<<<
- *                 pauli_str = match.group(2)
+        /* "sparse_sim.pyx":436
  * 
+ *             if py_str in tomography:
+ *                 coef = c_pString.coef             # <<<<<<<<<<<<<<
+ *                 exp += coef * tomography[py_str]
+ *             else:
  */
-        __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_match, __pyx_n_s_group); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 448, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_9);
-        __pyx_t_8 = NULL;
-        __pyx_t_10 = 0;
-        #if CYTHON_UNPACK_METHODS
-        if (likely(PyMethod_Check(__pyx_t_9))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_9);
-          if (likely(__pyx_t_8)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_9);
-            __Pyx_INCREF(__pyx_t_8);
-            __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_9, function);
-            __pyx_t_10 = 1;
-          }
+        __pyx_t_1 = __pyx_v_c_pString->coef;
+        __pyx_v_coef = __pyx_t_1;
+
+        /* "sparse_sim.pyx":437
+ *             if py_str in tomography:
+ *                 coef = c_pString.coef
+ *                 exp += coef * tomography[py_str]             # <<<<<<<<<<<<<<
+ *             else:
+ *                 print(f"Error: PauliString '{py_str}' not found in tomography data")
+ */
+        __pyx_t_2 = __pyx_PyComplex_FromComplex(__pyx_v_coef); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 437, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        if (unlikely(__pyx_v_tomography == Py_None)) {
+          PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
+          __PYX_ERR(0, 437, __pyx_L1_error)
         }
-        #endif
-        {
-          PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_int_1};
-          __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_9, __pyx_callargs+1-__pyx_t_10, 1+__pyx_t_10);
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-          if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 448, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_2);
-          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-        }
-        __pyx_t_9 = __Pyx_PyObject_CallOneArg(((PyObject *)(&PyComplex_Type)), __pyx_t_2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 448, __pyx_L1_error)
+        __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_tomography, __pyx_v_py_str); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 437, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
+        __pyx_t_9 = PyNumber_Multiply(__pyx_t_2, __pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 437, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_9);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-        __Pyx_XDECREF_SET(__pyx_v_coef, ((PyObject*)__pyx_t_9));
-        __pyx_t_9 = 0;
+        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+        __pyx_t_8 = PyNumber_InPlaceAdd(__pyx_v_exp, __pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 437, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        __Pyx_DECREF_SET(__pyx_v_exp, __pyx_t_8);
+        __pyx_t_8 = 0;
 
-        /* "sparse_sim.pyx":449
- *             if match:
- *                 coef = complex(match.group(1))
- *                 pauli_str = match.group(2)             # <<<<<<<<<<<<<<
+        /* "sparse_sim.pyx":435
+ *             free(c_str)
  * 
- *                 if pauli_str in tomography:
+ *             if py_str in tomography:             # <<<<<<<<<<<<<<
+ *                 coef = c_pString.coef
+ *                 exp += coef * tomography[py_str]
  */
-        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_match, __pyx_n_s_group); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 449, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_8 = NULL;
-        __pyx_t_10 = 0;
-        #if CYTHON_UNPACK_METHODS
-        if (likely(PyMethod_Check(__pyx_t_2))) {
-          __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_2);
-          if (likely(__pyx_t_8)) {
-            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-            __Pyx_INCREF(__pyx_t_8);
-            __Pyx_INCREF(function);
-            __Pyx_DECREF_SET(__pyx_t_2, function);
-            __pyx_t_10 = 1;
-          }
-        }
-        #endif
-        {
-          PyObject *__pyx_callargs[2] = {__pyx_t_8, __pyx_int_2};
-          __pyx_t_9 = __Pyx_PyObject_FastCall(__pyx_t_2, __pyx_callargs+1-__pyx_t_10, 1+__pyx_t_10);
-          __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-          if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 449, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_9);
-          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-        }
-        __Pyx_XDECREF_SET(__pyx_v_pauli_str, __pyx_t_9);
-        __pyx_t_9 = 0;
-
-        /* "sparse_sim.pyx":451
- *                 pauli_str = match.group(2)
- * 
- *                 if pauli_str in tomography:             # <<<<<<<<<<<<<<
- *                     exp += coef * tomography[pauli_str]
- *                 else:
- */
-        if (unlikely(__pyx_v_tomography == Py_None)) {
-          PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-          __PYX_ERR(0, 451, __pyx_L1_error)
-        }
-        __pyx_t_6 = (__Pyx_PyDict_ContainsTF(__pyx_v_pauli_str, __pyx_v_tomography, Py_EQ)); if (unlikely((__pyx_t_6 < 0))) __PYX_ERR(0, 451, __pyx_L1_error)
-        if (__pyx_t_6) {
-
-          /* "sparse_sim.pyx":452
- * 
- *                 if pauli_str in tomography:
- *                     exp += coef * tomography[pauli_str]             # <<<<<<<<<<<<<<
- *                 else:
- *                     print(f"Error: PauliString '{pauli_str}' not found in tomography data")
- */
-          if (unlikely(__pyx_v_tomography == Py_None)) {
-            PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-            __PYX_ERR(0, 452, __pyx_L1_error)
-          }
-          __pyx_t_9 = __Pyx_PyDict_GetItem(__pyx_v_tomography, __pyx_v_pauli_str); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 452, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_9);
-          __pyx_t_2 = PyNumber_Multiply(__pyx_v_coef, __pyx_t_9); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 452, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_2);
-          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-          __pyx_t_9 = PyNumber_InPlaceAdd(__pyx_v_exp, __pyx_t_2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 452, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_9);
-          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __Pyx_DECREF_SET(__pyx_v_exp, __pyx_t_9);
-          __pyx_t_9 = 0;
-
-          /* "sparse_sim.pyx":451
- *                 pauli_str = match.group(2)
- * 
- *                 if pauli_str in tomography:             # <<<<<<<<<<<<<<
- *                     exp += coef * tomography[pauli_str]
- *                 else:
- */
-          goto __pyx_L8;
-        }
-
-        /* "sparse_sim.pyx":454
- *                     exp += coef * tomography[pauli_str]
- *                 else:
- *                     print(f"Error: PauliString '{pauli_str}' not found in tomography data")             # <<<<<<<<<<<<<<
- *             else:
- *                 print(f"Error: Invalid PauliString format '{py_str}'")
- */
-        /*else*/ {
-          __pyx_t_9 = PyTuple_New(3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 454, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_9);
-          __pyx_t_7 = 0;
-          __pyx_t_11 = 127;
-          __Pyx_INCREF(__pyx_kp_u_Error_PauliString);
-          __pyx_t_7 += 20;
-          __Pyx_GIVEREF(__pyx_kp_u_Error_PauliString);
-          PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_kp_u_Error_PauliString);
-          __pyx_t_2 = __Pyx_PyObject_FormatSimple(__pyx_v_pauli_str, __pyx_empty_unicode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 454, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_11 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_2) > __pyx_t_11) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_2) : __pyx_t_11;
-          __pyx_t_7 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_2);
-          __Pyx_GIVEREF(__pyx_t_2);
-          PyTuple_SET_ITEM(__pyx_t_9, 1, __pyx_t_2);
-          __pyx_t_2 = 0;
-          __Pyx_INCREF(__pyx_kp_u_not_found_in_tomography_data);
-          __pyx_t_7 += 30;
-          __Pyx_GIVEREF(__pyx_kp_u_not_found_in_tomography_data);
-          PyTuple_SET_ITEM(__pyx_t_9, 2, __pyx_kp_u_not_found_in_tomography_data);
-          __pyx_t_2 = __Pyx_PyUnicode_Join(__pyx_t_9, 3, __pyx_t_7, __pyx_t_11); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 454, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_2);
-          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-          __pyx_t_9 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 454, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_9);
-          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-        }
-        __pyx_L8:;
-
-        /* "sparse_sim.pyx":447
- * 
- *             match = re.match(r"\(([^)]+)\)\s*([IXYZ]+)", py_str)
- *             if match:             # <<<<<<<<<<<<<<
- *                 coef = complex(match.group(1))
- *                 pauli_str = match.group(2)
- */
-        goto __pyx_L7;
+        goto __pyx_L6;
       }
 
-      /* "sparse_sim.pyx":456
- *                     print(f"Error: PauliString '{pauli_str}' not found in tomography data")
+      /* "sparse_sim.pyx":439
+ *                 exp += coef * tomography[py_str]
  *             else:
- *                 print(f"Error: Invalid PauliString format '{py_str}'")             # <<<<<<<<<<<<<<
+ *                 print(f"Error: PauliString '{py_str}' not found in tomography data")             # <<<<<<<<<<<<<<
  * 
  *     return exp
  */
       /*else*/ {
-        __pyx_t_9 = PyTuple_New(3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 456, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_9);
+        __pyx_t_8 = PyTuple_New(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 439, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
         __pyx_t_7 = 0;
-        __pyx_t_11 = 127;
-        __Pyx_INCREF(__pyx_kp_u_Error_Invalid_PauliString_format);
-        __pyx_t_7 += 35;
-        __Pyx_GIVEREF(__pyx_kp_u_Error_Invalid_PauliString_format);
-        PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_kp_u_Error_Invalid_PauliString_format);
-        __pyx_t_2 = __Pyx_PyObject_FormatSimple(__pyx_v_py_str, __pyx_empty_unicode); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_11 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_2) > __pyx_t_11) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_2) : __pyx_t_11;
-        __pyx_t_7 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_2);
-        __Pyx_GIVEREF(__pyx_t_2);
-        PyTuple_SET_ITEM(__pyx_t_9, 1, __pyx_t_2);
-        __pyx_t_2 = 0;
-        __Pyx_INCREF(__pyx_kp_u__16);
-        __pyx_t_7 += 1;
-        __Pyx_GIVEREF(__pyx_kp_u__16);
-        PyTuple_SET_ITEM(__pyx_t_9, 2, __pyx_kp_u__16);
-        __pyx_t_2 = __Pyx_PyUnicode_Join(__pyx_t_9, 3, __pyx_t_7, __pyx_t_11); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_2);
-        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-        __pyx_t_9 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 456, __pyx_L1_error)
+        __pyx_t_10 = 127;
+        __Pyx_INCREF(__pyx_kp_u_Error_PauliString);
+        __pyx_t_7 += 20;
+        __Pyx_GIVEREF(__pyx_kp_u_Error_PauliString);
+        PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_kp_u_Error_PauliString);
+        __pyx_t_9 = __Pyx_PyObject_FormatSimple(__pyx_v_py_str, __pyx_empty_unicode); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 439, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_9);
-        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_t_10 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_9) > __pyx_t_10) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_9) : __pyx_t_10;
+        __pyx_t_7 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_9);
+        __Pyx_GIVEREF(__pyx_t_9);
+        PyTuple_SET_ITEM(__pyx_t_8, 1, __pyx_t_9);
+        __pyx_t_9 = 0;
+        __Pyx_INCREF(__pyx_kp_u_not_found_in_tomography_data);
+        __pyx_t_7 += 30;
+        __Pyx_GIVEREF(__pyx_kp_u_not_found_in_tomography_data);
+        PyTuple_SET_ITEM(__pyx_t_8, 2, __pyx_kp_u_not_found_in_tomography_data);
+        __pyx_t_9 = __Pyx_PyUnicode_Join(__pyx_t_8, 3, __pyx_t_7, __pyx_t_10); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 439, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_9);
+        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+        __pyx_t_8 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 439, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       }
-      __pyx_L7:;
+      __pyx_L6:;
 
-      /* "sparse_sim.pyx":435
+      /* "sparse_sim.pyx":428
  * 
  *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
  *         if kh_exist(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
@@ -10683,11 +10365,10 @@ static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_U
  * 
  */
     }
-    __pyx_L3_continue:;
   }
 
-  /* "sparse_sim.pyx":458
- *                 print(f"Error: Invalid PauliString format '{py_str}'")
+  /* "sparse_sim.pyx":441
+ *                 print(f"Error: PauliString '{py_str}' not found in tomography data")
  * 
  *     return exp             # <<<<<<<<<<<<<<
  * 
@@ -10698,10 +10379,10 @@ static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_U
   __pyx_r = __pyx_v_exp;
   goto __pyx_L0;
 
-  /* "sparse_sim.pyx":415
+  /* "sparse_sim.pyx":408
  *     return unique_strings
  * 
- * def evaluate_pauli_sum_expectation(PauliSum pSum, dict tomography):             # <<<<<<<<<<<<<<
+ * def pauli_sum_evaluate_expectation(PauliSum pSum, dict tomography):             # <<<<<<<<<<<<<<
  *     """
  *     Computes the expectation value of a Pauli sum given tomography data.
  */
@@ -10711,25 +10392,22 @@ static PyObject *__pyx_pf_10sparse_sim_22evaluate_pauli_sum_expectation(CYTHON_U
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_9);
-  __Pyx_AddTraceback("sparse_sim.evaluate_pauli_sum_expectation", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("sparse_sim.pauli_sum_evaluate_expectation", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_exp);
   __Pyx_XDECREF(__pyx_v_py_str);
-  __Pyx_XDECREF(__pyx_v_match);
-  __Pyx_XDECREF(__pyx_v_coef);
-  __Pyx_XDECREF(__pyx_v_pauli_str);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "sparse_sim.pyx":460
+/* "sparse_sim.pyx":443
  *     return exp
  * 
  * def pauli_sum_addition(PauliSum left, PauliSum right):             # <<<<<<<<<<<<<<
- *     pass
- * 
+ *     """Add two Pauli sums."""
+ *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  */
 
 /* Python wrapper */
@@ -10740,7 +10418,8 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ); /*proto*/
-static PyMethodDef __pyx_mdef_10sparse_sim_25pauli_sum_addition = {"pauli_sum_addition", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_10sparse_sim_25pauli_sum_addition, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+PyDoc_STRVAR(__pyx_doc_10sparse_sim_24pauli_sum_addition, "Add two Pauli sums.");
+static PyMethodDef __pyx_mdef_10sparse_sim_25pauli_sum_addition = {"pauli_sum_addition", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_10sparse_sim_25pauli_sum_addition, __Pyx_METH_FASTCALL|METH_KEYWORDS, __pyx_doc_10sparse_sim_24pauli_sum_addition};
 static PyObject *__pyx_pw_10sparse_sim_25pauli_sum_addition(PyObject *__pyx_self, 
 #if CYTHON_METH_FASTCALL
 PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
@@ -10748,8 +10427,8 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ) {
-  CYTHON_UNUSED struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_left = 0;
-  CYTHON_UNUSED struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_right = 0;
+  struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_left = 0;
+  struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_right = 0;
   #if !CYTHON_METH_FASTCALL
   CYTHON_UNUSED Py_ssize_t __pyx_nargs;
   #endif
@@ -10788,7 +10467,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 460, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 443, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -10796,14 +10475,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 460, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 443, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("pauli_sum_addition", 1, 2, 2, 1); __PYX_ERR(0, 460, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("pauli_sum_addition", 1, 2, 2, 1); __PYX_ERR(0, 443, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_sum_addition") < 0)) __PYX_ERR(0, 460, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "pauli_sum_addition") < 0)) __PYX_ERR(0, 443, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
@@ -10816,7 +10495,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("pauli_sum_addition", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 460, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("pauli_sum_addition", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 443, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -10830,8 +10509,8 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_left), __pyx_ptype_10sparse_sim_PauliSum, 1, "left", 0))) __PYX_ERR(0, 460, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_right), __pyx_ptype_10sparse_sim_PauliSum, 1, "right", 0))) __PYX_ERR(0, 460, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_left), __pyx_ptype_10sparse_sim_PauliSum, 1, "left", 0))) __PYX_ERR(0, 443, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_right), __pyx_ptype_10sparse_sim_PauliSum, 1, "right", 0))) __PYX_ERR(0, 443, __pyx_L1_error)
   __pyx_r = __pyx_pf_10sparse_sim_24pauli_sum_addition(__pyx_self, __pyx_v_left, __pyx_v_right);
 
   /* function exit code */
@@ -10849,13 +10528,86 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_10sparse_sim_24pauli_sum_addition(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_left, CYTHON_UNUSED struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_right) {
+static PyObject *__pyx_pf_10sparse_sim_24pauli_sum_addition(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_left, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_right) {
+  struct PauliSumC *__pyx_v_new_pSum;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("pauli_sum_addition", 1);
 
+  /* "sparse_sim.pyx":445
+ * def pauli_sum_addition(PauliSum left, PauliSum right):
+ *     """Add two Pauli sums."""
+ *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)             # <<<<<<<<<<<<<<
+ *     if not new_pSum:
+ *         raise MemoryError("pauli_sum_addition_c returned NULL")
+ */
+  __pyx_v_new_pSum = pauli_sum_addition_c(((struct PauliSumC *)__pyx_v_left->_c_pSum), ((struct PauliSumC *)__pyx_v_right->_c_pSum));
+
+  /* "sparse_sim.pyx":446
+ *     """Add two Pauli sums."""
+ *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
+ *     if not new_pSum:             # <<<<<<<<<<<<<<
+ *         raise MemoryError("pauli_sum_addition_c returned NULL")
+ *     return PauliSum._init_from_c(new_pSum)
+ */
+  __pyx_t_1 = (!(__pyx_v_new_pSum != 0));
+  if (unlikely(__pyx_t_1)) {
+
+    /* "sparse_sim.pyx":447
+ *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
+ *     if not new_pSum:
+ *         raise MemoryError("pauli_sum_addition_c returned NULL")             # <<<<<<<<<<<<<<
+ *     return PauliSum._init_from_c(new_pSum)
+ * 
+ */
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 447, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_Raise(__pyx_t_2, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __PYX_ERR(0, 447, __pyx_L1_error)
+
+    /* "sparse_sim.pyx":446
+ *     """Add two Pauli sums."""
+ *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
+ *     if not new_pSum:             # <<<<<<<<<<<<<<
+ *         raise MemoryError("pauli_sum_addition_c returned NULL")
+ *     return PauliSum._init_from_c(new_pSum)
+ */
+  }
+
+  /* "sparse_sim.pyx":448
+ *     if not new_pSum:
+ *         raise MemoryError("pauli_sum_addition_c returned NULL")
+ *     return PauliSum._init_from_c(new_pSum)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_8PauliSum__init_from_c(__pyx_v_new_pSum)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 448, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_r = __pyx_t_2;
+  __pyx_t_2 = 0;
+  goto __pyx_L0;
+
+  /* "sparse_sim.pyx":443
+ *     return exp
+ * 
+ * def pauli_sum_addition(PauliSum left, PauliSum right):             # <<<<<<<<<<<<<<
+ *     """Add two Pauli sums."""
+ *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
+ */
+
   /* function exit code */
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_AddTraceback("sparse_sim.pauli_sum_addition", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -11686,8 +11438,6 @@ static PyMethodDef __pyx_methods[] = {
 static int __Pyx_CreateStringTabAndInitStrings(void) {
   __Pyx_StringTabEntry __pyx_string_tab[] = {
     {&__pyx_kp_s_Each_Pauli_character_must_be_a_s, __pyx_k_Each_Pauli_character_must_be_a_s, sizeof(__pyx_k_Each_Pauli_character_must_be_a_s), 0, 0, 1, 0},
-    {&__pyx_kp_s_Error_Failed_to_convert_PauliStr, __pyx_k_Error_Failed_to_convert_PauliStr, sizeof(__pyx_k_Error_Failed_to_convert_PauliStr), 0, 0, 1, 0},
-    {&__pyx_kp_u_Error_Invalid_PauliString_format, __pyx_k_Error_Invalid_PauliString_format, sizeof(__pyx_k_Error_Invalid_PauliString_format), 0, 1, 0, 0},
     {&__pyx_kp_u_Error_PauliString, __pyx_k_Error_PauliString, sizeof(__pyx_k_Error_PauliString), 0, 1, 0, 0},
     {&__pyx_kp_s_Failed_to_allocate_PauliStringC, __pyx_k_Failed_to_allocate_PauliStringC, sizeof(__pyx_k_Failed_to_allocate_PauliStringC), 0, 0, 1, 0},
     {&__pyx_kp_s_Failed_to_allocate_PauliSum, __pyx_k_Failed_to_allocate_PauliSum, sizeof(__pyx_k_Failed_to_allocate_PauliSum), 0, 0, 1, 0},
@@ -11719,10 +11469,9 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_kp_s_Wavefunction_is_empty, __pyx_k_Wavefunction_is_empty, sizeof(__pyx_k_Wavefunction_is_empty), 0, 0, 1, 0},
     {&__pyx_n_s_Wavefunction_norm, __pyx_k_Wavefunction_norm, sizeof(__pyx_k_Wavefunction_norm), 0, 0, 1, 1},
     {&__pyx_n_s_Wavefunction_s, __pyx_k_Wavefunction_s, sizeof(__pyx_k_Wavefunction_s), 0, 0, 1, 1},
-    {&__pyx_kp_u__16, __pyx_k__16, sizeof(__pyx_k__16), 0, 1, 0, 0},
-    {&__pyx_n_s__17, __pyx_k__17, sizeof(__pyx_k__17), 0, 0, 1, 1},
+    {&__pyx_n_s__14, __pyx_k__14, sizeof(__pyx_k__14), 0, 0, 1, 1},
     {&__pyx_kp_s__6, __pyx_k__6, sizeof(__pyx_k__6), 0, 0, 1, 0},
-    {&__pyx_n_s__67, __pyx_k__67, sizeof(__pyx_k__67), 0, 0, 1, 1},
+    {&__pyx_n_s__63, __pyx_k__63, sizeof(__pyx_k__63), 0, 0, 1, 1},
     {&__pyx_n_s_adjoint, __pyx_k_adjoint, sizeof(__pyx_k_adjoint), 0, 0, 1, 1},
     {&__pyx_n_s_append_pauli_string, __pyx_k_append_pauli_string, sizeof(__pyx_k_append_pauli_string), 0, 0, 1, 1},
     {&__pyx_n_s_append_slater_determinant, __pyx_k_append_slater_determinant, sizeof(__pyx_k_append_slater_determinant), 0, 0, 1, 1},
@@ -11742,14 +11491,10 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_kp_u_enable, __pyx_k_enable, sizeof(__pyx_k_enable), 0, 1, 0, 0},
     {&__pyx_n_s_encode, __pyx_k_encode, sizeof(__pyx_k_encode), 0, 0, 1, 1},
     {&__pyx_n_s_epsilon, __pyx_k_epsilon, sizeof(__pyx_k_epsilon), 0, 0, 1, 1},
-    {&__pyx_n_s_evaluate_pauli_sum_expectation, __pyx_k_evaluate_pauli_sum_expectation, sizeof(__pyx_k_evaluate_pauli_sum_expectation), 0, 0, 1, 1},
     {&__pyx_n_s_exp, __pyx_k_exp, sizeof(__pyx_k_exp), 0, 0, 1, 1},
     {&__pyx_kp_u_gc, __pyx_k_gc, sizeof(__pyx_k_gc), 0, 1, 0, 0},
     {&__pyx_n_s_genexpr, __pyx_k_genexpr, sizeof(__pyx_k_genexpr), 0, 0, 1, 1},
     {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
-    {&__pyx_n_s_group, __pyx_k_group, sizeof(__pyx_k_group), 0, 0, 1, 1},
-    {&__pyx_n_s_here1, __pyx_k_here1, sizeof(__pyx_k_here1), 0, 0, 1, 1},
-    {&__pyx_n_s_here2, __pyx_k_here2, sizeof(__pyx_k_here2), 0, 0, 1, 1},
     {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
     {&__pyx_n_s_init___locals_genexpr, __pyx_k_init___locals_genexpr, sizeof(__pyx_k_init___locals_genexpr), 0, 0, 1, 1},
     {&__pyx_n_s_initializing, __pyx_k_initializing, sizeof(__pyx_k_initializing), 0, 0, 1, 1},
@@ -11761,7 +11506,6 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_ket, __pyx_k_ket, sizeof(__pyx_k_ket), 0, 0, 1, 1},
     {&__pyx_n_s_left, __pyx_k_left, sizeof(__pyx_k_left), 0, 0, 1, 1},
     {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
-    {&__pyx_n_s_match, __pyx_k_match, sizeof(__pyx_k_match), 0, 0, 1, 1},
     {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
     {&__pyx_n_s_new_pString, __pyx_k_new_pString, sizeof(__pyx_k_new_pString), 0, 0, 1, 1},
     {&__pyx_n_s_new_pSum, __pyx_k_new_pSum, sizeof(__pyx_k_new_pSum), 0, 0, 1, 1},
@@ -11773,12 +11517,13 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_p, __pyx_k_p, sizeof(__pyx_k_p), 0, 0, 1, 1},
     {&__pyx_n_s_pString, __pyx_k_pString, sizeof(__pyx_k_pString), 0, 0, 1, 1},
     {&__pyx_n_s_pSum, __pyx_k_pSum, sizeof(__pyx_k_pSum), 0, 0, 1, 1},
-    {&__pyx_n_s_pauli_str, __pyx_k_pauli_str, sizeof(__pyx_k_pauli_str), 0, 0, 1, 1},
     {&__pyx_n_s_pauli_string_multiplication, __pyx_k_pauli_string_multiplication, sizeof(__pyx_k_pauli_string_multiplication), 0, 0, 1, 1},
     {&__pyx_kp_s_pauli_string_scalar_multiplicati, __pyx_k_pauli_string_scalar_multiplicati, sizeof(__pyx_k_pauli_string_scalar_multiplicati), 0, 0, 1, 0},
     {&__pyx_n_s_pauli_string_scalar_multiplicati_2, __pyx_k_pauli_string_scalar_multiplicati_2, sizeof(__pyx_k_pauli_string_scalar_multiplicati_2), 0, 0, 1, 1},
     {&__pyx_n_s_pauli_sum_addition, __pyx_k_pauli_sum_addition, sizeof(__pyx_k_pauli_sum_addition), 0, 0, 1, 1},
+    {&__pyx_kp_s_pauli_sum_addition_c_returned_NU, __pyx_k_pauli_sum_addition_c_returned_NU, sizeof(__pyx_k_pauli_sum_addition_c_returned_NU), 0, 0, 1, 0},
     {&__pyx_n_s_pauli_sum_collect_measurements, __pyx_k_pauli_sum_collect_measurements, sizeof(__pyx_k_pauli_sum_collect_measurements), 0, 0, 1, 1},
+    {&__pyx_n_s_pauli_sum_evaluate_expectation, __pyx_k_pauli_sum_evaluate_expectation, sizeof(__pyx_k_pauli_sum_evaluate_expectation), 0, 0, 1, 1},
     {&__pyx_n_s_pauli_sum_multiplication, __pyx_k_pauli_sum_multiplication, sizeof(__pyx_k_pauli_sum_multiplication), 0, 0, 1, 1},
     {&__pyx_kp_s_pauli_sum_multiplication_c_retur, __pyx_k_pauli_sum_multiplication_c_retur, sizeof(__pyx_k_pauli_sum_multiplication_c_retur), 0, 0, 1, 0},
     {&__pyx_kp_s_pauli_sum_scalar_multiplication, __pyx_k_pauli_sum_scalar_multiplication, sizeof(__pyx_k_pauli_sum_scalar_multiplication), 0, 0, 1, 0},
@@ -11797,7 +11542,6 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
     {&__pyx_n_s_right, __pyx_k_right, sizeof(__pyx_k_right), 0, 0, 1, 1},
     {&__pyx_n_s_s, __pyx_k_s, sizeof(__pyx_k_s), 0, 0, 1, 1},
-    {&__pyx_kp_s_s_IXYZ, __pyx_k_s_IXYZ, sizeof(__pyx_k_s_IXYZ), 0, 0, 1, 0},
     {&__pyx_n_s_scalar, __pyx_k_scalar, sizeof(__pyx_k_scalar), 0, 0, 1, 1},
     {&__pyx_n_s_sdet, __pyx_k_sdet, sizeof(__pyx_k_sdet), 0, 0, 1, 1},
     {&__pyx_n_s_self, __pyx_k_self, sizeof(__pyx_k_self), 0, 0, 1, 1},
@@ -11827,11 +11571,11 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
 }
 /* #### Code section: cached_builtins ### */
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 130, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 134, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 232, __pyx_L1_error)
-  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 291, __pyx_L1_error)
+  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 439, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -11842,169 +11586,147 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "sparse_sim.pyx":130
+  /* "sparse_sim.pyx":131
  *         c_orbitals = <unsigned int *> malloc(N * sizeof(unsigned int))
  *         if not c_orbitals:
  *             raise MemoryError("Failed to allocate memory for orbitals array")             # <<<<<<<<<<<<<<
  * 
  *         cdef int i
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_memory_for_or); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 130, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_memory_for_or); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "sparse_sim.pyx":138
+  /* "sparse_sim.pyx":139
  *         cdef SlaterDeterminantC *c_sd = slater_determinant_init_c(N, coef, c_orbitals)
  *         if not c_sd:
  *             raise MemoryError("Failed to allocate SlaterDeterminantC")             # <<<<<<<<<<<<<<
  *         self._c_sd = <uintptr_t> c_sd
  *         self._in_wfn = False
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_SlaterDetermi); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_SlaterDetermi); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "sparse_sim.pyx":173
+  /* "sparse_sim.pyx":174
  *         cdef WavefunctionC *c_wfn = wavefunction_init_c()
  *         if not c_wfn:
  *             raise MemoryError("Failed to allocate WavefunctionC")             # <<<<<<<<<<<<<<
  *         self._c_wfn = <uintptr_t> c_wfn
  *         self.bra_or_ket = b'k'[0]
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_WavefunctionC); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_WavefunctionC); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "sparse_sim.pyx":210
+  /* "sparse_sim.pyx":211
  *         cdef WavefunctionC *new_wfn = wavefunction_adjoint_c(<WavefunctionC *> self._c_wfn)
  *         if not new_wfn:
  *             raise MemoryError("wavefunction_adjoint_c returned NULL")             # <<<<<<<<<<<<<<
  *         py_wfn = Wavefunction._init_from_c(new_wfn)
  * 
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_s_wavefunction_adjoint_c_returned); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_s_wavefunction_adjoint_c_returned); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
   /* "sparse_sim.pyx":232
- *         # Ensure paulis is a list of single-character strings
+ *     def __init__(self, unsigned int N, double complex coef, list paulis):
  *         if any(len(p) != 1 for p in paulis):
  *             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")             # <<<<<<<<<<<<<<
  * 
- *         # Convert list of strings into a C-compatible char* array
+ *         pauli_bytes = "".join(paulis).encode("utf-8")
  */
   __pyx_tuple__5 = PyTuple_Pack(1, __pyx_kp_s_Each_Pauli_character_must_be_a_s); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 232, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__5);
   __Pyx_GIVEREF(__pyx_tuple__5);
 
-  /* "sparse_sim.pyx":241
+  /* "sparse_sim.pyx":239
  *         cdef PauliStringC *c_pString = pauli_string_init_as_chars_c(N, coef, c_paulis)
  *         if not c_pString:
  *             raise MemoryError("Failed to allocate PauliStringC")             # <<<<<<<<<<<<<<
  * 
  *         self._c_pString = <uintptr_t> c_pString
  */
-  __pyx_tuple__7 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_PauliStringC); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 241, __pyx_L1_error)
+  __pyx_tuple__7 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_PauliStringC); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 239, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__7);
   __Pyx_GIVEREF(__pyx_tuple__7);
 
-  /* "sparse_sim.pyx":282
+  /* "sparse_sim.pyx":280
  *         cdef PauliSumC *c_pSum = pauli_sum_init_c()
  *         if not c_pSum:
  *             raise MemoryError("Failed to allocate PauliSum")             # <<<<<<<<<<<<<<
  *         self._c_pSum = <uintptr_t> c_pSum
  * 
  */
-  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_PauliSum); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 282, __pyx_L1_error)
+  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_s_Failed_to_allocate_PauliSum); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 280, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "sparse_sim.pyx":291
- *         This bypasses the usual __cinit__ so we don't re-allocate or re-initialize.
- *         """
- *         print("here1")             # <<<<<<<<<<<<<<
- *         cdef PauliSum pSum = PauliSum.__new__(PauliSum)
- *         print("here2")
- */
-  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_n_s_here1); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 291, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__9);
-  __Pyx_GIVEREF(__pyx_tuple__9);
-
-  /* "sparse_sim.pyx":293
- *         print("here1")
- *         cdef PauliSum pSum = PauliSum.__new__(PauliSum)
- *         print("here2")             # <<<<<<<<<<<<<<
- *         pSum._c_pSum = <uintptr_t> ptr
- *         return pSum
- */
-  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_n_s_here2); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 293, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__10);
-  __Pyx_GIVEREF(__pyx_tuple__10);
-
-  /* "sparse_sim.pyx":322
+  /* "sparse_sim.pyx":318
  *     cdef WavefunctionC *new_wfn = wavefunction_scalar_multiplication_c(<WavefunctionC *> wfn._c_wfn, scalar)
  *     if not new_wfn:
  *         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  */
-  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_s_wavefunction_scalar_multiplicati); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 322, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__11);
-  __Pyx_GIVEREF(__pyx_tuple__11);
+  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_s_wavefunction_scalar_multiplicati); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 318, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__9);
+  __Pyx_GIVEREF(__pyx_tuple__9);
 
-  /* "sparse_sim.pyx":361
+  /* "sparse_sim.pyx":357
  *     cdef PauliStringC *new_pString = pauli_string_scalar_multiplication_c(<PauliStringC *> pString._c_pString, scalar)
  *     if not new_pString:
  *         raise MemoryError("pauli_string_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return PauliString._init_from_c(new_pString)
  * 
  */
-  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_s_pauli_string_scalar_multiplicati); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 361, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__12);
-  __Pyx_GIVEREF(__pyx_tuple__12);
+  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_s_pauli_string_scalar_multiplicati); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 357, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__10);
+  __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "sparse_sim.pyx":373
+  /* "sparse_sim.pyx":369
  *     cdef PauliSumC *new_pSum = pauli_sum_scalar_multiplication_c(<PauliSumC *> pSum._c_pSum, scalar)
  *     if not new_pSum:
  *         raise MemoryError("pauli_sum_scalar_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return PauliSum._init_from_c(new_pSum)
  * 
  */
-  __pyx_tuple__13 = PyTuple_Pack(1, __pyx_kp_s_pauli_sum_scalar_multiplication); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(0, 373, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__13);
-  __Pyx_GIVEREF(__pyx_tuple__13);
+  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_s_pauli_sum_scalar_multiplication); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 369, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__11);
+  __Pyx_GIVEREF(__pyx_tuple__11);
 
-  /* "sparse_sim.pyx":380
+  /* "sparse_sim.pyx":376
  *     cdef PauliSumC *new_pSum = pauli_sum_multiplication_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  *     if not new_pSum:
  *         raise MemoryError("pauli_sum_multiplication_c returned NULL")             # <<<<<<<<<<<<<<
  *     return PauliSum._init_from_c(new_pSum)
  * 
  */
-  __pyx_tuple__14 = PyTuple_Pack(1, __pyx_kp_s_pauli_sum_multiplication_c_retur); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 380, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__14);
-  __Pyx_GIVEREF(__pyx_tuple__14);
+  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_s_pauli_sum_multiplication_c_retur); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 376, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__12);
+  __Pyx_GIVEREF(__pyx_tuple__12);
 
-  /* "sparse_sim.pyx":440
- *             c_str = pauli_string_to_string_c(c_pString)
- *             if not c_str:
- *                 print("Error: Failed to convert PauliString to string")             # <<<<<<<<<<<<<<
- *                 continue
+  /* "sparse_sim.pyx":447
+ *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
+ *     if not new_pSum:
+ *         raise MemoryError("pauli_sum_addition_c returned NULL")             # <<<<<<<<<<<<<<
+ *     return PauliSum._init_from_c(new_pSum)
  * 
  */
-  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_Error_Failed_to_convert_PauliStr); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 440, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__15);
-  __Pyx_GIVEREF(__pyx_tuple__15);
+  __pyx_tuple__13 = PyTuple_Pack(1, __pyx_kp_s_pauli_sum_addition_c_returned_NU); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(0, 447, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__13);
+  __Pyx_GIVEREF(__pyx_tuple__13);
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_tuple__18 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__18);
-  __Pyx_GIVEREF(__pyx_tuple__18);
-  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__15);
+  __Pyx_GIVEREF(__pyx_tuple__15);
+  __pyx_codeobj__16 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__16)) __PYX_ERR(1, 1, __pyx_L1_error)
 
   /* "(tree fragment)":3
  * def __reduce_cython__(self):
@@ -12012,59 +11734,59 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_tuple__20 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(1, 3, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__20);
-  __Pyx_GIVEREF(__pyx_tuple__20);
-  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_tuple__17 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__17);
+  __Pyx_GIVEREF(__pyx_tuple__17);
+  __pyx_codeobj__18 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__17, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__18)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":200
+  /* "sparse_sim.pyx":201
  *         return py_str
  * 
  *     def norm(self):             # <<<<<<<<<<<<<<
  *         return wavefunction_norm_c(<WavefunctionC *> self._c_wfn)
  * 
  */
-  __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_norm, 200, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_norm, 201, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 201, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":203
+  /* "sparse_sim.pyx":204
  *         return wavefunction_norm_c(<WavefunctionC *> self._c_wfn)
  * 
  *     def append_slater_determinant(self, SlaterDeterminant sdet):             # <<<<<<<<<<<<<<
  *         sdet._in_wfn = True
  *         wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
  */
-  __pyx_tuple__23 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_sdet); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 203, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__23);
-  __Pyx_GIVEREF(__pyx_tuple__23);
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_append_slater_determinant, 203, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_tuple__20 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_sdet); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 204, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__20);
+  __Pyx_GIVEREF(__pyx_tuple__20);
+  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_append_slater_determinant, 204, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 204, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":207
+  /* "sparse_sim.pyx":208
  *         wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
  *         cdef WavefunctionC *new_wfn = wavefunction_adjoint_c(<WavefunctionC *> self._c_wfn)
  *         if not new_wfn:
  */
-  __pyx_tuple__25 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_new_wfn, __pyx_n_s_py_wfn); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 207, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__25);
-  __Pyx_GIVEREF(__pyx_tuple__25);
-  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_adjoint, 207, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 207, __pyx_L1_error)
+  __pyx_tuple__22 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_new_wfn, __pyx_n_s_py_wfn); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 208, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__22);
+  __Pyx_GIVEREF(__pyx_tuple__22);
+  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_adjoint, 208, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 208, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":219
+  /* "sparse_sim.pyx":220
  *         return py_wfn
  * 
  *     def s(self):             # <<<<<<<<<<<<<<
  *         return (<WavefunctionC *> self._c_wfn).s
  * 
  */
-  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_s, 219, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_s, 220, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 220, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(1, 1, __pyx_L1_error)
 
   /* "(tree fragment)":3
  * def __reduce_cython__(self):
@@ -12072,26 +11794,26 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__17, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":267
+  /* "sparse_sim.pyx":265
  *         return py_str
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
  *         cdef PauliStringC *new_pString = pauli_string_adjoint_c(<PauliStringC *> self._c_pString)
  *         py_pString = PauliString._init_from_c(new_pString)
  */
-  __pyx_tuple__30 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_new_pString, __pyx_n_s_py_pString); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 267, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__30);
-  __Pyx_GIVEREF(__pyx_tuple__30);
-  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_adjoint, 267, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 267, __pyx_L1_error)
+  __pyx_tuple__27 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_new_pString, __pyx_n_s_py_pString); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 265, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__27);
+  __Pyx_GIVEREF(__pyx_tuple__27);
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_adjoint, 265, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 265, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(1, 1, __pyx_L1_error)
 
   /* "(tree fragment)":3
  * def __reduce_cython__(self):
@@ -12099,47 +11821,47 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__17, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":306
+  /* "sparse_sim.pyx":302
  *         return py_str
  * 
  *     def append_pauli_string(self, PauliString pString):             # <<<<<<<<<<<<<<
  *         pString._in_sum = True
  *         pauli_sum_append_pauli_string_c(<PauliSumC *> self._c_pSum, <PauliStringC *> pString._c_pString)
  */
-  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pString); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 306, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__34);
-  __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_append_pauli_string, 306, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 306, __pyx_L1_error)
+  __pyx_tuple__31 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pString); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 302, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__31);
+  __Pyx_GIVEREF(__pyx_tuple__31);
+  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_append_pauli_string, 302, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 302, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":310
+  /* "sparse_sim.pyx":306
  *         pauli_sum_append_pauli_string_c(<PauliSumC *> self._c_pSum, <PauliStringC *> pString._c_pString)
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
  *         cdef PauliSumC *new_pSum = pauli_sum_adjoint_c(<PauliSumC *> self._c_pSum)
  *         pSum = PauliSum._init_from_c(new_pSum)
  */
-  __pyx_tuple__36 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_new_pSum, __pyx_n_s_pSum); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 310, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__36);
-  __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_adjoint, 310, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_tuple__33 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_new_pSum, __pyx_n_s_pSum); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 306, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__33);
+  __Pyx_GIVEREF(__pyx_tuple__33);
+  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_adjoint, 306, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) __PYX_ERR(0, 306, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":315
+  /* "sparse_sim.pyx":311
  *         return pSum
  * 
  *     def p(self):             # <<<<<<<<<<<<<<
  *         return (<PauliSumC *> self._c_pSum).p
  * 
  */
-  __pyx_codeobj__38 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_p, 315, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__38)) __PYX_ERR(0, 315, __pyx_L1_error)
+  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_p, 311, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 311, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_codeobj__36 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__36)) __PYX_ERR(1, 1, __pyx_L1_error)
 
   /* "(tree fragment)":3
  * def __reduce_cython__(self):
@@ -12147,163 +11869,160 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__17, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":318
+  /* "sparse_sim.pyx":314
  *         return (<PauliSumC *> self._c_pSum).p
  * 
  * def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):             # <<<<<<<<<<<<<<
  *     """Multiply a wavefunction by a scalar."""
  *     cdef WavefunctionC *new_wfn = wavefunction_scalar_multiplication_c(<WavefunctionC *> wfn._c_wfn, scalar)
  */
-  __pyx_tuple__41 = PyTuple_Pack(3, __pyx_n_s_wfn, __pyx_n_s_scalar, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 318, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__41);
-  __Pyx_GIVEREF(__pyx_tuple__41);
-  __pyx_codeobj__42 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__41, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_scalar_multiplicati_2, 318, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__42)) __PYX_ERR(0, 318, __pyx_L1_error)
+  __pyx_tuple__38 = PyTuple_Pack(3, __pyx_n_s_wfn, __pyx_n_s_scalar, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 314, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__38);
+  __Pyx_GIVEREF(__pyx_tuple__38);
+  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_scalar_multiplicati_2, 314, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 314, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":325
+  /* "sparse_sim.pyx":321
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_multiplication(Wavefunction bra, Wavefunction ket):             # <<<<<<<<<<<<<<
  *     """Compute the inner product of two wavefunctions."""
  *     return wavefunction_multiplication_c(<WavefunctionC *> bra._c_wfn, <WavefunctionC *> ket._c_wfn)
  */
-  __pyx_tuple__43 = PyTuple_Pack(2, __pyx_n_s_bra, __pyx_n_s_ket); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(0, 325, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__43);
-  __Pyx_GIVEREF(__pyx_tuple__43);
-  __pyx_codeobj__44 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__43, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_multiplication, 325, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__44)) __PYX_ERR(0, 325, __pyx_L1_error)
+  __pyx_tuple__40 = PyTuple_Pack(2, __pyx_n_s_bra, __pyx_n_s_ket); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 321, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__40);
+  __Pyx_GIVEREF(__pyx_tuple__40);
+  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_multiplication, 321, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 321, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":329
+  /* "sparse_sim.pyx":325
  *     return wavefunction_multiplication_c(<WavefunctionC *> bra._c_wfn, <WavefunctionC *> ket._c_wfn)
  * 
  * def wavefunction_pauli_string_multiplication(PauliString pString, Wavefunction wfn):             # <<<<<<<<<<<<<<
  *     """Apply a Pauli string to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_multiplication_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn)
  */
-  __pyx_tuple__45 = PyTuple_Pack(3, __pyx_n_s_pString, __pyx_n_s_wfn, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__45)) __PYX_ERR(0, 329, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__45);
-  __Pyx_GIVEREF(__pyx_tuple__45);
-  __pyx_codeobj__46 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__45, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_pauli_string_multip, 329, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__46)) __PYX_ERR(0, 329, __pyx_L1_error)
+  __pyx_tuple__42 = PyTuple_Pack(3, __pyx_n_s_pString, __pyx_n_s_wfn, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 325, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__42);
+  __Pyx_GIVEREF(__pyx_tuple__42);
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_pauli_string_multip, 325, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 325, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":336
+  /* "sparse_sim.pyx":332
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_sum_multiplication(PauliSum pSum, Wavefunction wfn):             # <<<<<<<<<<<<<<
  *     """Apply a Pauli sum to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_multiplication_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn)
  */
-  __pyx_tuple__47 = PyTuple_Pack(3, __pyx_n_s_pSum, __pyx_n_s_wfn, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__47)) __PYX_ERR(0, 336, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__47);
-  __Pyx_GIVEREF(__pyx_tuple__47);
-  __pyx_codeobj__48 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__47, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_pauli_sum_multiplic, 336, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__48)) __PYX_ERR(0, 336, __pyx_L1_error)
+  __pyx_tuple__44 = PyTuple_Pack(3, __pyx_n_s_pSum, __pyx_n_s_wfn, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 332, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__44);
+  __Pyx_GIVEREF(__pyx_tuple__44);
+  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_pauli_sum_multiplic, 332, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 332, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":343
+  /* "sparse_sim.pyx":339
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_string_evolution(PauliString pString, Wavefunction wfn, double epsilon):             # <<<<<<<<<<<<<<
  *     """Evolve a wavefunction under a Pauli string using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_evolution_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn, epsilon)
  */
-  __pyx_tuple__49 = PyTuple_Pack(4, __pyx_n_s_pString, __pyx_n_s_wfn, __pyx_n_s_epsilon, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__49)) __PYX_ERR(0, 343, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__49);
-  __Pyx_GIVEREF(__pyx_tuple__49);
-  __pyx_codeobj__50 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__49, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_pauli_string_evolut, 343, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__50)) __PYX_ERR(0, 343, __pyx_L1_error)
+  __pyx_tuple__46 = PyTuple_Pack(4, __pyx_n_s_pString, __pyx_n_s_wfn, __pyx_n_s_epsilon, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(0, 339, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__46);
+  __Pyx_GIVEREF(__pyx_tuple__46);
+  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_pauli_string_evolut, 339, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(0, 339, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":350
+  /* "sparse_sim.pyx":346
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_sum_evolution(PauliSum pSum, Wavefunction wfn, double epsilon):             # <<<<<<<<<<<<<<
  *     """Evolve a wavefunction under a Pauli sum using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_evolution_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn, epsilon)
  */
-  __pyx_tuple__51 = PyTuple_Pack(4, __pyx_n_s_pSum, __pyx_n_s_wfn, __pyx_n_s_epsilon, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__51)) __PYX_ERR(0, 350, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__51);
-  __Pyx_GIVEREF(__pyx_tuple__51);
-  __pyx_codeobj__52 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__51, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_pauli_sum_evolution, 350, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__52)) __PYX_ERR(0, 350, __pyx_L1_error)
+  __pyx_tuple__48 = PyTuple_Pack(4, __pyx_n_s_pSum, __pyx_n_s_wfn, __pyx_n_s_epsilon, __pyx_n_s_new_wfn); if (unlikely(!__pyx_tuple__48)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__48);
+  __Pyx_GIVEREF(__pyx_tuple__48);
+  __pyx_codeobj__49 = (PyObject*)__Pyx_PyCode_New(3, 0, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__48, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_pauli_sum_evolution, 346, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__49)) __PYX_ERR(0, 346, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":357
+  /* "sparse_sim.pyx":353
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def pauli_string_scalar_multiplication(PauliString pString, complex scalar):             # <<<<<<<<<<<<<<
  *     """Multiply a Pauli string by a scalar."""
  *     cdef PauliStringC *new_pString = pauli_string_scalar_multiplication_c(<PauliStringC *> pString._c_pString, scalar)
  */
-  __pyx_tuple__53 = PyTuple_Pack(3, __pyx_n_s_pString, __pyx_n_s_scalar, __pyx_n_s_new_pString); if (unlikely(!__pyx_tuple__53)) __PYX_ERR(0, 357, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__53);
-  __Pyx_GIVEREF(__pyx_tuple__53);
-  __pyx_codeobj__54 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__53, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_string_scalar_multiplicati_2, 357, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__54)) __PYX_ERR(0, 357, __pyx_L1_error)
+  __pyx_tuple__50 = PyTuple_Pack(3, __pyx_n_s_pString, __pyx_n_s_scalar, __pyx_n_s_new_pString); if (unlikely(!__pyx_tuple__50)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__50);
+  __Pyx_GIVEREF(__pyx_tuple__50);
+  __pyx_codeobj__51 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__50, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_string_scalar_multiplicati_2, 353, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__51)) __PYX_ERR(0, 353, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":364
+  /* "sparse_sim.pyx":360
  *     return PauliString._init_from_c(new_pString)
  * 
  * def pauli_string_multiplication(PauliString left, PauliString right):             # <<<<<<<<<<<<<<
  *     """Multiply two Pauli strings."""
  *     cdef PauliStringC *new_pString = pauli_string_multiplication_c(<PauliStringC *> left._c_pString, <PauliStringC *> right._c_pString)
  */
-  __pyx_tuple__55 = PyTuple_Pack(3, __pyx_n_s_left, __pyx_n_s_right, __pyx_n_s_new_pString); if (unlikely(!__pyx_tuple__55)) __PYX_ERR(0, 364, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__55);
-  __Pyx_GIVEREF(__pyx_tuple__55);
-  __pyx_codeobj__56 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__55, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_string_multiplication, 364, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__56)) __PYX_ERR(0, 364, __pyx_L1_error)
+  __pyx_tuple__52 = PyTuple_Pack(3, __pyx_n_s_left, __pyx_n_s_right, __pyx_n_s_new_pString); if (unlikely(!__pyx_tuple__52)) __PYX_ERR(0, 360, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__52);
+  __Pyx_GIVEREF(__pyx_tuple__52);
+  __pyx_codeobj__53 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__52, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_string_multiplication, 360, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__53)) __PYX_ERR(0, 360, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":369
+  /* "sparse_sim.pyx":365
  *     return PauliString._init_from_c(new_pString)
  * 
  * def pauli_sum_scalar_multiplication(PauliSum pSum, complex scalar):             # <<<<<<<<<<<<<<
  *     """Multiply a Pauli sum by a scalar."""
  *     cdef PauliSumC *new_pSum = pauli_sum_scalar_multiplication_c(<PauliSumC *> pSum._c_pSum, scalar)
  */
-  __pyx_tuple__57 = PyTuple_Pack(3, __pyx_n_s_pSum, __pyx_n_s_scalar, __pyx_n_s_new_pSum); if (unlikely(!__pyx_tuple__57)) __PYX_ERR(0, 369, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__57);
-  __Pyx_GIVEREF(__pyx_tuple__57);
-  __pyx_codeobj__58 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__57, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_scalar_multiplication_2, 369, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__58)) __PYX_ERR(0, 369, __pyx_L1_error)
+  __pyx_tuple__54 = PyTuple_Pack(3, __pyx_n_s_pSum, __pyx_n_s_scalar, __pyx_n_s_new_pSum); if (unlikely(!__pyx_tuple__54)) __PYX_ERR(0, 365, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__54);
+  __Pyx_GIVEREF(__pyx_tuple__54);
+  __pyx_codeobj__55 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__54, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_scalar_multiplication_2, 365, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__55)) __PYX_ERR(0, 365, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":376
+  /* "sparse_sim.pyx":372
  *     return PauliSum._init_from_c(new_pSum)
  * 
  * def pauli_sum_multiplication(PauliSum left, PauliSum right):             # <<<<<<<<<<<<<<
  *     """Multiply two Pauli sums."""
  *     cdef PauliSumC *new_pSum = pauli_sum_multiplication_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  */
-  __pyx_tuple__59 = PyTuple_Pack(3, __pyx_n_s_left, __pyx_n_s_right, __pyx_n_s_new_pSum); if (unlikely(!__pyx_tuple__59)) __PYX_ERR(0, 376, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__59);
-  __Pyx_GIVEREF(__pyx_tuple__59);
-  __pyx_codeobj__60 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__59, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_multiplication, 376, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__60)) __PYX_ERR(0, 376, __pyx_L1_error)
+  __pyx_tuple__56 = PyTuple_Pack(3, __pyx_n_s_left, __pyx_n_s_right, __pyx_n_s_new_pSum); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 372, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__56);
+  __Pyx_GIVEREF(__pyx_tuple__56);
+  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_multiplication, 372, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 372, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":383
+  /* "sparse_sim.pyx":379
  *     return PauliSum._init_from_c(new_pSum)
  * 
  * def pauli_sum_collect_measurements(PauliSum pSum):             # <<<<<<<<<<<<<<
  *     """
  *     Collects all unique PauliString elements from a PauliSum.
  */
-  __pyx_tuple__61 = PyTuple_Pack(7, __pyx_n_s_pSum, __pyx_n_s_c_pSum, __pyx_n_s_c_pString, __pyx_n_s_c_str, __pyx_n_s_k, __pyx_n_s_unique_strings, __pyx_n_s_py_str); if (unlikely(!__pyx_tuple__61)) __PYX_ERR(0, 383, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__61);
-  __Pyx_GIVEREF(__pyx_tuple__61);
-  __pyx_codeobj__62 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__61, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_collect_measurements, 383, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__62)) __PYX_ERR(0, 383, __pyx_L1_error)
+  __pyx_tuple__58 = PyTuple_Pack(7, __pyx_n_s_pSum, __pyx_n_s_c_pSum, __pyx_n_s_c_pString, __pyx_n_s_c_str, __pyx_n_s_k, __pyx_n_s_unique_strings, __pyx_n_s_py_str); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(0, 379, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__58);
+  __Pyx_GIVEREF(__pyx_tuple__58);
+  __pyx_codeobj__59 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__58, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_collect_measurements, 379, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__59)) __PYX_ERR(0, 379, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":415
+  /* "sparse_sim.pyx":408
  *     return unique_strings
  * 
- * def evaluate_pauli_sum_expectation(PauliSum pSum, dict tomography):             # <<<<<<<<<<<<<<
+ * def pauli_sum_evaluate_expectation(PauliSum pSum, dict tomography):             # <<<<<<<<<<<<<<
  *     """
  *     Computes the expectation value of a Pauli sum given tomography data.
  */
-  __pyx_tuple__63 = PyTuple_Pack(11, __pyx_n_s_pSum, __pyx_n_s_tomography, __pyx_n_s_c_pSum, __pyx_n_s_c_pString, __pyx_n_s_c_str, __pyx_n_s_k, __pyx_n_s_exp, __pyx_n_s_py_str, __pyx_n_s_match, __pyx_n_s_coef, __pyx_n_s_pauli_str); if (unlikely(!__pyx_tuple__63)) __PYX_ERR(0, 415, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__63);
-  __Pyx_GIVEREF(__pyx_tuple__63);
-  __pyx_codeobj__64 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__63, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_evaluate_pauli_sum_expectation, 415, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__64)) __PYX_ERR(0, 415, __pyx_L1_error)
+  __pyx_tuple__60 = PyTuple_Pack(9, __pyx_n_s_pSum, __pyx_n_s_tomography, __pyx_n_s_c_pSum, __pyx_n_s_c_pString, __pyx_n_s_c_str, __pyx_n_s_k, __pyx_n_s_exp, __pyx_n_s_py_str, __pyx_n_s_coef); if (unlikely(!__pyx_tuple__60)) __PYX_ERR(0, 408, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__60);
+  __Pyx_GIVEREF(__pyx_tuple__60);
+  __pyx_codeobj__61 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__60, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_evaluate_expectation, 408, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__61)) __PYX_ERR(0, 408, __pyx_L1_error)
 
-  /* "sparse_sim.pyx":460
+  /* "sparse_sim.pyx":443
  *     return exp
  * 
  * def pauli_sum_addition(PauliSum left, PauliSum right):             # <<<<<<<<<<<<<<
- *     pass
- * 
+ *     """Add two Pauli sums."""
+ *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  */
-  __pyx_tuple__65 = PyTuple_Pack(2, __pyx_n_s_left, __pyx_n_s_right); if (unlikely(!__pyx_tuple__65)) __PYX_ERR(0, 460, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__65);
-  __Pyx_GIVEREF(__pyx_tuple__65);
-  __pyx_codeobj__66 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__65, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_addition, 460, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__66)) __PYX_ERR(0, 460, __pyx_L1_error)
+  __pyx_codeobj__62 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_addition, 443, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__62)) __PYX_ERR(0, 443, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -12314,8 +12033,6 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
 
 static CYTHON_SMALL_CODE int __Pyx_InitConstants(void) {
   if (__Pyx_CreateStringTabAndInitStrings() < 0) __PYX_ERR(0, 1, __pyx_L1_error);
-  __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __pyx_int_2 = PyInt_FromLong(2); if (unlikely(!__pyx_int_2)) __PYX_ERR(0, 1, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -12369,15 +12086,15 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_vtabptr_10sparse_sim_SlaterDeterminant = &__pyx_vtable_10sparse_sim_SlaterDeterminant;
   __pyx_vtable_10sparse_sim_SlaterDeterminant._init_from_c = (struct __pyx_obj_10sparse_sim_SlaterDeterminant *(*)(struct SlaterDeterminantC *))__pyx_f_10sparse_sim_17SlaterDeterminant__init_from_c;
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_ptype_10sparse_sim_SlaterDeterminant = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_10sparse_sim_SlaterDeterminant_spec, NULL); if (unlikely(!__pyx_ptype_10sparse_sim_SlaterDeterminant)) __PYX_ERR(0, 117, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_10sparse_sim_SlaterDeterminant_spec, __pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
+  __pyx_ptype_10sparse_sim_SlaterDeterminant = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_10sparse_sim_SlaterDeterminant_spec, NULL); if (unlikely(!__pyx_ptype_10sparse_sim_SlaterDeterminant)) __PYX_ERR(0, 119, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_10sparse_sim_SlaterDeterminant_spec, __pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 119, __pyx_L1_error)
   #else
   __pyx_ptype_10sparse_sim_SlaterDeterminant = &__pyx_type_10sparse_sim_SlaterDeterminant;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 119, __pyx_L1_error)
   #endif
   #if PY_MAJOR_VERSION < 3
   __pyx_ptype_10sparse_sim_SlaterDeterminant->tp_print = 0;
@@ -12387,26 +12104,26 @@ static int __Pyx_modinit_type_init_code(void) {
     __pyx_ptype_10sparse_sim_SlaterDeterminant->tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_ptype_10sparse_sim_SlaterDeterminant, __pyx_vtabptr_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_ptype_10sparse_sim_SlaterDeterminant, __pyx_vtabptr_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 119, __pyx_L1_error)
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if (__Pyx_MergeVtables(__pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 119, __pyx_L1_error)
   #endif
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SlaterDeterminant, (PyObject *) __pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_SlaterDeterminant, (PyObject *) __pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 119, __pyx_L1_error)
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_10sparse_sim_SlaterDeterminant) < 0) __PYX_ERR(0, 119, __pyx_L1_error)
   #endif
   __pyx_vtabptr_10sparse_sim_Wavefunction = &__pyx_vtable_10sparse_sim_Wavefunction;
   __pyx_vtable_10sparse_sim_Wavefunction._init_from_c = (struct __pyx_obj_10sparse_sim_Wavefunction *(*)(struct WavefunctionC *))__pyx_f_10sparse_sim_12Wavefunction__init_from_c;
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_ptype_10sparse_sim_Wavefunction = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_10sparse_sim_Wavefunction_spec, NULL); if (unlikely(!__pyx_ptype_10sparse_sim_Wavefunction)) __PYX_ERR(0, 163, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_10sparse_sim_Wavefunction_spec, __pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_ptype_10sparse_sim_Wavefunction = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_10sparse_sim_Wavefunction_spec, NULL); if (unlikely(!__pyx_ptype_10sparse_sim_Wavefunction)) __PYX_ERR(0, 164, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_10sparse_sim_Wavefunction_spec, __pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
   #else
   __pyx_ptype_10sparse_sim_Wavefunction = &__pyx_type_10sparse_sim_Wavefunction;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
   #endif
   #if PY_MAJOR_VERSION < 3
   __pyx_ptype_10sparse_sim_Wavefunction->tp_print = 0;
@@ -12416,26 +12133,26 @@ static int __Pyx_modinit_type_init_code(void) {
     __pyx_ptype_10sparse_sim_Wavefunction->tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_ptype_10sparse_sim_Wavefunction, __pyx_vtabptr_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_ptype_10sparse_sim_Wavefunction, __pyx_vtabptr_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if (__Pyx_MergeVtables(__pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
   #endif
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Wavefunction, (PyObject *) __pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Wavefunction, (PyObject *) __pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_10sparse_sim_Wavefunction) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
   #endif
   __pyx_vtabptr_10sparse_sim_PauliString = &__pyx_vtable_10sparse_sim_PauliString;
   __pyx_vtable_10sparse_sim_PauliString._init_from_c = (struct __pyx_obj_10sparse_sim_PauliString *(*)(struct PauliStringC *))__pyx_f_10sparse_sim_11PauliString__init_from_c;
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_ptype_10sparse_sim_PauliString = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_10sparse_sim_PauliString_spec, NULL); if (unlikely(!__pyx_ptype_10sparse_sim_PauliString)) __PYX_ERR(0, 222, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_10sparse_sim_PauliString_spec, __pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_ptype_10sparse_sim_PauliString = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_10sparse_sim_PauliString_spec, NULL); if (unlikely(!__pyx_ptype_10sparse_sim_PauliString)) __PYX_ERR(0, 223, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_10sparse_sim_PauliString_spec, __pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 223, __pyx_L1_error)
   #else
   __pyx_ptype_10sparse_sim_PauliString = &__pyx_type_10sparse_sim_PauliString;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 223, __pyx_L1_error)
   #endif
   #if PY_MAJOR_VERSION < 3
   __pyx_ptype_10sparse_sim_PauliString->tp_print = 0;
@@ -12445,26 +12162,26 @@ static int __Pyx_modinit_type_init_code(void) {
     __pyx_ptype_10sparse_sim_PauliString->tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_ptype_10sparse_sim_PauliString, __pyx_vtabptr_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_ptype_10sparse_sim_PauliString, __pyx_vtabptr_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 223, __pyx_L1_error)
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if (__Pyx_MergeVtables(__pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 223, __pyx_L1_error)
   #endif
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_PauliString, (PyObject *) __pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_PauliString, (PyObject *) __pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 223, __pyx_L1_error)
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_10sparse_sim_PauliString) < 0) __PYX_ERR(0, 223, __pyx_L1_error)
   #endif
   __pyx_vtabptr_10sparse_sim_PauliSum = &__pyx_vtable_10sparse_sim_PauliSum;
   __pyx_vtable_10sparse_sim_PauliSum._init_from_c = (struct __pyx_obj_10sparse_sim_PauliSum *(*)(struct PauliSumC *))__pyx_f_10sparse_sim_8PauliSum__init_from_c;
   #if CYTHON_USE_TYPE_SPECS
-  __pyx_ptype_10sparse_sim_PauliSum = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_10sparse_sim_PauliSum_spec, NULL); if (unlikely(!__pyx_ptype_10sparse_sim_PauliSum)) __PYX_ERR(0, 273, __pyx_L1_error)
-  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_10sparse_sim_PauliSum_spec, __pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_ptype_10sparse_sim_PauliSum = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_10sparse_sim_PauliSum_spec, NULL); if (unlikely(!__pyx_ptype_10sparse_sim_PauliSum)) __PYX_ERR(0, 271, __pyx_L1_error)
+  if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_10sparse_sim_PauliSum_spec, __pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
   #else
   __pyx_ptype_10sparse_sim_PauliSum = &__pyx_type_10sparse_sim_PauliSum;
   #endif
   #if !CYTHON_COMPILING_IN_LIMITED_API
   #endif
   #if !CYTHON_USE_TYPE_SPECS
-  if (__Pyx_PyType_Ready(__pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (__Pyx_PyType_Ready(__pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
   #endif
   #if PY_MAJOR_VERSION < 3
   __pyx_ptype_10sparse_sim_PauliSum->tp_print = 0;
@@ -12474,13 +12191,13 @@ static int __Pyx_modinit_type_init_code(void) {
     __pyx_ptype_10sparse_sim_PauliSum->tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
   #endif
-  if (__Pyx_SetVtable(__pyx_ptype_10sparse_sim_PauliSum, __pyx_vtabptr_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_ptype_10sparse_sim_PauliSum, __pyx_vtabptr_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if (__Pyx_MergeVtables(__pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (__Pyx_MergeVtables(__pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
   #endif
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_PauliSum, (PyObject *) __pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_PauliSum, (PyObject *) __pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
   #if !CYTHON_COMPILING_IN_LIMITED_API
-  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject *) __pyx_ptype_10sparse_sim_PauliSum) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
   #endif
   #if CYTHON_USE_TYPE_SPECS
   __pyx_ptype_10sparse_sim___pyx_scope_struct__genexpr = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_10sparse_sim___pyx_scope_struct__genexpr_spec, NULL); if (unlikely(!__pyx_ptype_10sparse_sim___pyx_scope_struct__genexpr)) __PYX_ERR(0, 231, __pyx_L1_error)
@@ -12827,7 +12544,7 @@ if (!__Pyx_RefNanny) {
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_17SlaterDeterminant_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SlaterDeterminant___reduce_cytho, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__19)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_17SlaterDeterminant_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SlaterDeterminant___reduce_cytho, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__16)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -12838,60 +12555,60 @@ if (!__Pyx_RefNanny) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_17SlaterDeterminant_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SlaterDeterminant___setstate_cyt, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__21)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_17SlaterDeterminant_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SlaterDeterminant___setstate_cyt, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__18)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":200
+  /* "sparse_sim.pyx":201
  *         return py_str
  * 
  *     def norm(self):             # <<<<<<<<<<<<<<
  *         return wavefunction_norm_c(<WavefunctionC *> self._c_wfn)
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_9norm, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction_norm, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__22)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 200, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_9norm, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction_norm, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__19)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_Wavefunction, __pyx_n_s_norm, __pyx_t_2) < 0) __PYX_ERR(0, 200, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_Wavefunction, __pyx_n_s_norm, __pyx_t_2) < 0) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_10sparse_sim_Wavefunction);
 
-  /* "sparse_sim.pyx":203
+  /* "sparse_sim.pyx":204
  *         return wavefunction_norm_c(<WavefunctionC *> self._c_wfn)
  * 
  *     def append_slater_determinant(self, SlaterDeterminant sdet):             # <<<<<<<<<<<<<<
  *         sdet._in_wfn = True
  *         wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_11append_slater_determinant, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction_append_slater_deter, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__24)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_11append_slater_determinant, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction_append_slater_deter, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__21)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_Wavefunction, __pyx_n_s_append_slater_determinant, __pyx_t_2) < 0) __PYX_ERR(0, 203, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_Wavefunction, __pyx_n_s_append_slater_determinant, __pyx_t_2) < 0) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_10sparse_sim_Wavefunction);
 
-  /* "sparse_sim.pyx":207
+  /* "sparse_sim.pyx":208
  *         wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
  *         cdef WavefunctionC *new_wfn = wavefunction_adjoint_c(<WavefunctionC *> self._c_wfn)
  *         if not new_wfn:
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_13adjoint, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction_adjoint, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__26)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 207, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_13adjoint, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction_adjoint, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__23)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 208, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_Wavefunction, __pyx_n_s_adjoint, __pyx_t_2) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_Wavefunction, __pyx_n_s_adjoint, __pyx_t_2) < 0) __PYX_ERR(0, 208, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_10sparse_sim_Wavefunction);
 
-  /* "sparse_sim.pyx":219
+  /* "sparse_sim.pyx":220
  *         return py_wfn
  * 
  *     def s(self):             # <<<<<<<<<<<<<<
  *         return (<WavefunctionC *> self._c_wfn).s
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_15s, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction_s, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__27)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_15s, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction_s, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__24)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_Wavefunction, __pyx_n_s_s, __pyx_t_2) < 0) __PYX_ERR(0, 219, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_Wavefunction, __pyx_n_s_s, __pyx_t_2) < 0) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_10sparse_sim_Wavefunction);
 
@@ -12900,7 +12617,7 @@ if (!__Pyx_RefNanny) {
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_17__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction___reduce_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__28)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_17__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction___reduce_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__25)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -12911,21 +12628,21 @@ if (!__Pyx_RefNanny) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_19__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction___setstate_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_12Wavefunction_19__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Wavefunction___setstate_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__26)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":267
+  /* "sparse_sim.pyx":265
  *         return py_str
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
  *         cdef PauliStringC *new_pString = pauli_string_adjoint_c(<PauliStringC *> self._c_pString)
  *         py_pString = PauliString._init_from_c(new_pString)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_11PauliString_9adjoint, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliString_adjoint, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 267, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_11PauliString_9adjoint, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliString_adjoint, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__28)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_PauliString, __pyx_n_s_adjoint, __pyx_t_2) < 0) __PYX_ERR(0, 267, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_PauliString, __pyx_n_s_adjoint, __pyx_t_2) < 0) __PYX_ERR(0, 265, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_10sparse_sim_PauliString);
 
@@ -12934,7 +12651,7 @@ if (!__Pyx_RefNanny) {
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_11PauliString_11__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliString___reduce_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_11PauliString_11__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliString___reduce_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -12945,47 +12662,47 @@ if (!__Pyx_RefNanny) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_11PauliString_13__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliString___setstate_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_11PauliString_13__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliString___setstate_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__30)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":306
+  /* "sparse_sim.pyx":302
  *         return py_str
  * 
  *     def append_pauli_string(self, PauliString pString):             # <<<<<<<<<<<<<<
  *         pString._in_sum = True
  *         pauli_sum_append_pauli_string_c(<PauliSumC *> self._c_pSum, <PauliStringC *> pString._c_pString)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_9append_pauli_string, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum_append_pauli_string, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 306, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_9append_pauli_string, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum_append_pauli_string, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 302, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_PauliSum, __pyx_n_s_append_pauli_string, __pyx_t_2) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_PauliSum, __pyx_n_s_append_pauli_string, __pyx_t_2) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_10sparse_sim_PauliSum);
 
-  /* "sparse_sim.pyx":310
+  /* "sparse_sim.pyx":306
  *         pauli_sum_append_pauli_string_c(<PauliSumC *> self._c_pSum, <PauliStringC *> pString._c_pString)
  * 
  *     def adjoint(self):             # <<<<<<<<<<<<<<
  *         cdef PauliSumC *new_pSum = pauli_sum_adjoint_c(<PauliSumC *> self._c_pSum)
  *         pSum = PauliSum._init_from_c(new_pSum)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_11adjoint, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum_adjoint, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_11adjoint, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum_adjoint, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__34)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 306, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_PauliSum, __pyx_n_s_adjoint, __pyx_t_2) < 0) __PYX_ERR(0, 310, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_PauliSum, __pyx_n_s_adjoint, __pyx_t_2) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_10sparse_sim_PauliSum);
 
-  /* "sparse_sim.pyx":315
+  /* "sparse_sim.pyx":311
  *         return pSum
  * 
  *     def p(self):             # <<<<<<<<<<<<<<
  *         return (<PauliSumC *> self._c_pSum).p
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_13p, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum_p, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__38)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 315, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_13p, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum_p, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 311, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_PauliSum, __pyx_n_s_p, __pyx_t_2) < 0) __PYX_ERR(0, 315, __pyx_L1_error)
+  if (__Pyx_SetItemOnTypeDict((PyObject *)__pyx_ptype_10sparse_sim_PauliSum, __pyx_n_s_p, __pyx_t_2) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_10sparse_sim_PauliSum);
 
@@ -12994,7 +12711,7 @@ if (!__Pyx_RefNanny) {
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_15__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum___reduce_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_15__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum___reduce_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__36)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -13005,165 +12722,165 @@ if (!__Pyx_RefNanny) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError, "no default __reduce__ due to non-trivial __cinit__"
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_17__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum___setstate_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_8PauliSum_17__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PauliSum___setstate_cython, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":318
+  /* "sparse_sim.pyx":314
  *         return (<PauliSumC *> self._c_pSum).p
  * 
  * def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):             # <<<<<<<<<<<<<<
  *     """Multiply a wavefunction by a scalar."""
  *     cdef WavefunctionC *new_wfn = wavefunction_scalar_multiplication_c(<WavefunctionC *> wfn._c_wfn, scalar)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_1wavefunction_scalar_multiplication, 0, __pyx_n_s_wavefunction_scalar_multiplicati_2, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 318, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_1wavefunction_scalar_multiplication, 0, __pyx_n_s_wavefunction_scalar_multiplicati_2, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 314, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_scalar_multiplicati_2, __pyx_t_2) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_scalar_multiplicati_2, __pyx_t_2) < 0) __PYX_ERR(0, 314, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":325
+  /* "sparse_sim.pyx":321
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_multiplication(Wavefunction bra, Wavefunction ket):             # <<<<<<<<<<<<<<
  *     """Compute the inner product of two wavefunctions."""
  *     return wavefunction_multiplication_c(<WavefunctionC *> bra._c_wfn, <WavefunctionC *> ket._c_wfn)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_3wavefunction_multiplication, 0, __pyx_n_s_wavefunction_multiplication, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__44)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 325, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_3wavefunction_multiplication, 0, __pyx_n_s_wavefunction_multiplication, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 321, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_multiplication, __pyx_t_2) < 0) __PYX_ERR(0, 325, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_multiplication, __pyx_t_2) < 0) __PYX_ERR(0, 321, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":329
+  /* "sparse_sim.pyx":325
  *     return wavefunction_multiplication_c(<WavefunctionC *> bra._c_wfn, <WavefunctionC *> ket._c_wfn)
  * 
  * def wavefunction_pauli_string_multiplication(PauliString pString, Wavefunction wfn):             # <<<<<<<<<<<<<<
  *     """Apply a Pauli string to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_multiplication_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_5wavefunction_pauli_string_multiplication, 0, __pyx_n_s_wavefunction_pauli_string_multip, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__46)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 329, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_5wavefunction_pauli_string_multiplication, 0, __pyx_n_s_wavefunction_pauli_string_multip, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_pauli_string_multip, __pyx_t_2) < 0) __PYX_ERR(0, 329, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_pauli_string_multip, __pyx_t_2) < 0) __PYX_ERR(0, 325, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":336
+  /* "sparse_sim.pyx":332
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_sum_multiplication(PauliSum pSum, Wavefunction wfn):             # <<<<<<<<<<<<<<
  *     """Apply a Pauli sum to a wavefunction."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_multiplication_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_7wavefunction_pauli_sum_multiplication, 0, __pyx_n_s_wavefunction_pauli_sum_multiplic, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__48)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 336, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_7wavefunction_pauli_sum_multiplication, 0, __pyx_n_s_wavefunction_pauli_sum_multiplic, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 332, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_pauli_sum_multiplic, __pyx_t_2) < 0) __PYX_ERR(0, 336, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_pauli_sum_multiplic, __pyx_t_2) < 0) __PYX_ERR(0, 332, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":343
+  /* "sparse_sim.pyx":339
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_string_evolution(PauliString pString, Wavefunction wfn, double epsilon):             # <<<<<<<<<<<<<<
  *     """Evolve a wavefunction under a Pauli string using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_evolution_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn, epsilon)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_9wavefunction_pauli_string_evolution, 0, __pyx_n_s_wavefunction_pauli_string_evolut, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__50)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 343, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_9wavefunction_pauli_string_evolution, 0, __pyx_n_s_wavefunction_pauli_string_evolut, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__47)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 339, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_pauli_string_evolut, __pyx_t_2) < 0) __PYX_ERR(0, 343, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_pauli_string_evolut, __pyx_t_2) < 0) __PYX_ERR(0, 339, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":350
+  /* "sparse_sim.pyx":346
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def wavefunction_pauli_sum_evolution(PauliSum pSum, Wavefunction wfn, double epsilon):             # <<<<<<<<<<<<<<
  *     """Evolve a wavefunction under a Pauli sum using exponentiation."""
  *     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_evolution_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn, epsilon)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_11wavefunction_pauli_sum_evolution, 0, __pyx_n_s_wavefunction_pauli_sum_evolution, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__52)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 350, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_11wavefunction_pauli_sum_evolution, 0, __pyx_n_s_wavefunction_pauli_sum_evolution, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__49)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 346, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_pauli_sum_evolution, __pyx_t_2) < 0) __PYX_ERR(0, 350, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_pauli_sum_evolution, __pyx_t_2) < 0) __PYX_ERR(0, 346, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":357
+  /* "sparse_sim.pyx":353
  *     return Wavefunction._init_from_c(new_wfn)
  * 
  * def pauli_string_scalar_multiplication(PauliString pString, complex scalar):             # <<<<<<<<<<<<<<
  *     """Multiply a Pauli string by a scalar."""
  *     cdef PauliStringC *new_pString = pauli_string_scalar_multiplication_c(<PauliStringC *> pString._c_pString, scalar)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_13pauli_string_scalar_multiplication, 0, __pyx_n_s_pauli_string_scalar_multiplicati_2, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__54)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 357, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_13pauli_string_scalar_multiplication, 0, __pyx_n_s_pauli_string_scalar_multiplicati_2, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__51)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 353, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_string_scalar_multiplicati_2, __pyx_t_2) < 0) __PYX_ERR(0, 357, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_string_scalar_multiplicati_2, __pyx_t_2) < 0) __PYX_ERR(0, 353, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":364
+  /* "sparse_sim.pyx":360
  *     return PauliString._init_from_c(new_pString)
  * 
  * def pauli_string_multiplication(PauliString left, PauliString right):             # <<<<<<<<<<<<<<
  *     """Multiply two Pauli strings."""
  *     cdef PauliStringC *new_pString = pauli_string_multiplication_c(<PauliStringC *> left._c_pString, <PauliStringC *> right._c_pString)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_15pauli_string_multiplication, 0, __pyx_n_s_pauli_string_multiplication, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__56)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 364, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_15pauli_string_multiplication, 0, __pyx_n_s_pauli_string_multiplication, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__53)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 360, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_string_multiplication, __pyx_t_2) < 0) __PYX_ERR(0, 364, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_string_multiplication, __pyx_t_2) < 0) __PYX_ERR(0, 360, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":369
+  /* "sparse_sim.pyx":365
  *     return PauliString._init_from_c(new_pString)
  * 
  * def pauli_sum_scalar_multiplication(PauliSum pSum, complex scalar):             # <<<<<<<<<<<<<<
  *     """Multiply a Pauli sum by a scalar."""
  *     cdef PauliSumC *new_pSum = pauli_sum_scalar_multiplication_c(<PauliSumC *> pSum._c_pSum, scalar)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_17pauli_sum_scalar_multiplication, 0, __pyx_n_s_pauli_sum_scalar_multiplication_2, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__58)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 369, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_17pauli_sum_scalar_multiplication, 0, __pyx_n_s_pauli_sum_scalar_multiplication_2, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__55)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 365, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_scalar_multiplication_2, __pyx_t_2) < 0) __PYX_ERR(0, 369, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_scalar_multiplication_2, __pyx_t_2) < 0) __PYX_ERR(0, 365, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":376
+  /* "sparse_sim.pyx":372
  *     return PauliSum._init_from_c(new_pSum)
  * 
  * def pauli_sum_multiplication(PauliSum left, PauliSum right):             # <<<<<<<<<<<<<<
  *     """Multiply two Pauli sums."""
  *     cdef PauliSumC *new_pSum = pauli_sum_multiplication_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_19pauli_sum_multiplication, 0, __pyx_n_s_pauli_sum_multiplication, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__60)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 376, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_19pauli_sum_multiplication, 0, __pyx_n_s_pauli_sum_multiplication, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 372, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_multiplication, __pyx_t_2) < 0) __PYX_ERR(0, 376, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_multiplication, __pyx_t_2) < 0) __PYX_ERR(0, 372, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":383
+  /* "sparse_sim.pyx":379
  *     return PauliSum._init_from_c(new_pSum)
  * 
  * def pauli_sum_collect_measurements(PauliSum pSum):             # <<<<<<<<<<<<<<
  *     """
  *     Collects all unique PauliString elements from a PauliSum.
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_21pauli_sum_collect_measurements, 0, __pyx_n_s_pauli_sum_collect_measurements, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__62)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 383, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_21pauli_sum_collect_measurements, 0, __pyx_n_s_pauli_sum_collect_measurements, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__59)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_collect_measurements, __pyx_t_2) < 0) __PYX_ERR(0, 383, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_collect_measurements, __pyx_t_2) < 0) __PYX_ERR(0, 379, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":415
+  /* "sparse_sim.pyx":408
  *     return unique_strings
  * 
- * def evaluate_pauli_sum_expectation(PauliSum pSum, dict tomography):             # <<<<<<<<<<<<<<
+ * def pauli_sum_evaluate_expectation(PauliSum pSum, dict tomography):             # <<<<<<<<<<<<<<
  *     """
  *     Computes the expectation value of a Pauli sum given tomography data.
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_23evaluate_pauli_sum_expectation, 0, __pyx_n_s_evaluate_pauli_sum_expectation, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__64)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 415, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_23pauli_sum_evaluate_expectation, 0, __pyx_n_s_pauli_sum_evaluate_expectation, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__61)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 408, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_evaluate_pauli_sum_expectation, __pyx_t_2) < 0) __PYX_ERR(0, 415, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_evaluate_expectation, __pyx_t_2) < 0) __PYX_ERR(0, 408, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sparse_sim.pyx":460
+  /* "sparse_sim.pyx":443
  *     return exp
  * 
  * def pauli_sum_addition(PauliSum left, PauliSum right):             # <<<<<<<<<<<<<<
- *     pass
- * 
+ *     """Add two Pauli sums."""
+ *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  */
-  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_25pauli_sum_addition, 0, __pyx_n_s_pauli_sum_addition, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__66)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 460, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_25pauli_sum_addition, 0, __pyx_n_s_pauli_sum_addition, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__62)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 443, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_addition, __pyx_t_2) < 0) __PYX_ERR(0, 460, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_addition, __pyx_t_2) < 0) __PYX_ERR(0, 443, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "sparse_sim.pyx":1
@@ -14776,75 +14493,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyBytes_Join(PyObject* sep, PyObject* value
 #endif
 }
 
-/* PyDictVersioning */
-#if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
-static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj) {
-    PyObject *dict = Py_TYPE(obj)->tp_dict;
-    return likely(dict) ? __PYX_GET_DICT_VERSION(dict) : 0;
-}
-static CYTHON_INLINE PY_UINT64_T __Pyx_get_object_dict_version(PyObject *obj) {
-    PyObject **dictptr = NULL;
-    Py_ssize_t offset = Py_TYPE(obj)->tp_dictoffset;
-    if (offset) {
-#if CYTHON_COMPILING_IN_CPYTHON
-        dictptr = (likely(offset > 0)) ? (PyObject **) ((char *)obj + offset) : _PyObject_GetDictPtr(obj);
-#else
-        dictptr = _PyObject_GetDictPtr(obj);
-#endif
-    }
-    return (dictptr && *dictptr) ? __PYX_GET_DICT_VERSION(*dictptr) : 0;
-}
-static CYTHON_INLINE int __Pyx_object_dict_version_matches(PyObject* obj, PY_UINT64_T tp_dict_version, PY_UINT64_T obj_dict_version) {
-    PyObject *dict = Py_TYPE(obj)->tp_dict;
-    if (unlikely(!dict) || unlikely(tp_dict_version != __PYX_GET_DICT_VERSION(dict)))
-        return 0;
-    return obj_dict_version == __Pyx_get_object_dict_version(obj);
-}
-#endif
-
-/* GetModuleGlobalName */
-#if CYTHON_USE_DICT_VERSIONS
-static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_version, PyObject **dict_cached_value)
-#else
-static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name)
-#endif
-{
-    PyObject *result;
-#if !CYTHON_AVOID_BORROWED_REFS
-#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030500A1 && PY_VERSION_HEX < 0x030d0000
-    result = _PyDict_GetItem_KnownHash(__pyx_d, name, ((PyASCIIObject *) name)->hash);
-    __PYX_UPDATE_DICT_CACHE(__pyx_d, result, *dict_cached_value, *dict_version)
-    if (likely(result)) {
-        return __Pyx_NewRef(result);
-    } else if (unlikely(PyErr_Occurred())) {
-        return NULL;
-    }
-#elif CYTHON_COMPILING_IN_LIMITED_API
-    if (unlikely(!__pyx_m)) {
-        return NULL;
-    }
-    result = PyObject_GetAttr(__pyx_m, name);
-    if (likely(result)) {
-        return result;
-    }
-#else
-    result = PyDict_GetItem(__pyx_d, name);
-    __PYX_UPDATE_DICT_CACHE(__pyx_d, result, *dict_cached_value, *dict_version)
-    if (likely(result)) {
-        return __Pyx_NewRef(result);
-    }
-#endif
-#else
-    result = PyObject_GetItem(__pyx_d, name);
-    __PYX_UPDATE_DICT_CACHE(__pyx_d, result, *dict_cached_value, *dict_version)
-    if (likely(result)) {
-        return __Pyx_NewRef(result);
-    }
-    PyErr_Clear();
-#endif
-    return __Pyx_GetBuiltinName(name);
-}
-
 /* DictGetItem */
 #if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
 static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
@@ -15590,7 +15238,7 @@ static PyObject *__Pyx_ImportDottedModule_WalkParts(PyObject *module, PyObject *
 #endif
 static PyObject *__Pyx__ImportDottedModule(PyObject *name, PyObject *parts_tuple) {
 #if PY_MAJOR_VERSION < 3
-    PyObject *module, *from_list, *star = __pyx_n_s__17;
+    PyObject *module, *from_list, *star = __pyx_n_s__14;
     CYTHON_UNUSED_VAR(parts_tuple);
     from_list = PyList_New(1);
     if (unlikely(!from_list))
@@ -16819,6 +16467,32 @@ static PyObject *__Pyx_CyFunction_New(PyMethodDef *ml, int flags, PyObject* qual
     }
     return op;
 }
+
+/* PyDictVersioning */
+#if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
+static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj) {
+    PyObject *dict = Py_TYPE(obj)->tp_dict;
+    return likely(dict) ? __PYX_GET_DICT_VERSION(dict) : 0;
+}
+static CYTHON_INLINE PY_UINT64_T __Pyx_get_object_dict_version(PyObject *obj) {
+    PyObject **dictptr = NULL;
+    Py_ssize_t offset = Py_TYPE(obj)->tp_dictoffset;
+    if (offset) {
+#if CYTHON_COMPILING_IN_CPYTHON
+        dictptr = (likely(offset > 0)) ? (PyObject **) ((char *)obj + offset) : _PyObject_GetDictPtr(obj);
+#else
+        dictptr = _PyObject_GetDictPtr(obj);
+#endif
+    }
+    return (dictptr && *dictptr) ? __PYX_GET_DICT_VERSION(*dictptr) : 0;
+}
+static CYTHON_INLINE int __Pyx_object_dict_version_matches(PyObject* obj, PY_UINT64_T tp_dict_version, PY_UINT64_T obj_dict_version) {
+    PyObject *dict = Py_TYPE(obj)->tp_dict;
+    if (unlikely(!dict) || unlikely(tp_dict_version != __PYX_GET_DICT_VERSION(dict)))
+        return 0;
+    return obj_dict_version == __Pyx_get_object_dict_version(obj);
+}
+#endif
 
 /* CLineInTraceback */
 #ifndef CYTHON_CLINE_IN_TRACEBACK
@@ -19027,7 +18701,7 @@ __Pyx_PyType_GetName(PyTypeObject* tp)
     if (unlikely(name == NULL) || unlikely(!PyUnicode_Check(name))) {
         PyErr_Clear();
         Py_XDECREF(name);
-        name = __Pyx_NewRef(__pyx_n_s__67);
+        name = __Pyx_NewRef(__pyx_n_s__63);
     }
     return name;
 }

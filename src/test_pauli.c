@@ -1,6 +1,7 @@
 #include <complex.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "pauli.h"
 
@@ -8,6 +9,8 @@ void test_pauli_string_initialization_scaling_freeing(void);
 void test_pauli_string_multiplication(void);
 void test_pauli_sum_initialization_scaling_freeing(void);
 void test_pauli_sum_multiplication(void);
+void test_pauli_sum_addition(void);
+void test_pauli_encoding(unsigned int N);
 
 void test_pauli_string_initialization_scaling_freeing(void) {
   unsigned int paulis0[] = {0, 1, 0, 1};
@@ -24,7 +27,7 @@ void test_pauli_string_initialization_scaling_freeing(void) {
   pString0 = pauli_string_init_as_ints_c(4, (double complex)1.0, paulis0);
   pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
   pString0_str = pauli_string_to_string_c(pString0);
-  printf("%s with encoding %d\n", pString0_str, pString0->encoding);
+  printf("%s with encoding %llu\n", pString0_str, pString0->encoding);
 
   pString1_str = pauli_string_to_string_c(pString1);
 
@@ -91,7 +94,7 @@ void test_pauli_sum_initialization_scaling_freeing(void) {
   pauli_sum_append_pauli_string_c(pSum, pString1);
 
   pSum_str = pauli_sum_to_string_c(pSum);
-  printf("%s contains %d pStrings of 2\n", pSum_str, pSum->p);
+  printf("%s contains %u pStrings of 2\n", pSum_str, pSum->p);
 
   free(pSum_str);
   free_pauli_sum_c(pSum);
@@ -146,6 +149,102 @@ void test_pauli_sum_multiplication(void) {
   free_pauli_sum_c(pSum2);
 }
 
+void test_pauli_sum_addition(void) {
+  unsigned int paulis0[] = {0, 2, 0, 1};
+  unsigned int paulis2[] = {0, 2, 0, 1};
+  char paulis1[] = {'I', 'X', 'I', 'I'};
+  char paulis3[] = {'I', 'X', 'I', 'I'};
+
+  char *pSum0_str;
+  char *pSum1_str;
+  char *pSum2_str;
+
+  PauliStringC *pString0;
+  PauliStringC *pString1;
+  PauliStringC *pString2;
+  PauliStringC *pString3;
+
+  PauliSumC *pSum0;
+  PauliSumC *pSum1;
+  PauliSumC *pSum2;
+
+  pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
+  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
+  pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
+  pString3 = pauli_string_init_as_chars_c(4, (double complex) - I, paulis3);
+
+  pSum0 = pauli_sum_init_c();
+  pauli_sum_append_pauli_string_c(pSum0, pString0);
+  pauli_sum_append_pauli_string_c(pSum0, pString1);
+
+  pSum1 = pauli_sum_init_c();
+  pauli_sum_append_pauli_string_c(pSum1, pString2);
+  pauli_sum_append_pauli_string_c(pSum1, pString3);
+
+  pSum2 = pauli_sum_addition_c(pSum0, pSum1);
+
+  pSum0_str = pauli_sum_to_string_c(pSum0);
+  pSum1_str = pauli_sum_to_string_c(pSum1);
+  pSum2_str = pauli_sum_to_string_c(pSum2);
+
+  printf("(%s) + (%s) = (%s)\n", pSum0_str, pSum1_str, pSum2_str);
+
+  free(pSum0_str);
+  free(pSum1_str);
+  free(pSum2_str);
+
+  free_pauli_sum_c(pSum0);
+  free_pauli_sum_c(pSum1);
+  free_pauli_sum_c(pSum2);
+}
+
+void test_pauli_encoding(unsigned int N) {
+  uint64_t total_strings = 1ULL << (2 * N);
+  char pauli_chars[] = {'I', 'X', 'Y', 'Z'};
+
+  printf("Testing %llu possible Pauli strings for %u qubits...\n",
+         total_strings, N);
+
+  char *paulis = (char *)malloc(N * sizeof(char));
+  if (!paulis) {
+    fprintf(stderr, "Error: Memory allocation failed.\n");
+    return;
+  }
+
+  int pass = 1;
+  for (uint64_t i = 0; i < total_strings; i++) {
+    uint64_t value = i;
+    for (unsigned int j = 0; j < N; j++) {
+      paulis[N - j - 1] = pauli_chars[value % 4];
+      value /= 4;
+    }
+
+    PauliStringC *pString =
+        pauli_string_init_as_chars_c(N, 1.0 + 0.0 * (double complex)I, paulis);
+    if (!pString) {
+      fprintf(stderr, "Error: Failed to create Pauli string.\n");
+      continue;
+    }
+
+    if (pString->encoding != i) {
+      printf("Incorrect encoding at %llu != %llu!\n", pString->encoding, i);
+      char *p_str = pauli_string_to_string_c(pString);
+      printf("%s\n", p_str);
+      free(p_str);
+      pass = 0;
+    }
+
+    free_pauli_string_c(pString);
+    if (!pass) {
+      break;
+    }
+  }
+  free(paulis);
+  if (pass) {
+    printf("Pauli encoding test completed successfully for %u qubits.\n", N);
+  }
+}
+
 int main(void) {
   printf("\nTesting PauliString initializaiton, scaling, and freeing\n");
   test_pauli_string_initialization_scaling_freeing();
@@ -155,4 +254,8 @@ int main(void) {
   test_pauli_sum_initialization_scaling_freeing();
   printf("\nTesting PauliSum Multiplication\n");
   test_pauli_sum_multiplication();
+  printf("\nTesting PauliSum Addition\n");
+  test_pauli_sum_addition();
+  printf("\nTesting Pauli String Encoding\n");
+  test_pauli_encoding(17);
 }

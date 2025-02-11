@@ -36,7 +36,7 @@ void test_initialization_scaling_freeing(void) {
   sdet1 = slater_determinant_init_c(4, (double complex)I, orbitals1);
 
   wfn = wavefunction_init_c();
-  printf("Wavefunction initialized at %p with sdets: %d, %d\n", (void *)wfn,
+  printf("Wavefunction initialized at %p with sdets: %u, %u\n", (void *)wfn,
          sdet0->encoding, sdet1->encoding);
 
   wavefunction_append_slater_determinant_c(wfn, sdet0);
@@ -165,7 +165,7 @@ void test_appending_slater_determinants(void) {
   free(wfn2_str);
 
   product = wavefunction_multiplication_c(wfn1, wfn2);
-  printf("Product of %d orbitals with %d orbitals : %lf + %lfi\n\n", wfn1->s,
+  printf("Product of %u orbitals with %u orbitals : %lf + %lfi\n\n", wfn1->s,
          wfn2->s, creal(product), cimag(product));
 
   free_wavefunction_c(wfn1);
@@ -173,7 +173,7 @@ void test_appending_slater_determinants(void) {
 
   wfn3 = wavefunction_init_c();
   printf("Repeated addition of the same orbitals:\n");
-  printf("s before addition: %d\n", wfn3->s);
+  printf("s before addition: %u\n", wfn3->s);
 
   for (i = 0; i < 4; i++) {
     unsigned int small_orbitals[] = {0, 1};
@@ -181,7 +181,7 @@ void test_appending_slater_determinants(void) {
     wavefunction_append_slater_determinant_c(wfn3, sdet);
   }
 
-  printf("s after addition: %d\n", wfn3->s);
+  printf("s after addition: %u\n", wfn3->s);
 
   wfn3_str = wavefunction_to_string_c(wfn3, 'k');
   printf("%s\n", wfn3_str);

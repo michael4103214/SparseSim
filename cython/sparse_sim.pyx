@@ -3,18 +3,18 @@ from libc.stdint cimport uintptr_t
 import re
 
 cdef extern from "khash.h":
-    # Define khiter_t (iterator type for khash)
+    
     ctypedef int khiter_t
 
-    # Declare the hash table struct type for SlaterDeterminantC
+    # Hash table struct type for SlaterDeterminantC
     ctypedef struct kh_slater_hash_t:
         int n_buckets
         int size
         int n_occupied
         int upper_bound
-        unsigned int *keys  # Hash keys (Slater determinant encodings)
-        char *flags         # Flags for tracking entries
-        SlaterDeterminantC **vals  # Hash values (SlaterDeterminantC pointers)
+        unsigned int *keys 
+        char *flags     
+        SlaterDeterminantC **vals 
 
     # Declare khash functions
     kh_slater_hash_t *kh_init_slater_hash()
@@ -25,19 +25,19 @@ cdef extern from "khash.h":
     void kh_del_slater_hash(kh_slater_hash_t *h, khiter_t k)
     SlaterDeterminantC *kh_value(kh_slater_hash_t *h, khiter_t k)
 
-    # Declare iteration functions
+    # Iteration functions
     khiter_t kh_begin(kh_slater_hash_t *h)
     khiter_t kh_end(kh_slater_hash_t *h)
 
-    # Declare the hash table type for PauliSumC (assuming it's `khash_t(pauli_hash)`)
+    # Hash table type for PauliSumC 
     ctypedef struct kh_pauli_hash_t:
         int n_buckets
         int size
         int n_occupied
         int upper_bound
-        unsigned int *keys  # The hash keys (Pauli string encodings)
-        char *flags         # Flags to track empty/deleted entries
-        PauliStringC **vals # The corresponding PauliStringC values
+        unsigned int *keys 
+        char *flags         
+        PauliStringC **vals 
 
     # Function declarations for handling khash
     kh_pauli_hash_t *kh_init_pauli_hash()
@@ -96,6 +96,7 @@ cdef extern from "pauli.h":
     PauliStringC *pauli_string_init_as_chars_c(unsigned int N, double complex coef, char paulis[])
     PauliStringC *pauli_string_init_as_ints_c(unsigned int N, double complex coef, unsigned int paulis[])
     void free_pauli_string_c(PauliStringC *pString)
+    char *pauli_string_to_string_no_coef_c(PauliStringC *pString)
     char *pauli_string_to_string_c(PauliStringC *pString)
     PauliStringC *pauli_string_scalar_multiplication_c(PauliStringC *pString, double complex scalar)
     PauliStringC *pauli_string_adjoint_c(PauliStringC *pString)
@@ -113,6 +114,7 @@ cdef extern from "pauli.h":
     PauliSumC *pauli_sum_scalar_multiplication_c(PauliSumC *pSum, double complex scalar)
     PauliSumC *pauli_sum_adjoint_c(PauliSumC *pSum)
     PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right)
+    PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right)
 
 cdef class SlaterDeterminant:
     cdef uintptr_t _c_sd
@@ -124,7 +126,6 @@ cdef class SlaterDeterminant:
     def __init__(self, unsigned int N, double complex coef, list orbitals):
         cdef unsigned int *c_orbitals
         
-        # Allocate memory for C array
         c_orbitals = <unsigned int *> malloc(N * sizeof(unsigned int))
         if not c_orbitals:
             raise MemoryError("Failed to allocate memory for orbitals array")
@@ -227,15 +228,12 @@ cdef class PauliString:
         pass
 
     def __init__(self, unsigned int N, double complex coef, list paulis):
-        # Ensure paulis is a list of single-character strings
         if any(len(p) != 1 for p in paulis):
             raise ValueError("Each Pauli character must be a single letter (e.g., ['X', 'Y', 'Z'])")
 
-        # Convert list of strings into a C-compatible char* array
-        pauli_bytes = "".join(paulis).encode("utf-8")  # Convert list to bytes
-        cdef char *c_paulis = pauli_bytes  # This works as a C string
+        pauli_bytes = "".join(paulis).encode("utf-8") 
+        cdef char *c_paulis = pauli_bytes 
 
-        # Call the C function
         cdef PauliStringC *c_pString = pauli_string_init_as_chars_c(N, coef, c_paulis)
         if not c_pString:
             raise MemoryError("Failed to allocate PauliStringC")
@@ -288,9 +286,7 @@ cdef class PauliSum:
         Create a new PauliSum object wrapping the existing PauliSumC pointer.
         This bypasses the usual __cinit__ so we don't re-allocate or re-initialize.
         """
-        print("here1")
         cdef PauliSum pSum = PauliSum.__new__(PauliSum)
-        print("here2")
         pSum._c_pSum = <uintptr_t> ptr
         return pSum
 
@@ -401,10 +397,7 @@ def pauli_sum_collect_measurements(PauliSum pSum):
         if kh_exist(c_pSum.pauli_strings, k):
             c_pString = kh_value(c_pSum.pauli_strings, k)
 
-            c_str = pauli_string_to_string_c(c_pString)
-            if not c_str:
-                continue 
-
+            c_str = pauli_string_to_string_no_coef_c(c_pString)
             py_str = c_str.decode('utf-8')
             free(c_str)
 
@@ -412,7 +405,7 @@ def pauli_sum_collect_measurements(PauliSum pSum):
 
     return unique_strings
 
-def evaluate_pauli_sum_expectation(PauliSum pSum, dict tomography):
+def pauli_sum_evaluate_expectation(PauliSum pSum, dict tomography):
     """
     Computes the expectation value of a Pauli sum given tomography data.
 
@@ -435,29 +428,24 @@ def evaluate_pauli_sum_expectation(PauliSum pSum, dict tomography):
         if kh_exist(c_pSum.pauli_strings, k):
             c_pString = kh_value(c_pSum.pauli_strings, k)
 
-            c_str = pauli_string_to_string_c(c_pString)
-            if not c_str:
-                print("Error: Failed to convert PauliString to string")
-                continue  
-
+            c_str = pauli_string_to_string_no_coef_c(c_pString)
             py_str = c_str.decode('utf-8')
             free(c_str)
 
-            match = re.match(r"\(([^)]+)\)\s*([IXYZ]+)", py_str)
-            if match:
-                coef = complex(match.group(1)) 
-                pauli_str = match.group(2) 
-
-                if pauli_str in tomography:
-                    exp += coef * tomography[pauli_str]  
-                else:
-                    print(f"Error: PauliString '{pauli_str}' not found in tomography data")
+            if py_str in tomography:
+                coef = c_pString.coef
+                exp += coef * tomography[py_str]  
             else:
-                print(f"Error: Invalid PauliString format '{py_str}'")
+                print(f"Error: PauliString '{py_str}' not found in tomography data")
 
     return exp
 
 def pauli_sum_addition(PauliSum left, PauliSum right):
-    pass
+    """Add two Pauli sums."""
+    cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
+    if not new_pSum:
+        raise MemoryError("pauli_sum_addition_c returned NULL")
+    return PauliSum._init_from_c(new_pSum) 
+
 
 
