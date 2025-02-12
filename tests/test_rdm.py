@@ -37,7 +37,7 @@ def test_rdm_measurement():
 
     print(f"Tomography data:\n {tomography}")
     print(
-        f"Expectation value: {ordm.evaluate_expectation(tomography)} = {ordm.fProds[0].evaluate_expectation(tomography)} + {ordm.fProds[0].evaluate_expectation(tomography)} + {ordm.fProds[0].evaluate_expectation(tomography)} + {ordm.fProds[0].evaluate_expectation(tomography)}")
+        f"Expectation value: {ordm.evaluate_expectation(tomography)} = {ordm.fProds[0].evaluate_expectation(tomography)} + {ordm.fProds[1].evaluate_expectation(tomography)} + {ordm.fProds[2].evaluate_expectation(tomography)} + {ordm.fProds[3].evaluate_expectation(tomography)}")
 
 
 def main():
