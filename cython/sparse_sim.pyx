@@ -1,5 +1,6 @@
 from libc.stdlib cimport malloc, free
 from libc.stdint cimport uintptr_t
+import numbers
 from typing import Set
 
 cdef extern from "khash.h":
@@ -219,6 +220,18 @@ cdef class Wavefunction:
 
     def s(self):
         return (<WavefunctionC *> self._c_wfn).s
+
+    def __mul__(self, right):
+        if isinstance(right, Wavefunction):
+            return wavefunction_multiplication(self, right)
+        else:
+            raise TypeError(f"Wavefunction * {type(right)} is not defined")
+
+    def __rmul__(self, left):
+        if isinstance(left, numbers.Number):
+            return wavefunction_scalar_multiplication(self, left)
+        else:
+            raise TypeError(f"{type(left)} * Wavefunction is not defined")
         
 cdef class PauliString:
     cdef uintptr_t _c_pString
@@ -268,6 +281,20 @@ cdef class PauliString:
         py_pString._in_sum = False
         return py_pString
 
+    def __mul__(self, right):
+        if isinstance(right, Wavefunction):
+            return wavefunction_pauli_string_multiplication(self, right)
+        elif isinstance(right, PauliString):
+            return pauli_string_multiplication(self, right)
+        else:
+            raise TypeError(f"pString * {type(right)} is not defined")
+
+    def __rmul__(self, left):
+        if isinstance(left, numbers.Number):
+            return pauli_string_scalar_multiplication(self, left)
+        else:
+            raise TypeError(f"{type(left)} * pString is not defined")
+
 cdef class PauliSum:
     cdef uintptr_t _c_pSum
 
@@ -310,6 +337,26 @@ cdef class PauliSum:
 
     def p(self):
         return (<PauliSumC *> self._c_pSum).p
+
+    def __mul__(self, right):
+        if isinstance(right, Wavefunction):
+            return wavefunction_pauli_sum_multiplication(self, right)
+        elif isinstance(right, PauliSum):
+            return pauli_sum_multiplication(self, right)
+        else:
+            raise TypeError(f"pSum * {type(right)} is not defined")
+
+    def __rmul__(self, left):
+        if isinstance(left, numbers.Number):
+            return pauli_sum_scalar_multiplication(self, left)
+        else:
+            raise TypeError(f"{type(left)} * pSum is not defined")
+
+    def __add__(self, right):
+        if isinstance(right, PauliSum):
+            return pauli_sum_addition(self, right)
+        else:
+            raise TypeError(f"pSum + {type(right)} is not defined")
 
 def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):
     """Multiply a wavefunction by a scalar."""

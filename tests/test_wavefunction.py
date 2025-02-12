@@ -24,7 +24,7 @@ def test_initialization_scaling_freeing():
     norm = wfn.norm()
     print(f"Norm: {norm}")
 
-    normalized_wfn = wavefunction_scalar_multiplication(wfn, 1 / norm)
+    normalized_wfn = (1 / norm) * wfn
     print(f"Normalized: {normalized_wfn}")
 
     adjoint_wfn = normalized_wfn.adjoint()
@@ -44,7 +44,7 @@ def test_inner_product():
 
     bra = ket.adjoint()
 
-    inner_prod = wavefunction_multiplication(bra, ket)
+    inner_prod = bra * ket
 
     print(f"({bra}) * ({ket}) = {inner_prod}")
 
@@ -78,7 +78,7 @@ def test_appending_slater_determinants():
 
     wfn1 = wfn1.adjoint()
 
-    product = wavefunction_multiplication(wfn1, wfn2)
+    product = wfn1 * wfn2
     print(f"Product: {product}")
 
 
@@ -103,7 +103,7 @@ def test_wavefunction_pauli_sum_multiplication():
     pSum.append_pauli_string(pString0)
     pSum.append_pauli_string(pString1)
 
-    new_wfn = wavefunction_pauli_sum_multiplication(pSum, wfn)
+    new_wfn = pSum * wfn
 
     print(f"({pSum}) * ({wfn}) = {new_wfn}")
 
