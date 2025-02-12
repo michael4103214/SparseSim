@@ -4,6 +4,10 @@ from sparse_sim import *
 
 
 class FermionicOperator:
+    op: str  # '+' for creation, '-' for annihilation
+    idx: int  # Index of the site
+    N: int  # Total number of sites / qubits
+    pSum: PauliSum  # PauliSum object representing the operator using Jordan-Wigner Transformation
 
     def __init__(self, operator, index, N):
 
@@ -47,10 +51,14 @@ class FermionicOperator:
         return FermionicOperator(adjoint_op, self.idx, self.N)
 
     def __str__(self):
-        return f"{self.idx}_{self.op}"
+        return f"{self.op}_{self.idx}"
 
 
 class FermionicProduct:
+    coef: complex  # Complex coefficient of the product
+    ops: list  # List of FermionicOperators applied right to left
+    N: int  # Total number of sites / qubits
+    pSum: PauliSum  # PauliSum object representing the product using Jordan-Wigner Transformation
 
     def __init__(self, coef, ops, N):
 
@@ -81,13 +89,19 @@ class FermionicProduct:
         return pauli_sum_evaluate_expectation(self.pSum, tomography)
 
     def __str__(self):
-        output = ""
-        for op in self.ops:
+        output = f"{self.coef} * ("
+        for i, op in enumerate(self.ops):
+            if i > 0:
+                output = output + " "
             output = output + f"{op}"
+        output = output + ")"
         return output
 
 
 class Operator:
+    fProds: list  # List of FermionicProducts
+    N: int  # Total number of sites / qubits
+    symbol: str  # Symbol used for printing the operator
 
     def __init__(self, fProds, N, symbol="Symbol Not Set"):
 

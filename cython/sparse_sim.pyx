@@ -1,6 +1,6 @@
 from libc.stdlib cimport malloc, free
 from libc.stdint cimport uintptr_t
-import re
+from typing import Set
 
 cdef extern from "khash.h":
     
@@ -377,15 +377,6 @@ def pauli_sum_multiplication(PauliSum left, PauliSum right):
     return PauliSum._init_from_c(new_pSum) 
 
 def pauli_sum_collect_measurements(PauliSum pSum):
-    """
-    Collects all unique PauliString elements from a PauliSum.
-
-    Parameters:
-    - pSum: PauliSum instance.
-
-    Returns:
-    - A set of unique Pauli strings.
-    """
     cdef PauliSumC* c_pSum = <PauliSumC *> pSum._c_pSum
     cdef PauliStringC* c_pString
     cdef char* c_str
@@ -405,18 +396,26 @@ def pauli_sum_collect_measurements(PauliSum pSum):
 
     return unique_strings
 
+def measurements_calculate_tomography(Set[str] measurements, Wavefunction wfn):
+    cdef WavefunctionC* c_wfn = <WavefunctionC *> wfn._c_wfn
+    cdef PauliStringC* c_pString
+    cdef char* c_str
+    cdef khiter_t k
+
+    tomography = {}
+
+    bra = wfn.adjoint()
+
+    for measurement in measurements:
+        s = list(measurement)
+        pString = PauliString(len(s), 1, s)
+        ket = wavefunction_pauli_string_multiplication(pString, wfn)
+        exp_value = wavefunction_multiplication(bra, ket)
+        tomography[measurement] = exp_value
+
+    return tomography
+
 def pauli_sum_evaluate_expectation(PauliSum pSum, dict tomography):
-    """
-    Computes the expectation value of a Pauli sum given tomography data.
-
-    Parameters:
-    - pSum: PauliSum instance.
-    - tomography: Dictionary mapping Pauli strings to expectation values.
-
-    Returns:
-    - Complex expectation value of the Pauli sum.
-    """
-
     cdef PauliSumC* c_pSum = <PauliSumC *> pSum._c_pSum
     cdef PauliStringC* c_pString
     cdef char* c_str

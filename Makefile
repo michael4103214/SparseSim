@@ -51,6 +51,12 @@ test-cython:
 test-fermion:
 	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_fermion.py
 
+test-hamiltonian:
+	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_hamiltonian.py
+
+test-rdm:
+	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_rdm.py
+
 # Clean up generated files
 clean:
 	rm -rf $(BUILD_DIR) *.so *.o

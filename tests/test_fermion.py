@@ -58,7 +58,6 @@ def test_operator_expectation():
     wfn.append_slater_determinant(sdet0)
     wfn.append_slater_determinant(sdet1)
 
-    tomography = {}
     measurements = op1.aggregate_measurements() | op2.aggregate_measurements()
     print(f"Wavefunction: {wfn}")
     print(f"fProd1: {fProd1.pSum}")
@@ -67,12 +66,7 @@ def test_operator_expectation():
     print(f"fProd4: {fProd4.pSum}")
     print(f"Measurements: {measurements}")
 
-    for measurement in measurements:
-        s = list(measurement)
-        pString = PauliString(2, 1, s)
-        exp_value = wavefunction_multiplication(
-            wfn.adjoint(), wavefunction_pauli_string_multiplication(pString, wfn))
-        tomography[measurement] = exp_value
+    tomography = measurements_calculate_tomography(measurements, wfn)
 
     print(f"Tomography data:\n {tomography}")
     print(
