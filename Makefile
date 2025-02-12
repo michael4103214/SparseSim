@@ -44,8 +44,10 @@ $(CYTHON_BUILD): $(CYTHON_DIR)/sparse_sim.pyx $(SRC_DIR)/wavefunction.c $(SRC_DI
 	$(PYTHON) setup.py build_ext --inplace
 
 # Run Python tests
-test-cython:
+test-pauli:
 	PYTHONPATH=$(shell pwd) $(PYTHON) tests/test_pauli.py
+
+test-wavefunction:
 	PYTHONPATH=$(shell pwd) $(PYTHON) tests/test_wavefunction.py
 
 test-fermion:
