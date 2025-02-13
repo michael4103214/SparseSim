@@ -14,6 +14,18 @@ class RDM(Operator):
         fProds = generate_fProds(p, N)
         super().__init__(fProds, N, f"{p}D")
 
+    def trace(self, tomography):
+        if self.p != 1:
+            print(f"Trace is not defined for p={self.p}")
+            return 0
+
+        tr = 0 + 0j
+        for fProd in self.fProds:
+            if fProd.ops[0].idx == fProd.ops[1].idx:
+                tr = tr + fProd.evaluate_expectation(tomography)
+
+        return tr
+
 
 def generate_fProds(p, N):
     fProds = []

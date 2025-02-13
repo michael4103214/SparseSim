@@ -205,8 +205,8 @@ void wavefunction_append_slater_determinant_c(WavefunctionC *wfn,
         (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
     existing_sdet->coef += sdet->coef;
 
-    if (fabs(creal(existing_sdet->coef)) < 1e-12 &&
-        fabs(cimag(existing_sdet->coef)) < 1e-12) {
+    if (fabs(creal(existing_sdet->coef)) < 1e-8 &&
+        fabs(cimag(existing_sdet->coef)) < 1e-8) {
       kh_del(slater_hash, wfn->slater_determinants, k);
       free_slater_determinant_c(existing_sdet);
       wfn->s--;
@@ -564,6 +564,11 @@ WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum,
                                                   double epsilon) {
   if (!wfn || !pSum) {
     fprintf(stderr, "Error: Received NULL wavefunction or Pauli sum.\n");
+    return NULL;
+  }
+
+  if (wfn->s == 0 || pSum->p == 0) {
+    fprintf(stderr, "Error: Received empty wavefunction or Pauli sum.\n");
     return NULL;
   }
 
