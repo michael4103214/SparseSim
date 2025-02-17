@@ -47,13 +47,14 @@ KHASH_MAP_INIT_INT(slater_hash, SlaterDeterminantC *)
 
 // Struct for a wavefunction containing multiple slater determinants
 typedef struct WavefunctionC {
+  unsigned int N; // Number of orbitals
   unsigned int s; // Current number of slater determinants
   khash_t(slater_hash) *
       slater_determinants; // Hashmap of slater determinant elements
 } WavefunctionC;
 
 // Wavefunction function declarations
-WavefunctionC *wavefunction_init_c(void);
+WavefunctionC *wavefunction_init_c(unsigned int N);
 void free_wavefunction_c(WavefunctionC *wfn);
 char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket);
 double wavefunction_norm_c(WavefunctionC *wfn);
@@ -70,9 +71,9 @@ WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum,
                                                        WavefunctionC *wfn);
 WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString,
                                                      WavefunctionC *wfn,
-                                                     double epsilon);
+                                                     double complex epsilon);
 WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum,
                                                   WavefunctionC *wfn,
-                                                  double epsilon);
+                                                  double complex epsilon);
 
 #endif // WAVEFUNCTION_H

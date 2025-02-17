@@ -6,7 +6,7 @@ CFLAGS += -O3 -mcpu=apple-m1 -flto -ffast-math -funroll-loops -fvectorize \
 
 # Disabled C Flags
 CFLAGS += -Wno-padded -Wno-c++98-compat -Wno-disabled-macro-expansion \
-          -Wno-poison-system-directories -Wno-declaration-after-statement 
+          -Wno-poison-system-directories -Wno-declaration-after-statement
 
 PYTHON = python3
 

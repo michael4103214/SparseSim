@@ -24,7 +24,7 @@ def test_hf_energy():
             print(fProd)
 
     hf_sdet = SlaterDeterminant(4, 1, [1, 0, 1, 0])
-    hf_wfn = Wavefunction()
+    hf_wfn = Wavefunction(4)
     hf_wfn.append_slater_determinant(hf_sdet)
 
     tomography = measurements_calculate_tomography(

@@ -24,12 +24,12 @@ def test_rdm_measurement():
     sdet0 = SlaterDeterminant(2, 1 + 0j, orbitals0)
     sdet1 = SlaterDeterminant(2, 0 + 1j, orbitals1)
 
-    wfn = Wavefunction()
+    wfn = Wavefunction(2)
 
     wfn.append_slater_determinant(sdet0)
     wfn.append_slater_determinant(sdet1)
 
-    measurements = ordm.aggregate_measurements()
+    measurements = ordm.aggregate_measurements_recursive()
     print(f"Wavefunction: {wfn}")
     print(f"Measurements: {measurements}")
 

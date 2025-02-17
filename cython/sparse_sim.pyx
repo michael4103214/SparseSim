@@ -71,10 +71,11 @@ cdef extern from "wavefunction.h":
     SlaterDeterminantC *slater_determinant_pauli_string_multiplication_c(PauliStringC *pString, SlaterDeterminantC *sdet)
 
     cdef struct WavefunctionC:
+        unsigned int N
         unsigned int s
         kh_slater_hash_t *slater_determinants
 
-    WavefunctionC *wavefunction_init_c();
+    WavefunctionC *wavefunction_init_c(unsigned int N);
     void free_wavefunction_c(WavefunctionC *wfn);
     char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket);
     double wavefunction_norm_c(WavefunctionC *wfn);
@@ -84,8 +85,8 @@ cdef extern from "wavefunction.h":
     void wavefunction_append_slater_determinant_c(WavefunctionC *wfn, SlaterDeterminantC *sdet);
     WavefunctionC *wavefunction_pauli_string_multiplication_c(PauliStringC *pString, WavefunctionC *wfn);
     WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum, WavefunctionC *wfn);
-    WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString, WavefunctionC *wfn, double epsilon);
-    WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum, WavefunctionC *wfn, double epsilon);
+    WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString, WavefunctionC *wfn, double complex epsilon);
+    WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum, WavefunctionC *wfn, double complex epsilon);
 
 cdef extern from "pauli.h":
 
@@ -105,10 +106,11 @@ cdef extern from "pauli.h":
     PauliStringC *pauli_string_multiplication_c(PauliStringC *left, PauliStringC *right)
 
     cdef struct PauliSumC:
+        unsigned int N
         unsigned int p
         kh_pauli_hash_t *pauli_strings
 
-    PauliSumC *pauli_sum_init_c()
+    PauliSumC *pauli_sum_init_c(unsigned int N)
     void free_pauli_sum_c(PauliSumC *pSum)
     char *pauli_sum_to_string_c(PauliSumC *pSum)
     void pauli_sum_append_pauli_string_c(PauliSumC *pSum, PauliStringC *pString)
@@ -162,6 +164,10 @@ cdef class SlaterDeterminant:
         free(c_str) 
         return py_str
 
+    @property
+    def N(self):
+        return (<SlaterDeterminantC *> self._c_sd).N
+
 cdef class Wavefunction:
     cdef uintptr_t _c_wfn
     cdef char bra_or_ket
@@ -169,8 +175,8 @@ cdef class Wavefunction:
     def __cinit__(self):
         pass
 
-    def __init__(self):
-        cdef WavefunctionC *c_wfn = wavefunction_init_c()
+    def __init__(self, N):
+        cdef WavefunctionC *c_wfn = wavefunction_init_c(N)
         if not c_wfn:
             raise MemoryError("Failed to allocate WavefunctionC")
         self._c_wfn = <uintptr_t> c_wfn
@@ -218,6 +224,7 @@ cdef class Wavefunction:
             py_wfn.bra_or_ket = b'b'[0]
         return py_wfn
 
+    @property
     def s(self):
         return (<WavefunctionC *> self._c_wfn).s
 
@@ -232,6 +239,10 @@ cdef class Wavefunction:
             return wavefunction_scalar_multiplication(self, left)
         else:
             raise TypeError(f"{type(left)} * Wavefunction is not defined")
+
+    @property
+    def N(self):
+        return (<WavefunctionC *> self._c_wfn).N
         
 cdef class PauliString:
     cdef uintptr_t _c_pString
@@ -295,14 +306,18 @@ cdef class PauliString:
         else:
             raise TypeError(f"{type(left)} * pString is not defined")
 
+    @property
+    def N(self):
+        return (<PauliStringC *> self._c_pString).N
+
 cdef class PauliSum:
     cdef uintptr_t _c_pSum
 
     def __cinit__(self):
         pass
 
-    def __init__(self):
-        cdef PauliSumC *c_pSum = pauli_sum_init_c()
+    def __init__(self, N):
+        cdef PauliSumC *c_pSum = pauli_sum_init_c(N)
         if not c_pSum:
             raise MemoryError("Failed to allocate PauliSum")
         self._c_pSum = <uintptr_t> c_pSum
@@ -335,6 +350,7 @@ cdef class PauliSum:
         pSum = PauliSum._init_from_c(new_pSum)
         return pSum
 
+    @property
     def p(self):
         return (<PauliSumC *> self._c_pSum).p
 
@@ -357,6 +373,10 @@ cdef class PauliSum:
             return pauli_sum_addition(self, right)
         else:
             raise TypeError(f"pSum + {type(right)} is not defined")
+
+    @property
+    def N(self):
+        return (<PauliSumC *> self._c_pSum).N
 
 def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):
     """Multiply a wavefunction by a scalar."""
@@ -383,14 +403,14 @@ def wavefunction_pauli_sum_multiplication(PauliSum pSum, Wavefunction wfn):
         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
     return Wavefunction._init_from_c(new_wfn)  
 
-def wavefunction_pauli_string_evolution(PauliString pString, Wavefunction wfn, double epsilon):
+def wavefunction_pauli_string_evolution(PauliString pString, Wavefunction wfn, double complex epsilon):
     """Evolve a wavefunction under a Pauli string using exponentiation."""
     cdef WavefunctionC *new_wfn = wavefunction_pauli_string_evolution_c(<PauliStringC *> pString._c_pString, <WavefunctionC *> wfn._c_wfn, epsilon)
     if not new_wfn:
         raise MemoryError("wavefunction_scalar_multiplication_c returned NULL")
     return Wavefunction._init_from_c(new_wfn)  
 
-def wavefunction_pauli_sum_evolution(PauliSum pSum, Wavefunction wfn, double epsilon):
+def wavefunction_pauli_sum_evolution(PauliSum pSum, Wavefunction wfn, double complex epsilon):
     """Evolve a wavefunction under a Pauli sum using exponentiation."""
     cdef WavefunctionC *new_wfn = wavefunction_pauli_sum_evolution_c(<PauliSumC *> pSum._c_pSum, <WavefunctionC *> wfn._c_wfn, epsilon)
     if not new_wfn:

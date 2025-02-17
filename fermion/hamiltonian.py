@@ -68,15 +68,16 @@ def init_Hamiltonian_from_pyscf(mol):
         for j in range(Na):
             for k in range(Na):
                 for l in range(Na):
-                    val = eri_mo_aa[i, j, k, l]
-                    if abs(val) > 1e-10:
-                        fOp1 = FermionicOperator('+', i, N)
-                        fOp2 = FermionicOperator('+', j, N)
-                        fOp3 = FermionicOperator('-', l, N)
-                        fOp4 = FermionicOperator('-', k, N)
-                        fProd = FermionicProduct(
-                            0.5 * val, [fOp1, fOp2, fOp3, fOp4], N)
-                        fProds.append(fProd)
+                    if (i != j) and (l != k):
+                        val = eri_mo_aa[i, j, k, l]
+                        if abs(val) > 1e-10:
+                            fOp1 = FermionicOperator('+', i, N)
+                            fOp2 = FermionicOperator('+', j, N)
+                            fOp3 = FermionicOperator('-', l, N)
+                            fOp4 = FermionicOperator('-', k, N)
+                            fProd = FermionicProduct(
+                                0.5 * val, [fOp1, fOp2, fOp3, fOp4], N)
+                            fProds.append(fProd)
 
     for i in range(Na):
         for j in range(Nb):
@@ -110,14 +111,15 @@ def init_Hamiltonian_from_pyscf(mol):
         for j in range(Nb):
             for k in range(Nb):
                 for l in range(Nb):
-                    val = eri_mo_bb[i, j, k, l]
-                    if abs(val) > 1e-10:
-                        fOp1 = FermionicOperator('+', Na + i, N)
-                        fOp2 = FermionicOperator('+', Na + j, N)
-                        fOp3 = FermionicOperator('-', Na + l, N)
-                        fOp4 = FermionicOperator('-', Na + k, N)
-                        fProd = FermionicProduct(
-                            0.5 * val, [fOp1, fOp2, fOp3, fOp4], N)
-                        fProds.append(fProd)
+                    if (i != j) and (l != k):
+                        val = eri_mo_bb[i, j, k, l]
+                        if abs(val) > 1e-10:
+                            fOp1 = FermionicOperator('+', Na + i, N)
+                            fOp2 = FermionicOperator('+', Na + j, N)
+                            fOp3 = FermionicOperator('-', Na + l, N)
+                            fOp4 = FermionicOperator('-', Na + k, N)
+                            fProd = FermionicProduct(
+                                0.5 * val, [fOp1, fOp2, fOp3, fOp4], N)
+                            fProds.append(fProd)
 
     return Hamiltonian(fProds, mf.energy_nuc(), N)

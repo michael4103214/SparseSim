@@ -53,26 +53,41 @@ def test_operator_expectation():
     sdet0 = SlaterDeterminant(2, 1 + 0j, orbitals0)
     sdet1 = SlaterDeterminant(2, 0 + 1j, orbitals1)
 
-    wfn = Wavefunction()
+    wfn = Wavefunction(2)
 
     wfn.append_slater_determinant(sdet0)
     wfn.append_slater_determinant(sdet1)
 
-    measurements = op1.aggregate_measurements() | op2.aggregate_measurements()
+    measurements_r = op1.aggregate_measurements_recursive()
+    measurements = op1.aggregate_measurements()
     print(f"Wavefunction: {wfn}")
+    print(f"Op1: {op1.pSum}")
     print(f"fProd1: {fProd1.pSum}")
     print(f"fProd2: {fProd2.pSum}")
     print(f"fProd3: {fProd3.pSum}")
     print(f"fProd4: {fProd4.pSum}")
     print(f"Measurements: {measurements}")
+    print(f"Measurements Recursive: {measurements_r}")
 
-    tomography = measurements_calculate_tomography(measurements, wfn)
+    tomography = measurements_calculate_tomography(measurements_r, wfn)
 
     print(f"Tomography data:\n {tomography}")
     print(
         f"Expectation value: {op1.evaluate_expectation(tomography)} = {fProd1.evaluate_expectation(tomography)} + {fProd2.evaluate_expectation(tomography)} + {fProd3.evaluate_expectation(tomography)} + {fProd4.evaluate_expectation(tomography)}")
     print(
         f"Expectation value: {op2.evaluate_expectation(tomography)} = {fProd1.evaluate_expectation(tomography)} + {fProd2.evaluate_expectation(tomography)}")
+
+
+def test_fermion_scalar_multiplication():
+    fOp1 = FermionicOperator("+", 0, 2)
+    fOp2 = FermionicOperator("-", 0, 2)
+
+    fProd1 = FermionicProduct(1, [fOp1, fOp2], 2)
+    fProd2 = 2 * fProd1
+    fProd3 = fProd1 * 2
+    print(f"{fProd1} = {fProd1.pSum}")
+    print(f"{fProd2} = {fProd2.pSum}")
+    print(f"{fProd3} = {fProd3.pSum}")
 
 
 def main():
@@ -84,6 +99,8 @@ def main():
     test_fermionic_product_initialization_and_freeing()
     print("\nTesting Operator Expectation")
     test_operator_expectation()
+    print("\nTesting Fermionic Scalar Multiplication")
+    test_fermion_scalar_multiplication()
 
 
 if __name__ == "__main__":

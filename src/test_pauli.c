@@ -89,7 +89,7 @@ void test_pauli_sum_initialization_scaling_freeing(void) {
   pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
   pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
 
-  pSum = pauli_sum_init_c();
+  pSum = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum, pString0);
   pauli_sum_append_pauli_string_c(pSum, pString1);
 
@@ -124,11 +124,11 @@ void test_pauli_sum_multiplication(void) {
   pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
   pString3 = pauli_string_init_as_chars_c(4, (double complex)I, paulis3);
 
-  pSum0 = pauli_sum_init_c();
+  pSum0 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum0, pString0);
   pauli_sum_append_pauli_string_c(pSum0, pString1);
 
-  pSum1 = pauli_sum_init_c();
+  pSum1 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum1, pString2);
   pauli_sum_append_pauli_string_c(pSum1, pString3);
 
@@ -173,11 +173,11 @@ void test_pauli_sum_addition(void) {
   pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
   pString3 = pauli_string_init_as_chars_c(4, (double complex) - I, paulis3);
 
-  pSum0 = pauli_sum_init_c();
+  pSum0 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum0, pString0);
   pauli_sum_append_pauli_string_c(pSum0, pString1);
 
-  pSum1 = pauli_sum_init_c();
+  pSum1 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum1, pString2);
   pauli_sum_append_pauli_string_c(pSum1, pString3);
 

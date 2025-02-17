@@ -172,8 +172,9 @@ PauliStringC *pauli_string_multiplication_c(PauliStringC *left,
   return product;
 }
 
-PauliSumC *pauli_sum_init_c(void) {
+PauliSumC *pauli_sum_init_c(unsigned int N) {
   PauliSumC *pSum = (PauliSumC *)malloc(sizeof(PauliSumC));
+  pSum->N = N;
   pSum->p = 0;
   pSum->pauli_strings = kh_init(pauli_hash);
   return pSum;
@@ -299,7 +300,7 @@ PauliSumC *pauli_sum_scalar_multiplication_c(PauliSumC *pSum,
     return NULL;
   }
 
-  PauliSumC *new_pSum = pauli_sum_init_c();
+  PauliSumC *new_pSum = pauli_sum_init_c(pSum->N);
   if (!new_pSum) {
     fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
     return NULL;
@@ -332,7 +333,7 @@ PauliSumC *pauli_sum_adjoint_c(PauliSumC *pSum) {
     return NULL;
   }
 
-  PauliSumC *new_pSum = pauli_sum_init_c();
+  PauliSumC *new_pSum = pauli_sum_init_c(pSum->N);
   if (!new_pSum) {
     fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
     return NULL;
@@ -363,8 +364,12 @@ PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right) {
     fprintf(stderr, "Error: NULL PauliSum input to multiplication.\n");
     return NULL;
   }
+  if (left->N != right->N) {
+    fprintf(stderr, "Error: Pauli sums have different number of qubits.\n");
+    return NULL;
+  }
 
-  PauliSumC *new_pSum = pauli_sum_init_c();
+  PauliSumC *new_pSum = pauli_sum_init_c(left->N);
   if (!new_pSum) {
     fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
     return NULL;
@@ -406,8 +411,12 @@ PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right) {
     fprintf(stderr, "Error: NULL PauliSum input to multiplication.\n");
     return NULL;
   }
+  if (left->N != right->N) {
+    fprintf(stderr, "Error: Pauli sums have different number of qubits.\n");
+    return NULL;
+  }
 
-  PauliSumC *new_pSum = pauli_sum_init_c();
+  PauliSumC *new_pSum = pauli_sum_init_c(left->N);
   if (!new_pSum) {
     fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
     return NULL;

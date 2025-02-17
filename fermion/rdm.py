@@ -32,9 +32,9 @@ def generate_fProds(p, N):
 
     indices = range(N)
 
-    for idx_tuple in itertools.product(indices, repeat=2 * p):
+    for idx_tuple in itertools.product(itertools.permutations(indices, p), itertools.permutations(indices, p)):
         fOps = []
-        for idx, site in enumerate(idx_tuple):
+        for idx, site in enumerate(idx_tuple[0] + idx_tuple[1]):
             sign = '+' if idx < p else '-'
             fOps.append(FermionicOperator(sign, site, N))
         fProd = FermionicProduct(1, fOps, N)

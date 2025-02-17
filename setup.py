@@ -19,7 +19,7 @@ extensions = [
         extra_compile_args=[
             "-O3", "-mcpu=apple-m1", "-flto",
             "-ffast-math", "-funroll-loops", "-fvectorize",
-            "-Xpreprocessor", "-fopenmp", f"-I{OMP_INCLUDE}"
+            "-Xpreprocessor", "-fopenmp", "-Wno-unreachable-code", f"-I{OMP_INCLUDE}"
         ],
         extra_link_args=[f"-L{OMP_LIB}", "-lomp"],
     )

@@ -1,3 +1,4 @@
+import numbers
 import numpy as np
 
 from sparse_sim import *
@@ -7,7 +8,7 @@ class FermionicOperator:
     op: str  # '+' for creation, '-' for annihilation
     idx: int  # Index of the site
     N: int  # Total number of sites / qubits
-    pSum: PauliSum  # PauliSum object representing the operator using Jordan-Wigner Transformation
+    pSum: PauliSum  # PauliSum object representing the operator as PauliStrings using Jordan-Wigner Transformation
 
     def __init__(self, operator, index, N):
 
@@ -23,7 +24,7 @@ class FermionicOperator:
     def to_pSum(self):
 
         paulis = ["I"] * self.N
-        pSum = PauliSum()
+        pSum = PauliSum(self.N)
 
         for i in range(self.idx):
             paulis[i] = "Z"
@@ -58,14 +59,15 @@ class FermionicProduct:
     coef: complex  # Complex coefficient of the product
     ops: list  # List of FermionicOperators applied right to left
     N: int  # Total number of sites / qubits
-    pSum: PauliSum  # PauliSum object representing the product using Jordan-Wigner Transformation
+    pSum: PauliSum  # PauliSum object representing the product as PauliStrings using Jordan-Wigner Transformation
 
-    def __init__(self, coef, ops, N):
+    def __init__(self, coef, ops, N, with_pSum=True):
 
         self.coef = coef
         self.ops = ops
         self.N = N
-        self.pSum = self.to_pSum()
+        if with_pSum:
+            self.pSum = self.to_pSum()
 
     def to_pSum(self):
 
@@ -97,22 +99,48 @@ class FermionicProduct:
         output = output + ")"
         return output
 
+    def multiply_by_scalar(self, scalar):
+        new_fProd = FermionicProduct(
+            scalar * self.coef, self.ops, self.N, False)
+        new_fProd.pSum = pauli_sum_scalar_multiplication(self.pSum, scalar)
+        return new_fProd
+
+    def __mul__(self, right):
+        if isinstance(right, numbers.Number):
+            return self.multiply_by_scalar(right)
+        else:
+            raise TypeError(f"fProd * {type(right)} is not defined")
+
+    def __rmul__(self, left):
+        if isinstance(left, numbers.Number):
+            return self.multiply_by_scalar(left)
+        else:
+            raise TypeError(f"{type(left)} * fProd is not defined")
+
 
 class Operator:
     fProds: list  # List of FermionicProducts
     N: int  # Total number of sites / qubits
     symbol: str  # Symbol used for printing the operator
+    pSum: PauliSum  # PauliSum object representing the Operator as PauliStrings using Jordan-Wigner Transformation
 
     def __init__(self, fProds, N, symbol="Symbol Not Set"):
 
         self.fProds = fProds
         self.N = N
         self.symbol = symbol
+        self.pSum = self.to_pSum()
+
+    def to_pSum(self):
+        pSum = PauliSum(self.N)
+        for fProd in self.fProds:
+            pSum = pSum + fProd.pSum
+        return pSum
 
     def add_fermoinic_product(self, fProd):
         self.fProds.append(fProd)
 
-    def aggregate_measurements(self):
+    def aggregate_measurements_recursive(self):
         measurements = set()
         for fProd in self.fProds:
             pSum = fProd.pSum
@@ -120,13 +148,11 @@ class Operator:
 
         return measurements
 
+    def aggregate_measurements(self):
+        return pauli_sum_collect_measurements(self.pSum)
+
     def evaluate_expectation(self, tomography):
-
-        exp = 0 + 0j
-        for fProd in self.fProds:
-            exp += fProd.evaluate_expectation(tomography)
-
-        return exp
+        return pauli_sum_evaluate_expectation(self.pSum, tomography)
 
     def adjoint(self):
         adjoint_fProds = []

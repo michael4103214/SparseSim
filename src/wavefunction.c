@@ -187,10 +187,11 @@ void free_wavefunction_c(WavefunctionC *wfn) {
   free(wfn);
 }
 
-WavefunctionC *wavefunction_init_c(void) {
+WavefunctionC *wavefunction_init_c(unsigned int N) {
   WavefunctionC *wfn = (WavefunctionC *)malloc(sizeof(WavefunctionC));
   wfn->s = 0;
   wfn->slater_determinants = kh_init(slater_hash);
+  wfn->N = N;
   return wfn;
 }
 
@@ -248,7 +249,7 @@ WavefunctionC *wavefunction_scalar_multiplication_c(WavefunctionC *wfn,
     return NULL;
   }
 
-  WavefunctionC *new_wfn = wavefunction_init_c();
+  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
   khiter_t k;
 
   for (k = kh_begin(wfn->slater_determinants);
@@ -276,7 +277,7 @@ WavefunctionC *wavefunction_adjoint_c(WavefunctionC *wfn) {
     return NULL;
   }
 
-  WavefunctionC *new_wfn = wavefunction_init_c();
+  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
   khiter_t k;
 
   for (k = kh_begin(wfn->slater_determinants);
@@ -397,8 +398,13 @@ WavefunctionC *wavefunction_pauli_string_multiplication_c(PauliStringC *pString,
     fprintf(stderr, "Error: Received NULL wavefunction or Pauli string.\n");
     return NULL;
   }
+  if (wfn->N != pString->N) {
+    fprintf(stderr, "Error: Wavefunction and Pauli string have different "
+                    "number of qubits.\n");
+    return NULL;
+  }
 
-  WavefunctionC *new_wfn = wavefunction_init_c();
+  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
   khiter_t k;
 
   for (k = kh_begin(wfn->slater_determinants);
@@ -424,8 +430,13 @@ WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum,
     fprintf(stderr, "Error: Received NULL wavefunction or Pauli sum.\n");
     return NULL;
   }
+  if (wfn->N != pSum->N) {
+    fprintf(stderr, "Error: Wavefunction and Pauli sum have different number "
+                    "of qubits.\n");
+    return NULL;
+  }
 
-  WavefunctionC *new_wfn = wavefunction_init_c();
+  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
   if (!new_wfn) {
     fprintf(stderr, "Error: Failed to allocate new wavefunction.\n");
     return NULL;
@@ -469,7 +480,7 @@ WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum,
 
 static inline SlaterDeterminantC *
 evolution_helper_cosh(PauliStringC *pString, SlaterDeterminantC *sdet,
-                      double epsilon) {
+                      double complex epsilon) {
   unsigned int N = sdet->N;
   double complex x = pString->coef * epsilon;
   double complex approx_cosh = 1 + x * x * (0.5 + x * x / 24.0);
@@ -479,7 +490,7 @@ evolution_helper_cosh(PauliStringC *pString, SlaterDeterminantC *sdet,
 
 static inline SlaterDeterminantC *
 evolution_helper_sinh(PauliStringC *pString, SlaterDeterminantC *sdet,
-                      double epsilon) {
+                      double complex epsilon) {
 
   unsigned int N;
   unsigned int *new_orbitals;
@@ -527,13 +538,18 @@ evolution_helper_sinh(PauliStringC *pString, SlaterDeterminantC *sdet,
 
 WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString,
                                                      WavefunctionC *wfn,
-                                                     double epsilon) {
+                                                     double complex epsilon) {
   if (!wfn || !pString) {
     fprintf(stderr, "Error: Received NULL wavefunction or Pauli string.\n");
     return NULL;
   }
+  if (wfn->N != pString->N) {
+    fprintf(stderr, "Error: Wavefunction and Pauli string have different "
+                    "number of qubits.\n");
+    return NULL;
+  }
 
-  WavefunctionC *new_wfn = wavefunction_init_c();
+  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
   khiter_t k;
 
   for (k = kh_begin(wfn->slater_determinants);
@@ -561,7 +577,7 @@ WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString,
 
 WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum,
                                                   WavefunctionC *wfn,
-                                                  double epsilon) {
+                                                  double complex epsilon) {
   if (!wfn || !pSum) {
     fprintf(stderr, "Error: Received NULL wavefunction or Pauli sum.\n");
     return NULL;
