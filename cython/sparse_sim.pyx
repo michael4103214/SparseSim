@@ -87,6 +87,8 @@ cdef extern from "wavefunction.h":
     WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum, WavefunctionC *wfn);
     WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString, WavefunctionC *wfn, double complex epsilon);
     WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum, WavefunctionC *wfn, double complex epsilon);
+    WavefunctionC *wavefunction_remove_global_phase_c(WavefunctionC *wfn);
+    WavefunctionC *wavefunction_remove_near_zero_terms_c(WavefunctionC *wfn, double cutoff);
 
 cdef extern from "pauli.h":
 
@@ -104,6 +106,7 @@ cdef extern from "pauli.h":
     PauliStringC *pauli_string_adjoint_c(PauliStringC *pString)
     double pauli_string_comparison_c(PauliStringC *left, PauliStringC *right)
     PauliStringC *pauli_string_multiplication_c(PauliStringC *left, PauliStringC *right)
+    PauliStringC **get_pauli_strings_c(PauliSumC *pSum)
 
     cdef struct PauliSumC:
         unsigned int N
@@ -168,6 +171,20 @@ cdef class SlaterDeterminant:
     def N(self):
         return (<SlaterDeterminantC *> self._c_sd).N
 
+    @property
+    def orbitals(self):
+        cdef unsigned int *c_orbitals = (<SlaterDeterminantC *> self._c_sd).orbitals
+        return [c_orbitals[i] for i in range(self.N)]
+
+    def __add__(self, right):
+        if isinstance(right, SlaterDeterminant):
+            wfn = Wavefunction(self.N)
+            wfn.append_slater_determinant(self)
+            wfn.append_slater_determinant(right)
+            return wfn
+        else:
+            raise TypeError(f"SlaterDeterminant + {type(right)} is not defined")
+
 cdef class Wavefunction:
     cdef uintptr_t _c_wfn
     cdef char bra_or_ket
@@ -211,6 +228,7 @@ cdef class Wavefunction:
     def append_slater_determinant(self, SlaterDeterminant sdet):
         sdet._in_wfn = True
         wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
+        return self
 
     def adjoint(self):
         cdef WavefunctionC *new_wfn = wavefunction_adjoint_c(<WavefunctionC *> self._c_wfn)
@@ -224,9 +242,25 @@ cdef class Wavefunction:
             py_wfn.bra_or_ket = b'b'[0]
         return py_wfn
 
+    def remove_global_phase(self):
+        cdef WavefunctionC *new_wfn = wavefunction_remove_global_phase_c(<WavefunctionC *> self._c_wfn)
+        if not new_wfn:
+            raise MemoryError("wavefunction_remove_global_phase_c returned NULL")
+        return Wavefunction._init_from_c(new_wfn)
+
+    def remove_near_zero_terms(self, double cutoff):
+        cdef WavefunctionC *new_wfn = wavefunction_remove_near_zero_terms_c(<WavefunctionC *> self._c_wfn, cutoff)
+        if not new_wfn:
+            raise MemoryError("wavefunction_remove_near_zero_terms_c returned NULL")
+        return Wavefunction._init_from_c(new_wfn)
+
     @property
     def s(self):
         return (<WavefunctionC *> self._c_wfn).s
+
+    @property
+    def N(self):
+        return (<WavefunctionC *> self._c_wfn).N
 
     def __mul__(self, right):
         if isinstance(right, Wavefunction):
@@ -240,9 +274,11 @@ cdef class Wavefunction:
         else:
             raise TypeError(f"{type(left)} * Wavefunction is not defined")
 
-    @property
-    def N(self):
-        return (<WavefunctionC *> self._c_wfn).N
+    def __add__(self, right):
+        if isinstance(right, SlaterDeterminant):
+            return self.append_slater_determinant(right)
+        else:
+            raise TypeError(f"Wavefunction + {type(right)} is not defined")
         
 cdef class PauliString:
     cdef uintptr_t _c_pString
@@ -292,6 +328,21 @@ cdef class PauliString:
         py_pString._in_sum = False
         return py_pString
 
+    @property
+    def N(self):
+        return (<PauliStringC *> self._c_pString).N
+
+    @property
+    def coef(self):
+        return (<PauliStringC *> self._c_pString).coef
+
+    @property
+    def string(self):
+        cdef char *c_str = pauli_string_to_string_no_coef_c(<PauliStringC *> self._c_pString)
+        py_str = c_str.decode('utf-8')
+        free(c_str) 
+        return py_str
+
     def __mul__(self, right):
         if isinstance(right, Wavefunction):
             return wavefunction_pauli_string_multiplication(self, right)
@@ -306,9 +357,15 @@ cdef class PauliString:
         else:
             raise TypeError(f"{type(left)} * pString is not defined")
 
-    @property
-    def N(self):
-        return (<PauliStringC *> self._c_pString).N
+    def __add__(self, right):
+        if isinstance(right, PauliString):
+            pSum = PauliSum(self.N)
+            pSum.append_pauli_string(self)
+            pSum.append_pauli_string(right)
+            return pSum
+        else:
+            raise TypeError(f"PauliString + {type(right)} is not defined")
+
 
 cdef class PauliSum:
     cdef uintptr_t _c_pSum
@@ -350,9 +407,20 @@ cdef class PauliSum:
         pSum = PauliSum._init_from_c(new_pSum)
         return pSum
 
+    def get_pauli_strings(self):
+        cdef PauliStringC **c_pStrings = get_pauli_strings_c(<PauliSumC *> self._c_pSum)
+        py_pStrings = []
+        for i in range(self.p) :
+            py_pStrings.append(PauliString._init_from_c(c_pStrings[i]))
+        return py_pStrings
+
     @property
     def p(self):
         return (<PauliSumC *> self._c_pSum).p
+
+    @property
+    def N(self):
+        return (<PauliSumC *> self._c_pSum).N
 
     def __mul__(self, right):
         if isinstance(right, Wavefunction):
@@ -373,10 +441,6 @@ cdef class PauliSum:
             return pauli_sum_addition(self, right)
         else:
             raise TypeError(f"pSum + {type(right)} is not defined")
-
-    @property
-    def N(self):
-        return (<PauliSumC *> self._c_pSum).N
 
 def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):
     """Multiply a wavefunction by a scalar."""
@@ -463,7 +527,7 @@ def pauli_sum_collect_measurements(PauliSum pSum):
 
     return unique_strings
 
-def measurements_calculate_tomography(Set[str] measurements, Wavefunction wfn):
+def wavefunction_perform_tomography(Wavefunction wfn, Set[str] measurements):
     cdef WavefunctionC* c_wfn = <WavefunctionC *> wfn._c_wfn
     cdef PauliStringC* c_pString
     cdef char* c_str
@@ -500,7 +564,8 @@ def pauli_sum_evaluate_expectation(PauliSum pSum, dict tomography):
 
             if py_str in tomography:
                 coef = c_pString.coef
-                exp += coef * tomography[py_str]  
+                exp += coef * tomography[py_str] 
+                #print(f"{py_str}: {coef} * {tomography[py_str]}") 
             else:
                 print(f"Error: PauliString '{py_str}' not found in tomography data")
 

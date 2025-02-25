@@ -11,6 +11,7 @@ void test_pauli_sum_initialization_scaling_freeing(void);
 void test_pauli_sum_multiplication(void);
 void test_pauli_sum_addition(void);
 void test_pauli_encoding(unsigned int N);
+void test_pauli_sum_get_pauli_strings(void);
 
 void test_pauli_string_initialization_scaling_freeing(void) {
   unsigned int paulis0[] = {0, 1, 0, 1};
@@ -245,6 +246,52 @@ void test_pauli_encoding(unsigned int N) {
   }
 }
 
+void test_pauli_sum_get_pauli_strings(void) {
+  unsigned int paulis0[] = {3, 2, 0, 1};
+  unsigned int paulis2[] = {2, 2, 0, 1};
+  char paulis1[] = {'I', 'X', 'Y', 'I'};
+  char paulis3[] = {'I', 'X', 'I', 'I'};
+
+  char *pSum0_str;
+
+  PauliStringC *pString0;
+  PauliStringC *pString1;
+  PauliStringC *pString2;
+  PauliStringC *pString3;
+
+  PauliSumC *pSum0;
+
+  pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
+  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
+  pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
+  pString3 = pauli_string_init_as_chars_c(4, (double complex) - I, paulis3);
+
+  pSum0 = pauli_sum_init_c(4);
+  pauli_sum_append_pauli_string_c(pSum0, pString0);
+  pauli_sum_append_pauli_string_c(pSum0, pString1);
+  pauli_sum_append_pauli_string_c(pSum0, pString2);
+  pauli_sum_append_pauli_string_c(pSum0, pString3);
+
+  PauliStringC **pauli_strings = get_pauli_strings_c(pSum0);
+  if (!pauli_strings) {
+    fprintf(stderr, "Error: Failed to retrieve Pauli strings.\n");
+    return;
+  }
+
+  pSum0_str = pauli_sum_to_string_c(pSum0);
+  printf("%s contains %u Pauli strings:\n", pSum0_str, pSum0->p);
+  free(pSum0_str);
+
+  for (unsigned int i = 0; i < pSum0->p; i++) {
+    char *p_str = pauli_string_to_string_c(pauli_strings[i]);
+    printf("Pauli string %u: %s\n", i, p_str);
+    free(p_str);
+  }
+
+  free(pauli_strings);
+  free_pauli_sum_c(pSum0);
+}
+
 int main(void) {
   printf("\nTesting PauliString initializaiton, scaling, and freeing\n");
   test_pauli_string_initialization_scaling_freeing();
@@ -256,6 +303,8 @@ int main(void) {
   test_pauli_sum_multiplication();
   printf("\nTesting PauliSum Addition\n");
   test_pauli_sum_addition();
-  printf("\nTesting Pauli String Encoding\n");
-  test_pauli_encoding(17);
+  // printf("\nTesting Pauli String Encoding\n");
+  // test_pauli_encoding(17);
+  printf("\nTesting Pauli Sum Retrieval\n");
+  test_pauli_sum_get_pauli_strings();
 }

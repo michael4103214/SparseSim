@@ -69,7 +69,7 @@ def test_operator_expectation():
     print(f"Measurements: {measurements}")
     print(f"Measurements Recursive: {measurements_r}")
 
-    tomography = measurements_calculate_tomography(measurements_r, wfn)
+    tomography = wavefunction_perform_tomography(wfn, measurements_r)
 
     print(f"Tomography data:\n {tomography}")
     print(

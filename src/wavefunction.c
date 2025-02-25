@@ -613,3 +613,68 @@ WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum,
 
   return wfn;
 }
+
+static inline SlaterDeterminantC *
+wavefunction_get_min_encoding_sdet_c(WavefunctionC *wfn) {
+  if (!wfn) {
+    fprintf(stderr, "Error: Received NULL wavefunction.\n");
+    return NULL;
+  }
+
+  SlaterDeterminantC *min_sdet = NULL;
+  unsigned int min_encoding = UINT_MAX;
+  khiter_t k;
+
+  for (k = kh_begin(wfn->slater_determinants);
+       k != kh_end(wfn->slater_determinants); ++k) {
+    if (kh_exist(wfn->slater_determinants, k)) {
+      SlaterDeterminantC *sdet =
+          (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
+      if (sdet->encoding < min_encoding) {
+        min_encoding = sdet->encoding;
+        min_sdet = sdet;
+      }
+    }
+  }
+
+  return min_sdet;
+}
+
+WavefunctionC *wavefunction_remove_global_phase_c(WavefunctionC *wfn) {
+  if (!wfn) {
+    fprintf(stderr, "Error: Received NULL wavefunction.\n");
+    return NULL;
+  }
+
+  SlaterDeterminantC *min_sdet = wavefunction_get_min_encoding_sdet_c(wfn);
+  double phase = carg(min_sdet->coef);
+  double complex invert = cexp(-1 * (double complex)I * phase);
+  return wavefunction_scalar_multiplication_c(wfn, invert);
+}
+
+WavefunctionC *wavefunction_remove_near_zero_terms_c(WavefunctionC *wfn,
+                                                     double cutoff) {
+  if (!wfn) {
+    fprintf(stderr, "Error: Received NULL wavefunction.\n");
+    return NULL;
+  }
+
+  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
+  khiter_t k;
+
+  for (k = kh_begin(wfn->slater_determinants);
+       k != kh_end(wfn->slater_determinants); ++k) {
+    if (kh_exist(wfn->slater_determinants, k)) {
+      SlaterDeterminantC *sdet =
+          (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
+      if (fabs(creal(sdet->coef)) > cutoff ||
+          fabs(cimag(sdet->coef)) > cutoff) {
+        SlaterDeterminantC *new_sdet =
+            slater_determinant_init_c(sdet->N, sdet->coef, sdet->orbitals);
+        wavefunction_append_slater_determinant_c(new_wfn, new_sdet);
+      }
+    }
+  }
+
+  return new_wfn;
+}

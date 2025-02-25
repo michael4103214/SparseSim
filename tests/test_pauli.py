@@ -6,7 +6,7 @@ def test_pauli_string_initialization_scaling_freeing():
     pString0 = PauliString(4, 1 + 0j, paulis0)
 
     paulis1 = ['I', 'X', 'I', 'X']
-    pString1 = PauliString(4, 1+1j, paulis1)
+    pString1 = PauliString(4, 1 + 1j, paulis1)
 
     print(pString0)
 
@@ -97,6 +97,39 @@ def test_pauli_sum_addition():
     print(f"({pSum0}) + ({pSum1}) = {pSum2}")
 
 
+def test_pauli_sum_get_pauli_strings():
+    paulis0 = ['Z', 'Y', 'I', 'X']
+    paulis2 = ['Y', 'Y', 'I', 'X']
+    paulis1 = ['I', 'X', 'Y', 'I']
+    paulis3 = ['I', 'X', 'I', 'I']
+
+    pString0 = PauliString(4, 1 + 0j, paulis0)
+    print(paulis0)
+    pString1 = PauliString(4, 1j, paulis1)
+
+    print(paulis1)
+    pString2 = PauliString(4, 1 + 0j, paulis2)
+
+    print(paulis2)
+    pString3 = PauliString(4, -1j, paulis3)
+
+    print(paulis3)
+
+    pSum0 = PauliSum(4)
+    pSum0.append_pauli_string(pString0)
+    pSum0.append_pauli_string(pString1)
+    pSum0.append_pauli_string(pString2)
+    pSum0.append_pauli_string(pString3)
+    pauli_strings = pSum0.get_pauli_strings()
+    if not pauli_strings:
+        print("Error: Failed to retrieve Pauli strings.")
+        return
+
+    print(f"{pSum0} contains {pSum0.p} Pauli strings:")
+    for i, p_str in enumerate(pauli_strings):
+        print(f"Pauli string {i}: {p_str}")
+
+
 def main():
     print("\nTesting PauliString initialization, scaling, and freeing")
     test_pauli_string_initialization_scaling_freeing()
@@ -112,6 +145,9 @@ def main():
 
     print("\nTesting PauliSum addition")
     test_pauli_sum_addition()
+
+    print("\nTesting PauliSum get_pauli_strings")
+    test_pauli_sum_get_pauli_strings()
 
 
 if __name__ == "__main__":

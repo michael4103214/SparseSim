@@ -27,8 +27,8 @@ def test_hf_energy():
     hf_wfn = Wavefunction(4)
     hf_wfn.append_slater_determinant(hf_sdet)
 
-    tomography = measurements_calculate_tomography(
-        H.aggregate_measurements(), hf_wfn)
+    tomography = wavefunction_perform_tomography(
+        hf_wfn, H.aggregate_measurements())
 
     print(f"H2 HF energy: {H.energy(tomography)}")
 

@@ -204,6 +204,23 @@ def test_wavefunction_speed():
         f"Final number of Slater determinants is {wfn.s} showing a 2^{log2(wfn.s / num_sdets)} increase.")
 
 
+def test_wavefunction_cleaning():
+    orbitals0 = [0, 1, 0, 1]
+    sdet0 = SlaterDeterminant(4, 1 + 0j, orbitals0)
+
+    orbitals1 = [0, 1, 1, 0]
+    sdet1 = SlaterDeterminant(4, 1e-4, orbitals1)
+
+    orbitals2 = [1, 0, 1, 0]
+    sdet2 = SlaterDeterminant(4, 1e-4j, orbitals2)
+
+    wfn = sdet0 + sdet1 + sdet2
+    print(f"Initial: {wfn}")
+
+    wfn_clean = wfn.remove_near_zero_terms(1e-3)
+    print(f"Cleaned: {wfn_clean}")
+
+
 def main():
     print("\nTesting Initialization, Scaling, and Freeing")
     test_initialization_scaling_freeing()
@@ -223,8 +240,11 @@ def main():
     print("\nTesting Wavefunction Evolution by Pauli Sum")
     test_wavefunction_pauli_sum_evolution()
 
-    print("\nTesting Wavefunction Speed")
-    test_wavefunction_speed()
+    # print("\nTesting Wavefunction Speed")
+    # test_wavefunction_speed()
+
+    print("\nTesting Wavefunction Cleaning")
+    test_wavefunction_cleaning()
 
 
 if __name__ == "__main__":

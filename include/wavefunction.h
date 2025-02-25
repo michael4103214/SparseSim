@@ -75,5 +75,8 @@ WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString,
 WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum,
                                                   WavefunctionC *wfn,
                                                   double complex epsilon);
+WavefunctionC *wavefunction_remove_global_phase_c(WavefunctionC *wfn);
+WavefunctionC *wavefunction_remove_near_zero_terms_c(WavefunctionC *wfn,
+                                                     double cutoff);
 
 #endif // WAVEFUNCTION_H

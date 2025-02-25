@@ -59,5 +59,6 @@ PauliSumC *pauli_sum_scalar_multiplication_c(PauliSumC *pSum,
 PauliSumC *pauli_sum_adjoint_c(PauliSumC *pSum);
 PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right);
 PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right);
+PauliStringC **get_pauli_strings_c(PauliSumC *pSum);
 
 #endif // PAULI_H

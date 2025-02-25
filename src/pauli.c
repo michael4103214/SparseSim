@@ -445,3 +445,31 @@ PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right) {
 
   return new_pSum;
 }
+
+PauliStringC **get_pauli_strings_c(PauliSumC *pSum) {
+  if (!pSum) {
+    fprintf(stderr, "Error: Received NULL PauliSum.\n");
+    return NULL;
+  }
+
+  PauliStringC **pauli_strings =
+      (PauliStringC **)malloc(pSum->p * sizeof(PauliStringC *));
+  if (!pauli_strings) {
+    fprintf(stderr, "Error: Memory allocation failed.\n");
+    return NULL;
+  }
+
+  khiter_t k;
+  unsigned int index = 0;
+  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
+       ++k) {
+    if (kh_exist(pSum->pauli_strings, k)) {
+      PauliStringC *pString = kh_value(pSum->pauli_strings, k);
+      PauliStringC *new_pString = pauli_string_init_as_ints_c(
+          pString->N, pString->coef, pString->paulis);
+      pauli_strings[index++] = new_pString;
+    }
+  }
+
+  return pauli_strings;
+}

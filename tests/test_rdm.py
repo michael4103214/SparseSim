@@ -33,7 +33,7 @@ def test_rdm_measurement():
     print(f"Wavefunction: {wfn}")
     print(f"Measurements: {measurements}")
 
-    tomography = measurements_calculate_tomography(measurements, wfn)
+    tomography = wavefunction_perform_tomography(wfn, measurements)
 
     print(f"Tomography data:\n {tomography}")
     print(

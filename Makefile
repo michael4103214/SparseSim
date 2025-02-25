@@ -59,6 +59,9 @@ test-hamiltonian:
 test-rdm:
 	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_rdm.py
 
+test-qiskit-wrapper:
+	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_qiskit_wrapper.py
+
 # Clean up generated files
 clean:
 	rm -rf $(BUILD_DIR) *.so *.o
