@@ -8,10 +8,10 @@ def test_qiskit_expectation():
     fOp3 = FermionicOperator("+", 1, 2)
     fOp4 = FermionicOperator("-", 1, 2)
 
-    fProd1 = FermionicProduct(1, [fOp1, fOp2], 2)
-    fProd2 = FermionicProduct(1, [fOp3, fOp4], 2)
-    fProd3 = FermionicProduct(1, [fOp3, fOp2], 2)
-    fProd4 = FermionicProduct(1, [fOp1, fOp4], 2)
+    fProd1 = Product(1, [fOp1, fOp2], 2)
+    fProd2 = Product(1, [fOp3, fOp4], 2)
+    fProd3 = Product(1, [fOp3, fOp2], 2)
+    fProd4 = Product(1, [fOp1, fOp4], 2)
 
     op1 = Operator([fProd1, fProd2, fProd3, fProd4], 2)
     op2 = Operator([fProd1, fProd2], 2)
@@ -26,7 +26,8 @@ def test_qiskit_expectation():
     pSum = pString0 + pString1
 
     circuit = q.QuantumCircuit(2, 2)
-    circuit = circuit.compose(qiskit_create_initialization_circut(sdet))
+    circuit = circuit.compose(
+        qiskit_create_initialization_from_slater_determinant_circuit(sdet))
     circuit = circuit.compose(qiskit_create_pauli_sum_evolution_circuit(pSum))
     backend = Aer.AerSimulator()
 
@@ -53,7 +54,7 @@ def test_qiskit_expectation():
 
 def test_qiskit_probability_distribution():
     paulis0 = ["X", "X"]
-    pString0 = PauliString(2, 1j * np.pi / 4, paulis0)
+    pString0 = PauliString(2, 1j * np.pi / 8, paulis0)
     paulis1 = ["I", "I"]
     pString1 = PauliString(2, 1j * 1, paulis1)
     pSum = pString0 + pString1
@@ -61,14 +62,15 @@ def test_qiskit_probability_distribution():
     sdet = SlaterDeterminant(2, 1 + 0j, [1, 0])
 
     circuit = q.QuantumCircuit(2, 0)
-    circuit = circuit.compose(qiskit_create_initialization_circut(sdet))
+    circuit = circuit.compose(
+        qiskit_create_initialization_from_slater_determinant_circuit(sdet))
     circuit = circuit.compose(qiskit_create_pauli_sum_evolution_circuit(pSum))
     backend = Aer.AerSimulator()
 
-    circuit.save_statevector()
-    result = backend.run(circuit).result()
-    statevector = result.get_statevector()
-    print(f"Statevector: {statevector.data}")
+    statevector = qiskit_statevector(circuit)
+    print(f"Statevector: {statevector}")
+    print(
+        f"P_|10> = {slater_determinant_probability_from_statevector(sdet, statevector)}")
 
     prob_dist = qiskit_probability_distribution(circuit, backend, 2**13)
     print(f"Probability Distribution: {prob_dist}")

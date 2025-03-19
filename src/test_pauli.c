@@ -8,6 +8,7 @@
 void test_pauli_string_initialization_scaling_freeing(void);
 void test_pauli_string_multiplication(void);
 void test_pauli_sum_initialization_scaling_freeing(void);
+void test_pauli_sum_adjoint(void);
 void test_pauli_sum_multiplication(void);
 void test_pauli_sum_addition(void);
 void test_pauli_encoding(unsigned int N);
@@ -99,6 +100,48 @@ void test_pauli_sum_initialization_scaling_freeing(void) {
 
   free(pSum_str);
   free_pauli_sum_c(pSum);
+}
+
+void test_pauli_sum_adjoint(void) {
+  unsigned int paulis0[] = {0, 2, 0, 1};
+  unsigned int paulis2[] = {0, 2, 1, 1};
+  char paulis1[] = {'I', 'X', 'X', 'I'};
+  char paulis3[] = {'I', 'X', 'I', 'I'};
+
+  char *pSum0_str;
+  char *pSum1_str;
+
+  PauliStringC *pString0;
+  PauliStringC *pString1;
+  PauliStringC *pString2;
+  PauliStringC *pString3;
+
+  PauliSumC *pSum0;
+  PauliSumC *pSum1;
+
+  pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
+  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
+  pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
+  pString3 = pauli_string_init_as_chars_c(4, (double complex) - I, paulis3);
+
+  pSum0 = pauli_sum_init_c(4);
+  pauli_sum_append_pauli_string_c(pSum0, pString0);
+  pauli_sum_append_pauli_string_c(pSum0, pString1);
+  pauli_sum_append_pauli_string_c(pSum0, pString2);
+  pauli_sum_append_pauli_string_c(pSum0, pString3);
+
+  pSum1 = pauli_sum_adjoint_c(pSum0);
+
+  pSum0_str = pauli_sum_to_string_c(pSum0);
+  pSum1_str = pauli_sum_to_string_c(pSum1);
+
+  printf("(%s)^dagger = (%s)\n", pSum0_str, pSum1_str);
+
+  free(pSum0_str);
+  free(pSum1_str);
+
+  free_pauli_sum_c(pSum0);
+  free_pauli_sum_c(pSum1);
 }
 
 void test_pauli_sum_multiplication(void) {
@@ -299,12 +342,14 @@ int main(void) {
   test_pauli_string_multiplication();
   printf("\nTesting PauliSum initialization, scaling, and freeing\n");
   test_pauli_sum_initialization_scaling_freeing();
+  printf("\nTesting PauliSum Adjoint\n");
+  test_pauli_sum_adjoint();
   printf("\nTesting PauliSum Multiplication\n");
   test_pauli_sum_multiplication();
   printf("\nTesting PauliSum Addition\n");
   test_pauli_sum_addition();
   // printf("\nTesting Pauli String Encoding\n");
-  // test_pauli_encoding(17);
+  // test_pauli_encoding(5);
   printf("\nTesting Pauli Sum Retrieval\n");
   test_pauli_sum_get_pauli_strings();
 }

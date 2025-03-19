@@ -1,5 +1,7 @@
 #include "pauli.h"
 
+// Deprecated
+
 PauliStringC *pauli_string_init_as_chars_c(unsigned int N, double complex coef,
                                            char paulis[]) {
   PauliStringC *pString = (PauliStringC *)malloc(sizeof(PauliStringC));

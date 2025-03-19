@@ -19,9 +19,9 @@ def test_hf_energy():
 
     if False:
         print("SparseSim")
-        print(f"{len(H.fProds)} fProds:")
-        for fProd in H.fProds:
-            print(fProd)
+        print(f"{len(H.prods)} prods:")
+        for prod in H.prods:
+            print(prod)
 
     hf_sdet = SlaterDeterminant(4, 1, [1, 0, 1, 0])
     hf_wfn = Wavefunction(4)

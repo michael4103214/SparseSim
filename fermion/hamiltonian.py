@@ -4,17 +4,25 @@ from pyscf.gto import Mole
 
 
 class Hamiltonian(Operator):
-    fProds: list  # List of FermionicProducts
+    prods: list  # List of Products
     N: int  # Total number of sites / qubits
     symbol: str  # Symbol used for printing the operator
     nuc: float  # Nuclear-nuclear repulsion energy
 
-    def __init__(self, fProds, nuc, N, symbol="H"):
-        super().__init__(fProds, N, symbol)
+    def __init__(self, prods, nuc, N, symbol="H"):
+        super().__init__(prods, N, symbol)
         self.nuc = nuc
 
     def energy(self, tomography):
         return self.nuc + self.evaluate_expectation(tomography).real
+
+    def map(self, projector):
+        new_prods = []
+
+        for prod in self.prods:
+            new_prods.extend(prod.map(projector))
+
+        return Hamiltonian(new_prods, self.nuc, projector.target_N)
 
 
 def init_Hamiltonian_from_pyscf(mol):
@@ -46,23 +54,23 @@ def init_Hamiltonian_from_pyscf(mol):
     eri_mo_bb = ao2mo.incore.full(
         eri_ao, C_beta, compact=False).reshape(Na, Na, Na, Na).transpose(0, 2, 1, 3)
 
-    fProds = []
+    prods = []
 
     for i in range(Na):
         for j in range(Na):
             if abs(h_mo_alpha[i, j]) > 1e-10:
                 fOp1 = FermionicOperator('+', i, N)
                 fOp2 = FermionicOperator('-', j, N)
-                fProd = FermionicProduct(h_mo_alpha[i, j], [fOp1, fOp2], N)
-                fProds.append(fProd)
+                prod = Product(h_mo_alpha[i, j], [fOp1, fOp2], N)
+                prods.append(prod)
 
     for i in range(Nb):
         for j in range(Nb):
             if abs(h_mo_beta[i, j]) > 1e-10:
                 fOp1 = FermionicOperator('+', Na + i, N)
                 fOp2 = FermionicOperator('-', Na + j, N)
-                fProd = FermionicProduct(h_mo_beta[i, j], [fOp1, fOp2], N)
-                fProds.append(fProd)
+                prod = Product(h_mo_beta[i, j], [fOp1, fOp2], N)
+                prods.append(prod)
 
     for i in range(Na):
         for j in range(Na):
@@ -75,9 +83,9 @@ def init_Hamiltonian_from_pyscf(mol):
                             fOp2 = FermionicOperator('+', j, N)
                             fOp3 = FermionicOperator('-', l, N)
                             fOp4 = FermionicOperator('-', k, N)
-                            fProd = FermionicProduct(
+                            prod = Product(
                                 0.5 * val, [fOp1, fOp2, fOp3, fOp4], N)
-                            fProds.append(fProd)
+                            prods.append(prod)
 
     for i in range(Na):
         for j in range(Nb):
@@ -89,9 +97,9 @@ def init_Hamiltonian_from_pyscf(mol):
                         fOp2 = FermionicOperator('+', Na + j, N)
                         fOp3 = FermionicOperator('-', Na + l, N)
                         fOp4 = FermionicOperator('-', k, N)
-                        fProd = FermionicProduct(
+                        prod = Product(
                             0.5 * val, [fOp1, fOp2, fOp3, fOp4], N)
-                        fProds.append(fProd)
+                        prods.append(prod)
 
     for i in range(Nb):
         for j in range(Na):
@@ -103,9 +111,9 @@ def init_Hamiltonian_from_pyscf(mol):
                         fOp2 = FermionicOperator('+', j, N)
                         fOp3 = FermionicOperator('-', l, N)
                         fOp4 = FermionicOperator('-', Na + k, N)
-                        fProd = FermionicProduct(
+                        prod = Product(
                             0.5 * val, [fOp1, fOp2, fOp3, fOp4], N)
-                        fProds.append(fProd)
+                        prods.append(prod)
 
     for i in range(Nb):
         for j in range(Nb):
@@ -118,8 +126,8 @@ def init_Hamiltonian_from_pyscf(mol):
                             fOp2 = FermionicOperator('+', Na + j, N)
                             fOp3 = FermionicOperator('-', Na + l, N)
                             fOp4 = FermionicOperator('-', Na + k, N)
-                            fProd = FermionicProduct(
+                            prod = Product(
                                 0.5 * val, [fOp1, fOp2, fOp3, fOp4], N)
-                            fProds.append(fProd)
+                            prods.append(prod)
 
-    return Hamiltonian(fProds, mf.energy_nuc(), N)
+    return Hamiltonian(prods, mf.energy_nuc(), N)

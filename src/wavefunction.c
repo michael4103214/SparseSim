@@ -32,7 +32,7 @@ SlaterDeterminantC *slater_determinant_init_c(const unsigned int N,
   for (i = 0; i < N; i++) {
     sdet->orbitals[i] = orbitals[i];
     if (orbitals[i]) {
-      encoding += 1 << (N - 1 - i);
+      encoding += 1 << i;
     }
   }
   sdet->encoding = encoding;

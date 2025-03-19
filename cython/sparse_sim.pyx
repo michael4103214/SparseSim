@@ -1,6 +1,7 @@
 from libc.stdlib cimport malloc, free
 from libc.stdint cimport uintptr_t
 import numbers
+import numpy as np
 from typing import Set
 
 cdef extern from "khash.h":
@@ -123,7 +124,7 @@ cdef extern from "pauli.h":
     PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right)
 
 cdef class SlaterDeterminant:
-    cdef uintptr_t _c_sd
+    cdef uintptr_t _c_sdet
     cdef bint _in_wfn
 
     def __cinit__(self):
@@ -143,7 +144,7 @@ cdef class SlaterDeterminant:
         cdef SlaterDeterminantC *c_sd = slater_determinant_init_c(N, coef, c_orbitals)
         if not c_sd:
             raise MemoryError("Failed to allocate SlaterDeterminantC")
-        self._c_sd = <uintptr_t> c_sd
+        self._c_sdet = <uintptr_t> c_sd
         self._in_wfn = False
 
     @staticmethod
@@ -153,28 +154,38 @@ cdef class SlaterDeterminant:
         This bypasses the usual __cinit__ so we don't re-allocate or re-initialize.
         """
         cdef SlaterDeterminant sDet = SlaterDeterminant.__new__(SlaterDeterminant)
-        sDet._c_sDet = <uintptr_t> ptr
+        sDet._c_sdet = <uintptr_t> ptr
         sDet._in_wfn = False
         return sDet
 
     def __dealloc__(self):
         if not self._in_wfn:
-            free_slater_determinant_c(<SlaterDeterminantC *> self._c_sd)
+            free_slater_determinant_c(<SlaterDeterminantC *> self._c_sdet)
 
     def __str__(self):
-        cdef char *c_str = slater_determinant_to_string_c(<SlaterDeterminantC *> self._c_sd, b'k')
+        cdef char *c_str = slater_determinant_to_string_c(<SlaterDeterminantC *> self._c_sdet, b'k')
         py_str = c_str.decode('utf-8')
         free(c_str) 
         return py_str
 
+    def adjoint(self):
+        cdef SlaterDeterminantC *new_sd = slater_determinant_adjoint_c(<SlaterDeterminantC *> self._c_sdet)
+        if not new_sd:
+            raise MemoryError("slater_determinant_adjoint_c returned NULL")
+        return SlaterDeterminant._init_from_c(new_sd)
+
     @property
     def N(self):
-        return (<SlaterDeterminantC *> self._c_sd).N
+        return (<SlaterDeterminantC *> self._c_sdet).N
 
     @property
     def orbitals(self):
-        cdef unsigned int *c_orbitals = (<SlaterDeterminantC *> self._c_sd).orbitals
+        cdef unsigned int *c_orbitals = (<SlaterDeterminantC *> self._c_sdet).orbitals
         return [c_orbitals[i] for i in range(self.N)]
+
+    @property
+    def encoding(self):
+        return (<SlaterDeterminantC *> self._c_sdet).encoding
 
     def __add__(self, right):
         if isinstance(right, SlaterDeterminant):
@@ -184,6 +195,13 @@ cdef class SlaterDeterminant:
             return wfn
         else:
             raise TypeError(f"SlaterDeterminant + {type(right)} is not defined")
+    
+    def __rmul__(self, left):
+        if isinstance(left, numbers.Number):
+            return slater_determinant_scalar_multiplication(self, left)
+        else:
+            raise TypeError(f"{type(left)} * SlaterDeterminant is not defined")
+
 
 cdef class Wavefunction:
     cdef uintptr_t _c_wfn
@@ -227,7 +245,7 @@ cdef class Wavefunction:
 
     def append_slater_determinant(self, SlaterDeterminant sdet):
         sdet._in_wfn = True
-        wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sd)
+        wavefunction_append_slater_determinant_c(<WavefunctionC *> self._c_wfn, <SlaterDeterminantC *> sdet._c_sdet)
         return self
 
     def adjoint(self):
@@ -265,6 +283,8 @@ cdef class Wavefunction:
     def __mul__(self, right):
         if isinstance(right, Wavefunction):
             return wavefunction_multiplication(self, right)
+        elif isinstance(right, PauliSum):
+            raise TypeError(f"Wavefunction * PauliSum is not defined. Change order of operations.")
         else:
             raise TypeError(f"Wavefunction * {type(right)} is not defined")
 
@@ -342,6 +362,29 @@ cdef class PauliString:
         py_str = c_str.decode('utf-8')
         free(c_str) 
         return py_str
+    
+    @property
+    def matrix(self):
+        I = np.eye(2)
+        X = np.array([[0, 1], [1, 0]])
+        Y = np.array([[0, -1j], [1j, 0]])
+        Z = np.array([[1, 0], [0, -1]])
+
+        py_str = self.string
+        as_matrix = np.array([[self.coef]])
+        for i in range(self.N):
+            if py_str[i] == 'I':
+                as_matrix = np.kron(as_matrix, I)
+            elif py_str[i] == 'X':
+                as_matrix = np.kron(as_matrix, X)
+            elif py_str[i] == 'Y':
+                as_matrix = np.kron(as_matrix, Y)
+            elif py_str[i] == 'Z':
+                as_matrix = np.kron(as_matrix, Z)
+            else:
+                raise ValueError(f"Invalid Pauli character: {py_str[i]}") 
+
+        return as_matrix
 
     def __mul__(self, right):
         if isinstance(right, Wavefunction):
@@ -422,6 +465,15 @@ cdef class PauliSum:
     def N(self):
         return (<PauliSumC *> self._c_pSum).N
 
+    @property
+    def matrix(self):
+        py_pStrings = self.get_pauli_strings()
+
+        as_matrix = np.zeros((2**self.N, 2**self.N), dtype=complex)
+        for pString in py_pStrings:
+            as_matrix += pString.matrix
+        return as_matrix
+
     def __mul__(self, right):
         if isinstance(right, Wavefunction):
             return wavefunction_pauli_sum_multiplication(self, right)
@@ -441,6 +493,13 @@ cdef class PauliSum:
             return pauli_sum_addition(self, right)
         else:
             raise TypeError(f"pSum + {type(right)} is not defined")
+
+def slater_determinant_scalar_multiplication(SlaterDeterminant sdet, complex scalar):
+    """Multiply a Slater determinant by a scalar."""
+    cdef SlaterDeterminantC *new_sd = slater_determinant_scalar_multiplication_c(<SlaterDeterminantC *> sdet._c_sdet, scalar)
+    if not new_sd:
+        raise MemoryError("slater_determinant_scalar_multiplication_c returned NULL")
+    return SlaterDeterminant._init_from_c(new_sd)
 
 def wavefunction_scalar_multiplication(Wavefunction wfn, complex scalar):
     """Multiply a wavefunction by a scalar."""

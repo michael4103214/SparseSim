@@ -45,6 +45,17 @@ def test_pauli_sum_initialization_scaling_freeing():
     print(f"2 * {pSum0} = {pSum1}")
 
 
+def test_pauli_string_to_matrix():
+    paulis0 = ['I', 'X']
+    pString0 = PauliString(2, 1 + 0j, paulis0)
+
+    paulis1 = ['Y', 'X']
+    pString1 = PauliString(2, 0.5j, paulis1)
+
+    print(f"{pString0} ->\n {pString0.matrix}")
+    print(f"{pString1} ->\n {pString1.matrix}")
+
+
 def test_pauli_sum_multiplication():
     paulis0 = ['I', 'Y', 'I', 'X']
     pString0 = PauliString(4, 1 + 0j, paulis0)
@@ -130,9 +141,26 @@ def test_pauli_sum_get_pauli_strings():
         print(f"Pauli string {i}: {p_str}")
 
 
+def test_pauli_sum_to_matrix():
+    paulis0 = ['I', 'X']
+    pString0 = PauliString(2, 1 + 0j, paulis0)
+
+    paulis1 = ['Y', 'X']
+    pString1 = PauliString(2, 0.5j, paulis1)
+
+    pSum0 = pString0 + pString1
+
+    print(f"{pString0} ->\n {pString0.matrix}")
+    print(f"{pString1} ->\n {pString1.matrix}")
+    print(f"{pSum0} ->\n {pSum0.matrix}")
+
+
 def main():
     print("\nTesting PauliString initialization, scaling, and freeing")
     test_pauli_string_initialization_scaling_freeing()
+
+    print("\nTesting PauliString to Matrix")
+    test_pauli_string_to_matrix()
 
     print("\nTesting PauliString Multiplication")
     test_pauli_string_multiplication()
@@ -148,6 +176,9 @@ def main():
 
     print("\nTesting PauliSum get_pauli_strings")
     test_pauli_sum_get_pauli_strings()
+
+    print("\nTesting PauliSum to Matrix")
+    test_pauli_sum_to_matrix()
 
 
 if __name__ == "__main__":

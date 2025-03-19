@@ -15,8 +15,8 @@ def test_fermionic_operator_adjoint():
     fOp = FermionicOperator("+", 1, 2)
     adjoint_fOp = fOp.adjoint()
 
-    print(f"({fOp})^\dagger = {adjoint_fOp}")
-    print(f"({fOp.pSum})^\dagger = {adjoint_fOp.pSum}")
+    print(f"({fOp})^dagger = {adjoint_fOp}")
+    print(f"({fOp.pSum})^dagger = {adjoint_fOp.pSum}")
 
 
 def test_fermionic_product_initialization_and_freeing():
@@ -25,8 +25,8 @@ def test_fermionic_product_initialization_and_freeing():
     fOP3 = FermionicOperator("+", 0, 2)
     fOP4 = FermionicOperator("-", 1, 2)
 
-    fProd1 = FermionicProduct(1, [fOP1, fOP2], 2)
-    fProd2 = FermionicProduct(1, [fOP3, fOP4], 2)
+    fProd1 = Product(1, [fOP1, fOP2], 2)
+    fProd2 = Product(1, [fOP3, fOP4], 2)
 
     print(f"{fProd1} = {fProd1.pSum}")
     print(f"{fProd2} = {fProd2.pSum}")
@@ -40,10 +40,10 @@ def test_operator_expectation():
     fOp3 = FermionicOperator("+", 1, 2)
     fOp4 = FermionicOperator("-", 1, 2)
 
-    fProd1 = FermionicProduct(1, [fOp1, fOp2], 2)
-    fProd2 = FermionicProduct(1, [fOp3, fOp4], 2)
-    fProd3 = FermionicProduct(1, [fOp3, fOp2], 2)
-    fProd4 = FermionicProduct(1, [fOp1, fOp4], 2)
+    fProd1 = Product(1, [fOp1, fOp2], 2)
+    fProd2 = Product(1, [fOp3, fOp4], 2)
+    fProd3 = Product(1, [fOp3, fOp2], 2)
+    fProd4 = Product(1, [fOp1, fOp4], 2)
 
     op1 = Operator([fProd1, fProd2, fProd3, fProd4], 2)
     op2 = Operator([fProd1, fProd2], 2)
@@ -82,7 +82,7 @@ def test_fermion_scalar_multiplication():
     fOp1 = FermionicOperator("+", 0, 2)
     fOp2 = FermionicOperator("-", 0, 2)
 
-    fProd1 = FermionicProduct(1, [fOp1, fOp2], 2)
+    fProd1 = Product(1, [fOp1, fOp2], 2)
     fProd2 = 2 * fProd1
     fProd3 = fProd1 * 2
     print(f"{fProd1} = {fProd1.pSum}")

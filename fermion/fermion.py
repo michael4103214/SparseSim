@@ -1,6 +1,7 @@
 import numbers
 import numpy as np
 
+from projector import *
 from sparse_sim import *
 
 
@@ -52,12 +53,12 @@ class FermionicOperator:
         return FermionicOperator(adjoint_op, self.idx, self.N)
 
     def __str__(self):
-        return f"{self.op}_{self.idx}"
+        return f"{self.op}a_{self.idx}"
 
 
-class FermionicProduct:
+class Product:
     coef: complex  # Complex coefficient of the product
-    ops: list  # List of FermionicOperators applied right to left
+    ops: list  # List of Operators applied right to left
     N: int  # Total number of sites / qubits
     pSum: PauliSum  # PauliSum object representing the product as PauliStrings using Jordan-Wigner Transformation
 
@@ -85,7 +86,7 @@ class FermionicProduct:
         adjoint_ops = []
         for op in self.ops[::-1]:
             adjoint_ops.append(op.adjoint())
-        return FermionicProduct(adjoint_coef, adjoint_ops, self.N)
+        return Product(adjoint_coef, adjoint_ops, self.N)
 
     def evaluate_expectation(self, tomography):
         return pauli_sum_evaluate_expectation(self.pSum, tomography)
@@ -94,56 +95,76 @@ class FermionicProduct:
         output = f"{self.coef} * ("
         for i, op in enumerate(self.ops):
             if i > 0:
-                output = output + " "
+                output is output + " "
             output = output + f"{op}"
         output = output + ")"
         return output
 
     def multiply_by_scalar(self, scalar):
-        new_fProd = FermionicProduct(
+        new_prod = Product(
             scalar * self.coef, self.ops, self.N, False)
-        new_fProd.pSum = pauli_sum_scalar_multiplication(self.pSum, scalar)
-        return new_fProd
+        new_prod.pSum = pauli_sum_scalar_multiplication(self.pSum, scalar)
+        return new_prod
 
     def __mul__(self, right):
         if isinstance(right, numbers.Number):
             return self.multiply_by_scalar(right)
         else:
-            raise TypeError(f"fProd * {type(right)} is not defined")
+            raise TypeError(f"prod * {type(right)} is not defined")
 
     def __rmul__(self, left):
         if isinstance(left, numbers.Number):
             return self.multiply_by_scalar(left)
         else:
-            raise TypeError(f"{type(left)} * fProd is not defined")
+            raise TypeError(f"{type(left)} * prod is not defined")
+
+    def map(self, projector):
+
+        prods = []
+
+        for (original_sdet_right, target_sdet_right) in projector.mapping:
+            for (original_sdet_left, target_sdet_left) in projector.mapping:
+                bra = Wavefunction(
+                    self.N) + SlaterDeterminant(self.N, 1, original_sdet_left.orbitals)
+                ket = Wavefunction(
+                    self.N) + SlaterDeterminant(self.N, 1, original_sdet_right.orbitals)
+
+                coef = bra * (self.pSum * ket)
+                if np.abs(coef) > 1e-10:
+                    bOps = slater_determinant_outer_product_to_bosonic_ops(
+                        target_sdet_left, target_sdet_right)
+                    prod = Product(coef, bOps, projector.target_N)
+                    prods.append(prod)
+
+        return prods
 
 
 class Operator:
-    fProds: list  # List of FermionicProducts
+    prods: list  # List of Products
     N: int  # Total number of sites / qubits
     symbol: str  # Symbol used for printing the operator
     pSum: PauliSum  # PauliSum object representing the Operator as PauliStrings using Jordan-Wigner Transformation
 
-    def __init__(self, fProds, N, symbol="Symbol Not Set"):
+    def __init__(self, prods, N, symbol="Symbol Not Set"):
 
-        self.fProds = fProds
+        self.prods = prods
         self.N = N
         self.symbol = symbol
         self.pSum = self.to_pSum()
 
     def to_pSum(self):
         pSum = PauliSum(self.N)
-        for fProd in self.fProds:
-            pSum = pSum + fProd.pSum
+        for prod in self.prods:
+            pSum = pSum + prod.pSum
         return pSum
 
-    def add_fermoinic_product(self, fProd):
-        self.fProds.append(fProd)
+    def add_product(self, prod):
+        self.prods.append(prod)
 
     def aggregate_measurements_recursive(self):
         measurements = set()
-        for fProd in self.fProds:
-            pSum = fProd.pSum
+        for prod in self.prods:
+            pSum = prod.pSum
             measurements.update(pauli_sum_collect_measurements(pSum))
 
         return measurements
@@ -155,10 +176,18 @@ class Operator:
         return pauli_sum_evaluate_expectation(self.pSum, tomography)
 
     def adjoint(self):
-        adjoint_fProds = []
-        for fProd in self.fProds:
-            adjoint_fProds.append(fProd.adjoint())
-        return Operator(adjoint_fProds, self.N)
+        adjoint_prods = []
+        for prod in self.prods[::-1]:
+            adjoint_prods.append(prod.adjoint())
+        return Operator(adjoint_prods, self.N)
 
     def __str__(self):
         return self.symbol
+
+    def map(self, projector):
+        new_prods = []
+
+        for prod in self.prods:
+            new_prods.extend(prod.map(projector))
+
+        return Operator(new_prods, projector.target_N)

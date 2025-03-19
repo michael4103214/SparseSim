@@ -62,6 +62,9 @@ test-rdm:
 test-qiskit-wrapper:
 	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_qiskit_wrapper.py
 
+test-projector:
+	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_projector.py
+
 # Clean up generated files
 clean:
 	rm -rf $(BUILD_DIR) *.so *.o
