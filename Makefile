@@ -65,6 +65,9 @@ test-qiskit-wrapper:
 test-projector:
 	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_projector.py
 
+test-nuclear:
+	PYTHONPATH=$(shell pwd):$(shell pwd)/fermion $(PYTHON) tests/test_nuclear.py
+
 # Clean up generated files
 clean:
 	rm -rf $(BUILD_DIR) *.so *.o

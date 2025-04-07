@@ -132,3 +132,23 @@ def qiskit_statevector(circuit: q.QuantumCircuit):
 def slater_determinant_probability_from_statevector(sDet: SlaterDeterminant, statevector):
     coef = statevector[sDet.encoding]
     return np.abs(coef)**2
+
+
+def qiskit_pauli_string_measurement_statevector(circuit: q.QuantumCircuit, pString_as_string: str):
+    circuit = circuit.copy()
+    backend = Aer.AerSimulator()
+    circuit.save_statevector()
+    result = backend.run(circuit).result()
+    statevector = result.get_statevector()
+
+    observable = SparsePauliOp(pString_as_string[::-1])
+    return statevector.expectation_value(observable)
+
+
+def qiskit_perform_tomography_statevector(circuit: q.QuantumCircuit, measurements: Set[str]):
+    tomography = {}
+    for measurement in measurements:
+        tomography[measurement] = qiskit_pauli_string_measurement_statevector(
+            circuit, measurement)
+
+    return tomography

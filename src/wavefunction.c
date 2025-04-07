@@ -483,8 +483,8 @@ evolution_helper_cosh(PauliStringC *pString, SlaterDeterminantC *sdet,
                       double complex epsilon) {
   unsigned int N = sdet->N;
   double complex x = pString->coef * epsilon;
-  double complex approx_cosh = 1 + x * x * (0.5 + x * x / 24.0);
-  double complex new_coef = approx_cosh * sdet->coef;
+  // double complex approx_cosh = 1 + x * x * (0.5 + x * x / 24.0);
+  double complex new_coef = ccosh(x) * sdet->coef;
   return slater_determinant_init_c(N, new_coef, sdet->orbitals);
 }
 
@@ -505,8 +505,8 @@ evolution_helper_sinh(PauliStringC *pString, SlaterDeterminantC *sdet,
   N = sdet->N;
   new_orbitals = (unsigned int *)malloc(sdet->N * sizeof(int));
   double complex x = pString->coef * epsilon;
-  double complex approx_sinh = x * (1 + x * x * (1.0 / 6.0 + x * x / 120.0));
-  new_coef = approx_sinh * sdet->coef;
+  // double complex sinh = x * (1 + x * x * (1.0 / 6.0 + x * x / 120.0));
+  new_coef = csinh(x) * sdet->coef;
 
   for (unsigned int i = 0; i < N; i++) {
     switch (pString->paulis[i]) {

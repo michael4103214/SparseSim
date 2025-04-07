@@ -1,10 +1,12 @@
 from sparse_sim import *
 
+import numpy as np
+
 
 class BosonicOperator:
+    N: int  # Total number of sites / qubits
     op: str  # '+' for creation, '-' for annihilation
     idx: int  # Index of the site
-    N: int  # Total number of sites / qubits
     pSum: PauliSum  # PauliSum object representing the operator as PauliStrings
     # These are technically hardcore bosons as they are restricted to 0 and 1 occupation
 
@@ -14,9 +16,9 @@ class BosonicOperator:
             '+', '-'], "op must be '+' (creation) or '-' (annihilation)"
         assert 0 <= index < N, "site must be a valid qubit index"
 
+        self.N = N
         self.op = operator
         self.idx = index
-        self.N = N
         self.pSum = self.to_pSum()
 
     def to_pSum(self):
@@ -48,6 +50,18 @@ class BosonicOperator:
 
     def __str__(self):
         return f"{self.op}b_{self.idx}"
+
+    def save(self):
+        return np.array(['b', self.N, self.op, self.idx])
+
+
+def load_bosonic_operator(data):
+    assert data[0] == 'b'
+    N = int(data[1])
+    op = data[2]
+    idx = int(data[3])
+
+    return BosonicOperator(op, idx, N)
 
 
 def slater_determinant_outer_product_to_bosonic_ops(ket: SlaterDeterminant, bra: SlaterDeterminant):

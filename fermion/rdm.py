@@ -1,17 +1,20 @@
 from fermion import *
 import itertools
+import numpy as np
 
 
 class RDM(Operator):
-    p: int  # Order of rdm
-    prods: list  # List of FermionicProducts
     N: int  # Total number of sites / qubits
+    p: int  # Order of rdm
+    prods: list  # List of FermionicProducts'
     symbol: str  # Symbol used for printing the operator
 
-    def __init__(self, p, N):
+    def __init__(self, p, N, prods=[]):
         self.p = p
 
-        prods = generate_prods(p, N)
+        if len(prods) == 0:
+            prods = generate_prods(p, N)
+
         super().__init__(prods, N, f"{p}D")
 
     def trace(self, tomography):
@@ -25,6 +28,27 @@ class RDM(Operator):
                 tr = tr + prod.evaluate_expectation(tomography)
 
         return tr
+
+    def save(self):
+        output = [np.array([self.N, self.p])]
+        for prod in self.prods:
+            output.append(prod.save())
+        output = np.array(output, dtype=object)
+
+        return output
+
+
+def load_rdm(data):
+    row0 = data[0]
+    N = int(row0[0])
+    p = int(row0[1])
+    prods = []
+
+    for i in range(1, len(data)):
+        prod_data = data[i]
+        prod = load_product(prod_data)
+        prods.append(prod)
+    return RDM(p, N, prods)
 
 
 def generate_prods(p, N):

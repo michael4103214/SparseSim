@@ -90,6 +90,31 @@ def test_fermion_scalar_multiplication():
     print(f"{fProd3} = {fProd3.pSum}")
 
 
+def test_operator_saving_and_loading():
+    fOp1 = FermionicOperator("+", 0, 2)
+    fOp2 = FermionicOperator("-", 0, 2)
+    fOp3 = FermionicOperator("+", 1, 2)
+    fOp4 = FermionicOperator("-", 1, 2)
+
+    fProd1 = Product(1+0j, [fOp1, fOp2], 2)
+    fProd2 = Product(1j, [fOp3, fOp4], 2)
+    fProd3 = Product(2, [fOp3, fOp2], 2)
+    fProd4 = Product(3j, [fOp1, fOp4], 2)
+
+    op1 = Operator([fProd1, fProd2, fProd3, fProd4], 2)
+    for prod in op1.prods:
+        print(prod)
+    print("\nSaving Op")
+    print(op1.to_tensor())
+    data = op1.save()
+    print(data)
+    print("\nLoading Op")
+    op1_recovered = load_operator(data)
+    for prod in op1_recovered.prods:
+        print(prod)
+    print(op1_recovered.to_tensor())
+
+
 def main():
     print("Testing Fermionic Operator Initialization and Freeing")
     test_fermionic_operator_initialization_and_freeing()
@@ -101,6 +126,8 @@ def main():
     test_operator_expectation()
     print("\nTesting Fermionic Scalar Multiplication")
     test_fermion_scalar_multiplication()
+    print("\nTesting Operator Saving and Loading")
+    test_operator_saving_and_loading()
 
 
 if __name__ == "__main__":

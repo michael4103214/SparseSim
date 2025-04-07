@@ -40,11 +40,35 @@ def test_rdm_measurement():
         f"Expectation value: {ordm.evaluate_expectation(tomography)} = {ordm.prods[0].evaluate_expectation(tomography)} + {ordm.prods[1].evaluate_expectation(tomography)} + {ordm.prods[2].evaluate_expectation(tomography)} + {ordm.prods[3].evaluate_expectation(tomography)}")
 
 
+def test_rdm_saving_and_loading():
+    ordm = RDM(1, 2)
+
+    val = 1
+    for prod in ordm.prods:
+        prod.coef = val
+        val += 1
+
+    for prod in ordm.prods:
+        print(prod)
+
+    print("Saving RDM")
+    saved_data = ordm.save()
+    print(f"Saved data: {saved_data}")
+
+    print("Loading RDM")
+    ordm_recovered = load_rdm(saved_data)
+
+    for prod in ordm_recovered.prods:
+        print(prod)
+
+
 def main():
     print("Testing rdm init and freeing")
     test_rdm_init_and_freeing()
     print("\nTesting RDM measurement")
     test_rdm_measurement()
+    print("\nTesting RDM saving and loading")
+    test_rdm_saving_and_loading()
 
 
 if __name__ == "__main__":

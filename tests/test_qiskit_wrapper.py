@@ -77,11 +77,55 @@ def test_qiskit_probability_distribution():
     print(f"P_|10> = {slater_determinant_probability(sdet, prob_dist)}")
 
 
+def test_qiskit_statevector_expectation():
+    fOp1 = FermionicOperator("+", 0, 2)
+    fOp2 = FermionicOperator("-", 0, 2)
+    fOp3 = FermionicOperator("+", 1, 2)
+    fOp4 = FermionicOperator("-", 1, 2)
+
+    fProd1 = Product(1, [fOp1, fOp2], 2)
+    fProd2 = Product(1, [fOp3, fOp4], 2)
+    fProd3 = Product(1, [fOp3, fOp2], 2)
+    fProd4 = Product(1, [fOp1, fOp4], 2)
+
+    op1 = Operator([fProd1, fProd2, fProd3, fProd4], 2)
+    op2 = Operator([fProd1, fProd2], 2)
+
+    orbitals = [1, 0]
+    sdet = SlaterDeterminant(2, 1 + 0j, orbitals)
+
+    paulis0 = ["X", "X"]
+    pString0 = PauliString(2, 1j * np.pi / 4, paulis0)
+    paulis1 = ["I", "I"]
+    pString1 = PauliString(2, 1j * 1, paulis1)
+    pSum = pString0 + pString1
+
+    circuit = q.QuantumCircuit(2, 2)
+    circuit = circuit.compose(
+        qiskit_create_initialization_from_slater_determinant_circuit(sdet))
+    circuit = circuit.compose(qiskit_create_pauli_sum_evolution_circuit(pSum))
+
+    measurements_r = op1.aggregate_measurements_recursive()
+    print(f"fProd1: {fProd1.pSum}")
+    print(f"fProd2: {fProd2.pSum}")
+    print(f"fProd3: {fProd3.pSum}")
+    print(f"fProd4: {fProd4.pSum}")
+
+    tomography = qiskit_perform_tomography_statevector(circuit, measurements_r)
+    print(
+        f"Tomography data:\n {[f'{key}: {value}' for key, value in tomography.items()]}")
+
+    print(f"Op1 = {op1.evaluate_expectation(tomography)} = {fProd1.evaluate_expectation(tomography)} + {fProd2.evaluate_expectation(tomography)} + {fProd3.evaluate_expectation(tomography)} + {fProd4.evaluate_expectation(tomography)}")
+    print(f"Op2 = {op2.evaluate_expectation(tomography)} = {fProd1.evaluate_expectation(tomography)} + {fProd2.evaluate_expectation(tomography)}")
+
+
 def main():
     print("Testing Qiskit Expectation")
     test_qiskit_expectation()
     print("\nTest Qiskit Probability Distribution")
     test_qiskit_probability_distribution()
+    print("\nTesting Qiskit Statevector Expectation")
+    test_qiskit_statevector_expectation()
 
 
 if __name__ == "__main__":
