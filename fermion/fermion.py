@@ -106,9 +106,17 @@ class Product:
         output = f"{self.coef} * ("
         for i, op in enumerate(self.ops):
             if i > 0:
-                output is output + " "
+                output += " "
             output = output + f"{op}"
         output = output + ")"
+        return output
+
+    def ops_to_string(self):
+        output = ""
+        for i, op in enumerate(self.ops):
+            if i > 0:
+                output += " "
+            output = output + f"{op}"
         return output
 
     def multiply_by_scalar(self, scalar):

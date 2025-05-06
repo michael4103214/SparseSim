@@ -79,4 +79,20 @@ WavefunctionC *wavefunction_remove_global_phase_c(WavefunctionC *wfn);
 WavefunctionC *wavefunction_remove_near_zero_terms_c(WavefunctionC *wfn,
                                                      double cutoff);
 
+static inline khiter_t kh_begin_slater_hash(khash_t(slater_hash) * h) {
+  (void)h;
+  return kh_begin(h);
+}
+static inline khiter_t kh_end_slater_hash(khash_t(slater_hash) * h) {
+  (void)h;
+  return kh_end(h);
+}
+static inline int kh_exist_slater_hash(khash_t(slater_hash) * h, khiter_t k) {
+  return kh_exist(h, k);
+}
+static inline SlaterDeterminantC *kh_value_slater_hash(khash_t(slater_hash) * h,
+                                                       khiter_t k) {
+  return kh_val(h, k);
+}
+
 #endif // WAVEFUNCTION_H

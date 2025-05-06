@@ -23,13 +23,13 @@ cdef extern from "khash.h":
     void kh_destroy_slater_hash(kh_slater_hash_t *h)
     khiter_t kh_get_slater_hash(kh_slater_hash_t *h, unsigned int key)
     khiter_t kh_put_slater_hash(kh_slater_hash_t *h, unsigned int key, int *ret)
-    int kh_exist(kh_slater_hash_t *h, khiter_t k)
+    int kh_exist_slater_hash(kh_slater_hash_t *h, khiter_t k)
     void kh_del_slater_hash(kh_slater_hash_t *h, khiter_t k)
-    SlaterDeterminantC *kh_value(kh_slater_hash_t *h, khiter_t k)
+    SlaterDeterminantC *kh_value_slater_hash(kh_slater_hash_t *h, khiter_t k)
 
     # Iteration functions
-    khiter_t kh_begin(kh_slater_hash_t *h)
-    khiter_t kh_end(kh_slater_hash_t *h)
+    khiter_t kh_begin_slater_hash(kh_slater_hash_t *h)
+    khiter_t kh_end_slater_hash(kh_slater_hash_t *h)
 
     # Hash table type for PauliSumC 
     ctypedef struct kh_pauli_hash_t:
@@ -46,13 +46,13 @@ cdef extern from "khash.h":
     void kh_destroy_pauli_hash(kh_pauli_hash_t *h)
     khiter_t kh_get_pauli_hash(kh_pauli_hash_t *h, unsigned int key)
     khiter_t kh_put_pauli_hash(kh_pauli_hash_t *h, unsigned int key, int *ret)
-    int kh_exist(kh_pauli_hash_t *h, khiter_t k)
+    int kh_exist_pauli_hash(kh_pauli_hash_t *h, khiter_t k)
     void kh_del_pauli_hash(kh_pauli_hash_t *h, khiter_t k)
-    PauliStringC *kh_value(kh_pauli_hash_t *h, khiter_t k)
+    PauliStringC *kh_value_pauli_hash(kh_pauli_hash_t *h, khiter_t k)
 
     # Declare hash iteration functions
-    khiter_t kh_begin(kh_pauli_hash_t *h)
-    khiter_t kh_end(kh_pauli_hash_t *h)
+    khiter_t kh_begin_pauli_hash(kh_pauli_hash_t *h)
+    khiter_t kh_end_pauli_hash(kh_pauli_hash_t *h)
 
 cdef extern from "wavefunction.h":
 
@@ -574,9 +574,9 @@ def pauli_sum_collect_measurements(PauliSum pSum):
 
     unique_strings = set()
 
-    for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
-        if kh_exist(c_pSum.pauli_strings, k):
-            c_pString = kh_value(c_pSum.pauli_strings, k)
+    for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
+        if kh_exist_pauli_hash(c_pSum.pauli_strings, k):
+            c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
 
             c_str = pauli_string_to_string_no_coef_c(c_pString)
             py_str = c_str.decode('utf-8')
@@ -613,9 +613,9 @@ def pauli_sum_evaluate_expectation(PauliSum pSum, dict tomography):
 
     exp = 0 + 0j
 
-    for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
-        if kh_exist(c_pSum.pauli_strings, k):
-            c_pString = kh_value(c_pSum.pauli_strings, k)
+    for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
+        if kh_exist_pauli_hash(c_pSum.pauli_strings, k):
+            c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
 
             c_str = pauli_string_to_string_no_coef_c(c_pString)
             py_str = c_str.decode('utf-8')
@@ -636,6 +636,29 @@ def pauli_sum_addition(PauliSum left, PauliSum right):
     if not new_pSum:
         raise MemoryError("pauli_sum_addition_c returned NULL")
     return PauliSum._init_from_c(new_pSum) 
+
+def wavefunction_to_probability_distribution(Wavefunction wfn):
+    cdef WavefunctionC* c_wfn = <WavefunctionC *> wfn._c_wfn
+    cdef khiter_t k
+    cdef SlaterDeterminantC* c_sdet
+    
+    norm = wfn.norm()
+    
+    if norm == 0:
+        return {}
+
+    probabilities = {}
+    
+    for k in range(kh_begin_slater_hash(c_wfn.slater_determinants), kh_end_slater_hash(c_wfn.slater_determinants)):
+        if kh_exist_slater_hash(c_wfn.slater_determinants, k):
+            c_sdet = kh_value_slater_hash(c_wfn.slater_determinants, k)
+            sdet = SlaterDeterminant._init_from_c(c_sdet)
+            sdet._in_wfn = True 
+            bit_string = ''.join([str(i) for i in sdet.orbitals])
+            prob = abs(c_sdet.coef)**2 / norm**2
+            probabilities[bit_string] = prob
+
+    return probabilities
 
 
 

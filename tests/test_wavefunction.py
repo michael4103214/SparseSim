@@ -205,20 +205,26 @@ def test_wavefunction_speed():
 
 
 def test_wavefunction_cleaning():
-    orbitals0 = [0, 1, 0, 1]
-    sdet0 = SlaterDeterminant(4, 1 + 0j, orbitals0)
+    orbitals0 = [0, 1, 1, 0]
+    sdet0 = SlaterDeterminant(4, 0.5 + 0j, orbitals0)
 
-    orbitals1 = [0, 1, 1, 0]
+    orbitals1 = [0, 1, 0, 1]
     sdet1 = SlaterDeterminant(4, 1e-4, orbitals1)
 
     orbitals2 = [1, 0, 1, 0]
     sdet2 = SlaterDeterminant(4, 1e-4j, orbitals2)
 
-    wfn = sdet0 + sdet1 + sdet2
+    orbitals0 = [0, 0, 1, 0]
+    sdet3 = SlaterDeterminant(4, 0.5 + 0j, orbitals0)
+
+    wfn = sdet0 + sdet1 + sdet2 + sdet3
     print(f"Initial: {wfn}")
 
     wfn_clean = wfn.remove_near_zero_terms(1e-3)
     print(f"Cleaned: {wfn_clean}")
+
+    prob_dist = wavefunction_to_probability_distribution(wfn_clean)
+    print(f"Probability Distribution: {prob_dist}")
 
 
 def main():

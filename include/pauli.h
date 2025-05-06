@@ -61,4 +61,20 @@ PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right);
 PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right);
 PauliStringC **get_pauli_strings_c(PauliSumC *pSum);
 
+static inline khiter_t kh_begin_pauli_hash(khash_t(pauli_hash) * h) {
+  (void)h;
+  return kh_begin(h);
+}
+static inline khiter_t kh_end_pauli_hash(khash_t(pauli_hash) * h) {
+  (void)h;
+  return kh_end(h);
+}
+static inline int kh_exist_pauli_hash(khash_t(pauli_hash) * h, khiter_t k) {
+  return kh_exist(h, k);
+}
+static inline PauliStringC *kh_value_pauli_hash(khash_t(pauli_hash) * h,
+                                                khiter_t k) {
+  return kh_val(h, k);
+}
+
 #endif // PAULI_H

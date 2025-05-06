@@ -2243,6 +2243,13 @@ static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key);
 #define __Pyx_PyObject_Dict_GetItem(obj, name)  PyObject_GetItem(obj, name)
 #endif
 
+/* PyIntCompare.proto */
+static CYTHON_INLINE int __Pyx_PyInt_BoolEqObjC(PyObject *op1, PyObject *op2, long intval, long inplace);
+
+/* PyObject_Str.proto */
+#define __Pyx_PyObject_Str(obj)\
+    (likely(PyString_CheckExact(obj)) ? __Pyx_NewRef(obj) : PyObject_Str(obj))
+
 /* IncludeStructmemberH.proto */
 #include <structmember.h>
 
@@ -2758,7 +2765,7 @@ static const char __pyx_k_Set[] = "Set";
 static const char __pyx_k__10[] = "";
 static const char __pyx_k__19[] = "*";
 static const char __pyx_k__20[] = ".";
-static const char __pyx_k__79[] = "?";
+static const char __pyx_k__81[] = "?";
 static const char __pyx_k_bra[] = "bra";
 static const char __pyx_k_exp[] = "exp";
 static const char __pyx_k_eye[] = "eye";
@@ -2773,6 +2780,7 @@ static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_norm[] = "norm";
 static const char __pyx_k_pSum[] = "pSum * ";
+static const char __pyx_k_prob[] = "prob";
 static const char __pyx_k_sdet[] = "sdet";
 static const char __pyx_k_self[] = "self";
 static const char __pyx_k_send[] = "send";
@@ -2792,6 +2800,7 @@ static const char __pyx_k_utf_8[] = "utf-8";
 static const char __pyx_k_zeros[] = "zeros";
 static const char __pyx_k_Number[] = "Number";
 static const char __pyx_k_c_pSum[] = "c_pSum";
+static const char __pyx_k_c_sdet[] = "c_sdet";
 static const char __pyx_k_cutoff[] = "cutoff";
 static const char __pyx_k_enable[] = "enable";
 static const char __pyx_k_encode[] = "encode";
@@ -2827,6 +2836,7 @@ static const char __pyx_k_pString_2[] = "pString";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_ValueError[] = "ValueError";
+static const char __pyx_k_bit_string[] = "bit_string";
 static const char __pyx_k_c_pStrings[] = "c_pStrings";
 static const char __pyx_k_py_pString[] = "py_pString";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
@@ -2844,6 +2854,7 @@ static const char __pyx_k_measurements[] = "measurements";
 static const char __pyx_k_stringsource[] = "<stringsource>";
 static const char __pyx_k_PauliString_2[] = "PauliString";
 static const char __pyx_k_class_getitem[] = "__class_getitem__";
+static const char __pyx_k_probabilities[] = "probabilities";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_Wavefunction_2[] = "Wavefunction + ";
 static const char __pyx_k_Wavefunction_3[] = "Wavefunction";
@@ -2916,6 +2927,7 @@ static const char __pyx_k_wavefunction_pauli_sum_multiplic[] = "wavefunction_pau
 static const char __pyx_k_wavefunction_remove_global_phase[] = "wavefunction_remove_global_phase_c returned NULL";
 static const char __pyx_k_wavefunction_remove_near_zero_te[] = "wavefunction_remove_near_zero_terms_c returned NULL";
 static const char __pyx_k_wavefunction_scalar_multiplicati[] = "wavefunction_scalar_multiplication";
+static const char __pyx_k_wavefunction_to_probability_dist[] = "wavefunction_to_probability_distribution";
 static const char __pyx_k_pauli_sum_scalar_multiplication_2[] = "pauli_sum_scalar_multiplication_c returned NULL";
 static const char __pyx_k_pauli_string_scalar_multiplicati_2[] = "pauli_string_scalar_multiplication_c returned NULL";
 static const char __pyx_k_slater_determinant_scalar_multip_2[] = "slater_determinant_scalar_multiplication_c returned NULL";
@@ -2994,6 +3006,7 @@ static PyObject *__pyx_pf_10sparse_sim_22pauli_sum_collect_measurements(CYTHON_U
 static PyObject *__pyx_pf_10sparse_sim_24wavefunction_perform_tomography(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_Wavefunction *__pyx_v_wfn, PyObject *__pyx_v_measurements); /* proto */
 static PyObject *__pyx_pf_10sparse_sim_26pauli_sum_evaluate_expectation(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_pSum, PyObject *__pyx_v_tomography); /* proto */
 static PyObject *__pyx_pf_10sparse_sim_28pauli_sum_addition(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_left, struct __pyx_obj_10sparse_sim_PauliSum *__pyx_v_right); /* proto */
+static PyObject *__pyx_pf_10sparse_sim_30wavefunction_to_probability_distribution(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_Wavefunction *__pyx_v_wfn); /* proto */
 static PyObject *__pyx_tp_new_10sparse_sim_SlaterDeterminant(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_10sparse_sim_Wavefunction(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_10sparse_sim_PauliString(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -3095,7 +3108,7 @@ typedef struct {
   PyObject *__pyx_kp_s__10;
   PyObject *__pyx_n_s__19;
   PyObject *__pyx_kp_u__20;
-  PyObject *__pyx_n_s__79;
+  PyObject *__pyx_n_s__81;
   PyObject *__pyx_n_s_adjoint;
   PyObject *__pyx_n_s_append_pauli_string;
   PyObject *__pyx_n_s_append_slater_determinant;
@@ -3103,10 +3116,12 @@ typedef struct {
   PyObject *__pyx_n_s_array;
   PyObject *__pyx_n_s_asyncio_coroutines;
   PyObject *__pyx_n_b_b;
+  PyObject *__pyx_n_s_bit_string;
   PyObject *__pyx_n_s_bra;
   PyObject *__pyx_n_s_c_pString;
   PyObject *__pyx_n_s_c_pStrings;
   PyObject *__pyx_n_s_c_pSum;
+  PyObject *__pyx_n_s_c_sdet;
   PyObject *__pyx_n_s_c_str;
   PyObject *__pyx_n_s_c_wfn;
   PyObject *__pyx_n_s_class_getitem;
@@ -3177,6 +3192,8 @@ typedef struct {
   PyObject *__pyx_kp_s_pauli_sum_scalar_multiplication_2;
   PyObject *__pyx_n_s_paulis;
   PyObject *__pyx_n_s_print;
+  PyObject *__pyx_n_s_prob;
+  PyObject *__pyx_n_s_probabilities;
   PyObject *__pyx_n_s_py_pString;
   PyObject *__pyx_n_s_py_pStrings;
   PyObject *__pyx_n_s_py_str;
@@ -3221,6 +3238,7 @@ typedef struct {
   PyObject *__pyx_kp_s_wavefunction_remove_near_zero_te;
   PyObject *__pyx_n_s_wavefunction_scalar_multiplicati;
   PyObject *__pyx_kp_s_wavefunction_scalar_multiplicati_2;
+  PyObject *__pyx_n_s_wavefunction_to_probability_dist;
   PyObject *__pyx_n_s_wfn;
   PyObject *__pyx_n_s_zeros;
   PyObject *__pyx_int_0;
@@ -3269,6 +3287,7 @@ typedef struct {
   PyObject *__pyx_tuple__72;
   PyObject *__pyx_tuple__74;
   PyObject *__pyx_tuple__76;
+  PyObject *__pyx_tuple__79;
   PyObject *__pyx_codeobj__22;
   PyObject *__pyx_codeobj__24;
   PyObject *__pyx_codeobj__26;
@@ -3302,6 +3321,7 @@ typedef struct {
   PyObject *__pyx_codeobj__75;
   PyObject *__pyx_codeobj__77;
   PyObject *__pyx_codeobj__78;
+  PyObject *__pyx_codeobj__80;
 } __pyx_mstate;
 
 #if CYTHON_USE_MODULE_STATE
@@ -3405,7 +3425,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_s__10);
   Py_CLEAR(clear_module_state->__pyx_n_s__19);
   Py_CLEAR(clear_module_state->__pyx_kp_u__20);
-  Py_CLEAR(clear_module_state->__pyx_n_s__79);
+  Py_CLEAR(clear_module_state->__pyx_n_s__81);
   Py_CLEAR(clear_module_state->__pyx_n_s_adjoint);
   Py_CLEAR(clear_module_state->__pyx_n_s_append_pauli_string);
   Py_CLEAR(clear_module_state->__pyx_n_s_append_slater_determinant);
@@ -3413,10 +3433,12 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_array);
   Py_CLEAR(clear_module_state->__pyx_n_s_asyncio_coroutines);
   Py_CLEAR(clear_module_state->__pyx_n_b_b);
+  Py_CLEAR(clear_module_state->__pyx_n_s_bit_string);
   Py_CLEAR(clear_module_state->__pyx_n_s_bra);
   Py_CLEAR(clear_module_state->__pyx_n_s_c_pString);
   Py_CLEAR(clear_module_state->__pyx_n_s_c_pStrings);
   Py_CLEAR(clear_module_state->__pyx_n_s_c_pSum);
+  Py_CLEAR(clear_module_state->__pyx_n_s_c_sdet);
   Py_CLEAR(clear_module_state->__pyx_n_s_c_str);
   Py_CLEAR(clear_module_state->__pyx_n_s_c_wfn);
   Py_CLEAR(clear_module_state->__pyx_n_s_class_getitem);
@@ -3487,6 +3509,8 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_s_pauli_sum_scalar_multiplication_2);
   Py_CLEAR(clear_module_state->__pyx_n_s_paulis);
   Py_CLEAR(clear_module_state->__pyx_n_s_print);
+  Py_CLEAR(clear_module_state->__pyx_n_s_prob);
+  Py_CLEAR(clear_module_state->__pyx_n_s_probabilities);
   Py_CLEAR(clear_module_state->__pyx_n_s_py_pString);
   Py_CLEAR(clear_module_state->__pyx_n_s_py_pStrings);
   Py_CLEAR(clear_module_state->__pyx_n_s_py_str);
@@ -3531,6 +3555,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_kp_s_wavefunction_remove_near_zero_te);
   Py_CLEAR(clear_module_state->__pyx_n_s_wavefunction_scalar_multiplicati);
   Py_CLEAR(clear_module_state->__pyx_kp_s_wavefunction_scalar_multiplicati_2);
+  Py_CLEAR(clear_module_state->__pyx_n_s_wavefunction_to_probability_dist);
   Py_CLEAR(clear_module_state->__pyx_n_s_wfn);
   Py_CLEAR(clear_module_state->__pyx_n_s_zeros);
   Py_CLEAR(clear_module_state->__pyx_int_0);
@@ -3579,6 +3604,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_tuple__72);
   Py_CLEAR(clear_module_state->__pyx_tuple__74);
   Py_CLEAR(clear_module_state->__pyx_tuple__76);
+  Py_CLEAR(clear_module_state->__pyx_tuple__79);
   Py_CLEAR(clear_module_state->__pyx_codeobj__22);
   Py_CLEAR(clear_module_state->__pyx_codeobj__24);
   Py_CLEAR(clear_module_state->__pyx_codeobj__26);
@@ -3612,6 +3638,7 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_codeobj__75);
   Py_CLEAR(clear_module_state->__pyx_codeobj__77);
   Py_CLEAR(clear_module_state->__pyx_codeobj__78);
+  Py_CLEAR(clear_module_state->__pyx_codeobj__80);
   return 0;
 }
 #endif
@@ -3693,7 +3720,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_s__10);
   Py_VISIT(traverse_module_state->__pyx_n_s__19);
   Py_VISIT(traverse_module_state->__pyx_kp_u__20);
-  Py_VISIT(traverse_module_state->__pyx_n_s__79);
+  Py_VISIT(traverse_module_state->__pyx_n_s__81);
   Py_VISIT(traverse_module_state->__pyx_n_s_adjoint);
   Py_VISIT(traverse_module_state->__pyx_n_s_append_pauli_string);
   Py_VISIT(traverse_module_state->__pyx_n_s_append_slater_determinant);
@@ -3701,10 +3728,12 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_array);
   Py_VISIT(traverse_module_state->__pyx_n_s_asyncio_coroutines);
   Py_VISIT(traverse_module_state->__pyx_n_b_b);
+  Py_VISIT(traverse_module_state->__pyx_n_s_bit_string);
   Py_VISIT(traverse_module_state->__pyx_n_s_bra);
   Py_VISIT(traverse_module_state->__pyx_n_s_c_pString);
   Py_VISIT(traverse_module_state->__pyx_n_s_c_pStrings);
   Py_VISIT(traverse_module_state->__pyx_n_s_c_pSum);
+  Py_VISIT(traverse_module_state->__pyx_n_s_c_sdet);
   Py_VISIT(traverse_module_state->__pyx_n_s_c_str);
   Py_VISIT(traverse_module_state->__pyx_n_s_c_wfn);
   Py_VISIT(traverse_module_state->__pyx_n_s_class_getitem);
@@ -3775,6 +3804,8 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_s_pauli_sum_scalar_multiplication_2);
   Py_VISIT(traverse_module_state->__pyx_n_s_paulis);
   Py_VISIT(traverse_module_state->__pyx_n_s_print);
+  Py_VISIT(traverse_module_state->__pyx_n_s_prob);
+  Py_VISIT(traverse_module_state->__pyx_n_s_probabilities);
   Py_VISIT(traverse_module_state->__pyx_n_s_py_pString);
   Py_VISIT(traverse_module_state->__pyx_n_s_py_pStrings);
   Py_VISIT(traverse_module_state->__pyx_n_s_py_str);
@@ -3819,6 +3850,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_kp_s_wavefunction_remove_near_zero_te);
   Py_VISIT(traverse_module_state->__pyx_n_s_wavefunction_scalar_multiplicati);
   Py_VISIT(traverse_module_state->__pyx_kp_s_wavefunction_scalar_multiplicati_2);
+  Py_VISIT(traverse_module_state->__pyx_n_s_wavefunction_to_probability_dist);
   Py_VISIT(traverse_module_state->__pyx_n_s_wfn);
   Py_VISIT(traverse_module_state->__pyx_n_s_zeros);
   Py_VISIT(traverse_module_state->__pyx_int_0);
@@ -3867,6 +3899,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_tuple__72);
   Py_VISIT(traverse_module_state->__pyx_tuple__74);
   Py_VISIT(traverse_module_state->__pyx_tuple__76);
+  Py_VISIT(traverse_module_state->__pyx_tuple__79);
   Py_VISIT(traverse_module_state->__pyx_codeobj__22);
   Py_VISIT(traverse_module_state->__pyx_codeobj__24);
   Py_VISIT(traverse_module_state->__pyx_codeobj__26);
@@ -3900,6 +3933,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_codeobj__75);
   Py_VISIT(traverse_module_state->__pyx_codeobj__77);
   Py_VISIT(traverse_module_state->__pyx_codeobj__78);
+  Py_VISIT(traverse_module_state->__pyx_codeobj__80);
   return 0;
 }
 #endif
@@ -3997,7 +4031,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_s__10 __pyx_mstate_global->__pyx_kp_s__10
 #define __pyx_n_s__19 __pyx_mstate_global->__pyx_n_s__19
 #define __pyx_kp_u__20 __pyx_mstate_global->__pyx_kp_u__20
-#define __pyx_n_s__79 __pyx_mstate_global->__pyx_n_s__79
+#define __pyx_n_s__81 __pyx_mstate_global->__pyx_n_s__81
 #define __pyx_n_s_adjoint __pyx_mstate_global->__pyx_n_s_adjoint
 #define __pyx_n_s_append_pauli_string __pyx_mstate_global->__pyx_n_s_append_pauli_string
 #define __pyx_n_s_append_slater_determinant __pyx_mstate_global->__pyx_n_s_append_slater_determinant
@@ -4005,10 +4039,12 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_array __pyx_mstate_global->__pyx_n_s_array
 #define __pyx_n_s_asyncio_coroutines __pyx_mstate_global->__pyx_n_s_asyncio_coroutines
 #define __pyx_n_b_b __pyx_mstate_global->__pyx_n_b_b
+#define __pyx_n_s_bit_string __pyx_mstate_global->__pyx_n_s_bit_string
 #define __pyx_n_s_bra __pyx_mstate_global->__pyx_n_s_bra
 #define __pyx_n_s_c_pString __pyx_mstate_global->__pyx_n_s_c_pString
 #define __pyx_n_s_c_pStrings __pyx_mstate_global->__pyx_n_s_c_pStrings
 #define __pyx_n_s_c_pSum __pyx_mstate_global->__pyx_n_s_c_pSum
+#define __pyx_n_s_c_sdet __pyx_mstate_global->__pyx_n_s_c_sdet
 #define __pyx_n_s_c_str __pyx_mstate_global->__pyx_n_s_c_str
 #define __pyx_n_s_c_wfn __pyx_mstate_global->__pyx_n_s_c_wfn
 #define __pyx_n_s_class_getitem __pyx_mstate_global->__pyx_n_s_class_getitem
@@ -4079,6 +4115,8 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_s_pauli_sum_scalar_multiplication_2 __pyx_mstate_global->__pyx_kp_s_pauli_sum_scalar_multiplication_2
 #define __pyx_n_s_paulis __pyx_mstate_global->__pyx_n_s_paulis
 #define __pyx_n_s_print __pyx_mstate_global->__pyx_n_s_print
+#define __pyx_n_s_prob __pyx_mstate_global->__pyx_n_s_prob
+#define __pyx_n_s_probabilities __pyx_mstate_global->__pyx_n_s_probabilities
 #define __pyx_n_s_py_pString __pyx_mstate_global->__pyx_n_s_py_pString
 #define __pyx_n_s_py_pStrings __pyx_mstate_global->__pyx_n_s_py_pStrings
 #define __pyx_n_s_py_str __pyx_mstate_global->__pyx_n_s_py_str
@@ -4123,6 +4161,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_kp_s_wavefunction_remove_near_zero_te __pyx_mstate_global->__pyx_kp_s_wavefunction_remove_near_zero_te
 #define __pyx_n_s_wavefunction_scalar_multiplicati __pyx_mstate_global->__pyx_n_s_wavefunction_scalar_multiplicati
 #define __pyx_kp_s_wavefunction_scalar_multiplicati_2 __pyx_mstate_global->__pyx_kp_s_wavefunction_scalar_multiplicati_2
+#define __pyx_n_s_wavefunction_to_probability_dist __pyx_mstate_global->__pyx_n_s_wavefunction_to_probability_dist
 #define __pyx_n_s_wfn __pyx_mstate_global->__pyx_n_s_wfn
 #define __pyx_n_s_zeros __pyx_mstate_global->__pyx_n_s_zeros
 #define __pyx_int_0 __pyx_mstate_global->__pyx_int_0
@@ -4171,6 +4210,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_tuple__72 __pyx_mstate_global->__pyx_tuple__72
 #define __pyx_tuple__74 __pyx_mstate_global->__pyx_tuple__74
 #define __pyx_tuple__76 __pyx_mstate_global->__pyx_tuple__76
+#define __pyx_tuple__79 __pyx_mstate_global->__pyx_tuple__79
 #define __pyx_codeobj__22 __pyx_mstate_global->__pyx_codeobj__22
 #define __pyx_codeobj__24 __pyx_mstate_global->__pyx_codeobj__24
 #define __pyx_codeobj__26 __pyx_mstate_global->__pyx_codeobj__26
@@ -4204,6 +4244,7 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_codeobj__75 __pyx_mstate_global->__pyx_codeobj__75
 #define __pyx_codeobj__77 __pyx_mstate_global->__pyx_codeobj__77
 #define __pyx_codeobj__78 __pyx_mstate_global->__pyx_codeobj__78
+#define __pyx_codeobj__80 __pyx_mstate_global->__pyx_codeobj__80
 /* #### Code section: module_code ### */
 
 /* "sparse_sim.pyx":130
@@ -14815,7 +14856,7 @@ static PyObject *__pyx_pf_10sparse_sim_22pauli_sum_collect_measurements(CYTHON_U
  * 
  *     unique_strings = set()             # <<<<<<<<<<<<<<
  * 
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
  */
   __pyx_t_1 = PySet_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 575, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -14825,36 +14866,36 @@ static PyObject *__pyx_pf_10sparse_sim_22pauli_sum_collect_measurements(CYTHON_U
   /* "sparse_sim.pyx":577
  *     unique_strings = set()
  * 
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):             # <<<<<<<<<<<<<<
- *         if kh_exist(c_pSum.pauli_strings, k):
- *             c_pString = kh_value(c_pSum.pauli_strings, k)
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):             # <<<<<<<<<<<<<<
+ *         if kh_exist_pauli_hash(c_pSum.pauli_strings, k):
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
  */
-  __pyx_t_2 = kh_end(__pyx_v_c_pSum->pauli_strings);
+  __pyx_t_2 = kh_end_pauli_hash(__pyx_v_c_pSum->pauli_strings);
   __pyx_t_3 = __pyx_t_2;
-  for (__pyx_t_4 = kh_begin(__pyx_v_c_pSum->pauli_strings); __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
+  for (__pyx_t_4 = kh_begin_pauli_hash(__pyx_v_c_pSum->pauli_strings); __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
     __pyx_v_k = __pyx_t_4;
 
     /* "sparse_sim.pyx":578
  * 
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
- *         if kh_exist(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
- *             c_pString = kh_value(c_pSum.pauli_strings, k)
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
+ *         if kh_exist_pauli_hash(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
  * 
  */
-    __pyx_t_5 = (kh_exist(__pyx_v_c_pSum->pauli_strings, __pyx_v_k) != 0);
+    __pyx_t_5 = (kh_exist_pauli_hash(__pyx_v_c_pSum->pauli_strings, __pyx_v_k) != 0);
     if (__pyx_t_5) {
 
       /* "sparse_sim.pyx":579
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
- *         if kh_exist(c_pSum.pauli_strings, k):
- *             c_pString = kh_value(c_pSum.pauli_strings, k)             # <<<<<<<<<<<<<<
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
+ *         if kh_exist_pauli_hash(c_pSum.pauli_strings, k):
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)             # <<<<<<<<<<<<<<
  * 
  *             c_str = pauli_string_to_string_no_coef_c(c_pString)
  */
-      __pyx_v_c_pString = kh_value(__pyx_v_c_pSum->pauli_strings, __pyx_v_k);
+      __pyx_v_c_pString = kh_value_pauli_hash(__pyx_v_c_pSum->pauli_strings, __pyx_v_k);
 
       /* "sparse_sim.pyx":581
- *             c_pString = kh_value(c_pSum.pauli_strings, k)
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
  * 
  *             c_str = pauli_string_to_string_no_coef_c(c_pString)             # <<<<<<<<<<<<<<
  *             py_str = c_str.decode('utf-8')
@@ -14895,9 +14936,9 @@ static PyObject *__pyx_pf_10sparse_sim_22pauli_sum_collect_measurements(CYTHON_U
 
       /* "sparse_sim.pyx":578
  * 
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
- *         if kh_exist(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
- *             c_pString = kh_value(c_pSum.pauli_strings, k)
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
+ *         if kh_exist_pauli_hash(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
  * 
  */
     }
@@ -15486,7 +15527,7 @@ static PyObject *__pyx_pf_10sparse_sim_26pauli_sum_evaluate_expectation(CYTHON_U
  * 
  *     exp = 0 + 0j             # <<<<<<<<<<<<<<
  * 
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
  */
   __pyx_t_1 = __Pyx_c_sum_double(__pyx_t_double_complex_from_parts(0, 0), __pyx_t_double_complex_from_parts(0, 0.0));
   __pyx_t_2 = __pyx_PyComplex_FromComplex(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 614, __pyx_L1_error)
@@ -15497,36 +15538,36 @@ static PyObject *__pyx_pf_10sparse_sim_26pauli_sum_evaluate_expectation(CYTHON_U
   /* "sparse_sim.pyx":616
  *     exp = 0 + 0j
  * 
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):             # <<<<<<<<<<<<<<
- *         if kh_exist(c_pSum.pauli_strings, k):
- *             c_pString = kh_value(c_pSum.pauli_strings, k)
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):             # <<<<<<<<<<<<<<
+ *         if kh_exist_pauli_hash(c_pSum.pauli_strings, k):
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
  */
-  __pyx_t_3 = kh_end(__pyx_v_c_pSum->pauli_strings);
+  __pyx_t_3 = kh_end_pauli_hash(__pyx_v_c_pSum->pauli_strings);
   __pyx_t_4 = __pyx_t_3;
-  for (__pyx_t_5 = kh_begin(__pyx_v_c_pSum->pauli_strings); __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
+  for (__pyx_t_5 = kh_begin_pauli_hash(__pyx_v_c_pSum->pauli_strings); __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
     __pyx_v_k = __pyx_t_5;
 
     /* "sparse_sim.pyx":617
  * 
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
- *         if kh_exist(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
- *             c_pString = kh_value(c_pSum.pauli_strings, k)
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
+ *         if kh_exist_pauli_hash(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
  * 
  */
-    __pyx_t_6 = (kh_exist(__pyx_v_c_pSum->pauli_strings, __pyx_v_k) != 0);
+    __pyx_t_6 = (kh_exist_pauli_hash(__pyx_v_c_pSum->pauli_strings, __pyx_v_k) != 0);
     if (__pyx_t_6) {
 
       /* "sparse_sim.pyx":618
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
- *         if kh_exist(c_pSum.pauli_strings, k):
- *             c_pString = kh_value(c_pSum.pauli_strings, k)             # <<<<<<<<<<<<<<
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
+ *         if kh_exist_pauli_hash(c_pSum.pauli_strings, k):
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)             # <<<<<<<<<<<<<<
  * 
  *             c_str = pauli_string_to_string_no_coef_c(c_pString)
  */
-      __pyx_v_c_pString = kh_value(__pyx_v_c_pSum->pauli_strings, __pyx_v_k);
+      __pyx_v_c_pString = kh_value_pauli_hash(__pyx_v_c_pSum->pauli_strings, __pyx_v_k);
 
       /* "sparse_sim.pyx":620
- *             c_pString = kh_value(c_pSum.pauli_strings, k)
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
  * 
  *             c_str = pauli_string_to_string_no_coef_c(c_pString)             # <<<<<<<<<<<<<<
  *             py_str = c_str.decode('utf-8')
@@ -15654,9 +15695,9 @@ static PyObject *__pyx_pf_10sparse_sim_26pauli_sum_evaluate_expectation(CYTHON_U
 
       /* "sparse_sim.pyx":617
  * 
- *     for k in range(kh_begin(c_pSum.pauli_strings), kh_end(c_pSum.pauli_strings)):
- *         if kh_exist(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
- *             c_pString = kh_value(c_pSum.pauli_strings, k)
+ *     for k in range(kh_begin_pauli_hash(c_pSum.pauli_strings), kh_end_pauli_hash(c_pSum.pauli_strings)):
+ *         if kh_exist_pauli_hash(c_pSum.pauli_strings, k):             # <<<<<<<<<<<<<<
+ *             c_pString = kh_value_pauli_hash(c_pSum.pauli_strings, k)
  * 
  */
     }
@@ -15880,7 +15921,7 @@ static PyObject *__pyx_pf_10sparse_sim_28pauli_sum_addition(CYTHON_UNUSED PyObje
  *         raise MemoryError("pauli_sum_addition_c returned NULL")
  *     return PauliSum._init_from_c(new_pSum)             # <<<<<<<<<<<<<<
  * 
- * 
+ * def wavefunction_to_probability_distribution(Wavefunction wfn):
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = ((PyObject *)__pyx_f_10sparse_sim_8PauliSum__init_from_c(__pyx_v_new_pSum)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 638, __pyx_L1_error)
@@ -15903,6 +15944,444 @@ static PyObject *__pyx_pf_10sparse_sim_28pauli_sum_addition(CYTHON_UNUSED PyObje
   __Pyx_AddTraceback("sparse_sim.pauli_sum_addition", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "sparse_sim.pyx":640
+ *     return PauliSum._init_from_c(new_pSum)
+ * 
+ * def wavefunction_to_probability_distribution(Wavefunction wfn):             # <<<<<<<<<<<<<<
+ *     cdef WavefunctionC* c_wfn = <WavefunctionC *> wfn._c_wfn
+ *     cdef khiter_t k
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_10sparse_sim_31wavefunction_to_probability_distribution(PyObject *__pyx_self, 
+#if CYTHON_METH_FASTCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+); /*proto*/
+static PyMethodDef __pyx_mdef_10sparse_sim_31wavefunction_to_probability_distribution = {"wavefunction_to_probability_distribution", (PyCFunction)(void*)(__Pyx_PyCFunction_FastCallWithKeywords)__pyx_pw_10sparse_sim_31wavefunction_to_probability_distribution, __Pyx_METH_FASTCALL|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_10sparse_sim_31wavefunction_to_probability_distribution(PyObject *__pyx_self, 
+#if CYTHON_METH_FASTCALL
+PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
+#else
+PyObject *__pyx_args, PyObject *__pyx_kwds
+#endif
+) {
+  struct __pyx_obj_10sparse_sim_Wavefunction *__pyx_v_wfn = 0;
+  #if !CYTHON_METH_FASTCALL
+  CYTHON_UNUSED Py_ssize_t __pyx_nargs;
+  #endif
+  CYTHON_UNUSED PyObject *const *__pyx_kwvalues;
+  PyObject* values[1] = {0};
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("wavefunction_to_probability_distribution (wrapper)", 0);
+  #if !CYTHON_METH_FASTCALL
+  #if CYTHON_ASSUME_SAFE_MACROS
+  __pyx_nargs = PyTuple_GET_SIZE(__pyx_args);
+  #else
+  __pyx_nargs = PyTuple_Size(__pyx_args); if (unlikely(__pyx_nargs < 0)) return NULL;
+  #endif
+  #endif
+  __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
+  {
+    PyObject **__pyx_pyargnames[] = {&__pyx_n_s_wfn,0};
+    if (__pyx_kwds) {
+      Py_ssize_t kw_args;
+      switch (__pyx_nargs) {
+        case  1: values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = __Pyx_NumKwargs_FASTCALL(__pyx_kwds);
+      switch (__pyx_nargs) {
+        case  0:
+        if (likely((values[0] = __Pyx_GetKwValue_FASTCALL(__pyx_kwds, __pyx_kwvalues, __pyx_n_s_wfn)) != 0)) {
+          (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
+          kw_args--;
+        }
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 640, __pyx_L3_error)
+        else goto __pyx_L5_argtuple_error;
+      }
+      if (unlikely(kw_args > 0)) {
+        const Py_ssize_t kwd_pos_args = __pyx_nargs;
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "wavefunction_to_probability_distribution") < 0)) __PYX_ERR(0, 640, __pyx_L3_error)
+      }
+    } else if (unlikely(__pyx_nargs != 1)) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = __Pyx_Arg_FASTCALL(__pyx_args, 0);
+    }
+    __pyx_v_wfn = ((struct __pyx_obj_10sparse_sim_Wavefunction *)values[0]);
+  }
+  goto __pyx_L6_skip;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("wavefunction_to_probability_distribution", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 640, __pyx_L3_error)
+  __pyx_L6_skip:;
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L3_error:;
+  {
+    Py_ssize_t __pyx_temp;
+    for (__pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+      __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
+    }
+  }
+  __Pyx_AddTraceback("sparse_sim.wavefunction_to_probability_distribution", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_wfn), __pyx_ptype_10sparse_sim_Wavefunction, 1, "wfn", 0))) __PYX_ERR(0, 640, __pyx_L1_error)
+  __pyx_r = __pyx_pf_10sparse_sim_30wavefunction_to_probability_distribution(__pyx_self, __pyx_v_wfn);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  {
+    Py_ssize_t __pyx_temp;
+    for (__pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
+      __Pyx_Arg_XDECREF_FASTCALL(values[__pyx_temp]);
+    }
+  }
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_10sparse_sim_30wavefunction_to_probability_distribution(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_10sparse_sim_Wavefunction *__pyx_v_wfn) {
+  struct WavefunctionC *__pyx_v_c_wfn;
+  khiter_t __pyx_v_k;
+  struct SlaterDeterminantC *__pyx_v_c_sdet;
+  PyObject *__pyx_v_norm = NULL;
+  PyObject *__pyx_v_probabilities = NULL;
+  struct __pyx_obj_10sparse_sim_SlaterDeterminant *__pyx_v_sdet = NULL;
+  PyObject *__pyx_v_bit_string = NULL;
+  PyObject *__pyx_v_prob = NULL;
+  PyObject *__pyx_8genexpr2__pyx_v_i = NULL;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  unsigned int __pyx_t_4;
+  int __pyx_t_5;
+  khiter_t __pyx_t_6;
+  khiter_t __pyx_t_7;
+  khiter_t __pyx_t_8;
+  Py_ssize_t __pyx_t_9;
+  PyObject *(*__pyx_t_10)(PyObject *);
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("wavefunction_to_probability_distribution", 1);
+
+  /* "sparse_sim.pyx":641
+ * 
+ * def wavefunction_to_probability_distribution(Wavefunction wfn):
+ *     cdef WavefunctionC* c_wfn = <WavefunctionC *> wfn._c_wfn             # <<<<<<<<<<<<<<
+ *     cdef khiter_t k
+ *     cdef SlaterDeterminantC* c_sdet
+ */
+  __pyx_v_c_wfn = ((struct WavefunctionC *)__pyx_v_wfn->_c_wfn);
+
+  /* "sparse_sim.pyx":645
+ *     cdef SlaterDeterminantC* c_sdet
+ * 
+ *     norm = wfn.norm()             # <<<<<<<<<<<<<<
+ * 
+ *     if norm == 0:
+ */
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_wfn), __pyx_n_s_norm); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 645, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = NULL;
+  __pyx_t_4 = 0;
+  #if CYTHON_UNPACK_METHODS
+  if (likely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+    if (likely(__pyx_t_3)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_3);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_2, function);
+      __pyx_t_4 = 1;
+    }
+  }
+  #endif
+  {
+    PyObject *__pyx_callargs[2] = {__pyx_t_3, NULL};
+    __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_2, __pyx_callargs+1-__pyx_t_4, 0+__pyx_t_4);
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 645, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  }
+  __pyx_v_norm = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "sparse_sim.pyx":647
+ *     norm = wfn.norm()
+ * 
+ *     if norm == 0:             # <<<<<<<<<<<<<<
+ *         return {}
+ * 
+ */
+  __pyx_t_5 = (__Pyx_PyInt_BoolEqObjC(__pyx_v_norm, __pyx_int_0, 0, 0)); if (unlikely((__pyx_t_5 < 0))) __PYX_ERR(0, 647, __pyx_L1_error)
+  if (__pyx_t_5) {
+
+    /* "sparse_sim.pyx":648
+ * 
+ *     if norm == 0:
+ *         return {}             # <<<<<<<<<<<<<<
+ * 
+ *     probabilities = {}
+ */
+    __Pyx_XDECREF(__pyx_r);
+    __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 648, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_r = __pyx_t_1;
+    __pyx_t_1 = 0;
+    goto __pyx_L0;
+
+    /* "sparse_sim.pyx":647
+ *     norm = wfn.norm()
+ * 
+ *     if norm == 0:             # <<<<<<<<<<<<<<
+ *         return {}
+ * 
+ */
+  }
+
+  /* "sparse_sim.pyx":650
+ *         return {}
+ * 
+ *     probabilities = {}             # <<<<<<<<<<<<<<
+ * 
+ *     for k in range(kh_begin_slater_hash(c_wfn.slater_determinants), kh_end_slater_hash(c_wfn.slater_determinants)):
+ */
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 650, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_probabilities = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "sparse_sim.pyx":652
+ *     probabilities = {}
+ * 
+ *     for k in range(kh_begin_slater_hash(c_wfn.slater_determinants), kh_end_slater_hash(c_wfn.slater_determinants)):             # <<<<<<<<<<<<<<
+ *         if kh_exist_slater_hash(c_wfn.slater_determinants, k):
+ *             c_sdet = kh_value_slater_hash(c_wfn.slater_determinants, k)
+ */
+  __pyx_t_6 = kh_end_slater_hash(__pyx_v_c_wfn->slater_determinants);
+  __pyx_t_7 = __pyx_t_6;
+  for (__pyx_t_8 = kh_begin_slater_hash(__pyx_v_c_wfn->slater_determinants); __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+    __pyx_v_k = __pyx_t_8;
+
+    /* "sparse_sim.pyx":653
+ * 
+ *     for k in range(kh_begin_slater_hash(c_wfn.slater_determinants), kh_end_slater_hash(c_wfn.slater_determinants)):
+ *         if kh_exist_slater_hash(c_wfn.slater_determinants, k):             # <<<<<<<<<<<<<<
+ *             c_sdet = kh_value_slater_hash(c_wfn.slater_determinants, k)
+ *             sdet = SlaterDeterminant._init_from_c(c_sdet)
+ */
+    __pyx_t_5 = (kh_exist_slater_hash(__pyx_v_c_wfn->slater_determinants, __pyx_v_k) != 0);
+    if (__pyx_t_5) {
+
+      /* "sparse_sim.pyx":654
+ *     for k in range(kh_begin_slater_hash(c_wfn.slater_determinants), kh_end_slater_hash(c_wfn.slater_determinants)):
+ *         if kh_exist_slater_hash(c_wfn.slater_determinants, k):
+ *             c_sdet = kh_value_slater_hash(c_wfn.slater_determinants, k)             # <<<<<<<<<<<<<<
+ *             sdet = SlaterDeterminant._init_from_c(c_sdet)
+ *             sdet._in_wfn = True
+ */
+      __pyx_v_c_sdet = kh_value_slater_hash(__pyx_v_c_wfn->slater_determinants, __pyx_v_k);
+
+      /* "sparse_sim.pyx":655
+ *         if kh_exist_slater_hash(c_wfn.slater_determinants, k):
+ *             c_sdet = kh_value_slater_hash(c_wfn.slater_determinants, k)
+ *             sdet = SlaterDeterminant._init_from_c(c_sdet)             # <<<<<<<<<<<<<<
+ *             sdet._in_wfn = True
+ *             bit_string = ''.join([str(i) for i in sdet.orbitals])
+ */
+      __pyx_t_1 = ((PyObject *)__pyx_f_10sparse_sim_17SlaterDeterminant__init_from_c(__pyx_v_c_sdet)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 655, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __Pyx_XDECREF_SET(__pyx_v_sdet, ((struct __pyx_obj_10sparse_sim_SlaterDeterminant *)__pyx_t_1));
+      __pyx_t_1 = 0;
+
+      /* "sparse_sim.pyx":656
+ *             c_sdet = kh_value_slater_hash(c_wfn.slater_determinants, k)
+ *             sdet = SlaterDeterminant._init_from_c(c_sdet)
+ *             sdet._in_wfn = True             # <<<<<<<<<<<<<<
+ *             bit_string = ''.join([str(i) for i in sdet.orbitals])
+ *             prob = abs(c_sdet.coef)**2 / norm**2
+ */
+      __pyx_v_sdet->_in_wfn = 1;
+
+      /* "sparse_sim.pyx":657
+ *             sdet = SlaterDeterminant._init_from_c(c_sdet)
+ *             sdet._in_wfn = True
+ *             bit_string = ''.join([str(i) for i in sdet.orbitals])             # <<<<<<<<<<<<<<
+ *             prob = abs(c_sdet.coef)**2 / norm**2
+ *             probabilities[bit_string] = prob
+ */
+      { /* enter inner scope */
+        __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 657, __pyx_L9_error)
+        __Pyx_GOTREF(__pyx_t_1);
+        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_sdet), __pyx_n_s_orbitals); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 657, __pyx_L9_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        if (likely(PyList_CheckExact(__pyx_t_2)) || PyTuple_CheckExact(__pyx_t_2)) {
+          __pyx_t_3 = __pyx_t_2; __Pyx_INCREF(__pyx_t_3);
+          __pyx_t_9 = 0;
+          __pyx_t_10 = NULL;
+        } else {
+          __pyx_t_9 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 657, __pyx_L9_error)
+          __Pyx_GOTREF(__pyx_t_3);
+          __pyx_t_10 = __Pyx_PyObject_GetIterNextFunc(__pyx_t_3); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 657, __pyx_L9_error)
+        }
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        for (;;) {
+          if (likely(!__pyx_t_10)) {
+            if (likely(PyList_CheckExact(__pyx_t_3))) {
+              {
+                Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_3);
+                #if !CYTHON_ASSUME_SAFE_MACROS
+                if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 657, __pyx_L9_error)
+                #endif
+                if (__pyx_t_9 >= __pyx_temp) break;
+              }
+              #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+              __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_9); __Pyx_INCREF(__pyx_t_2); __pyx_t_9++; if (unlikely((0 < 0))) __PYX_ERR(0, 657, __pyx_L9_error)
+              #else
+              __pyx_t_2 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 657, __pyx_L9_error)
+              __Pyx_GOTREF(__pyx_t_2);
+              #endif
+            } else {
+              {
+                Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_3);
+                #if !CYTHON_ASSUME_SAFE_MACROS
+                if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 657, __pyx_L9_error)
+                #endif
+                if (__pyx_t_9 >= __pyx_temp) break;
+              }
+              #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+              __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_9); __Pyx_INCREF(__pyx_t_2); __pyx_t_9++; if (unlikely((0 < 0))) __PYX_ERR(0, 657, __pyx_L9_error)
+              #else
+              __pyx_t_2 = __Pyx_PySequence_ITEM(__pyx_t_3, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 657, __pyx_L9_error)
+              __Pyx_GOTREF(__pyx_t_2);
+              #endif
+            }
+          } else {
+            __pyx_t_2 = __pyx_t_10(__pyx_t_3);
+            if (unlikely(!__pyx_t_2)) {
+              PyObject* exc_type = PyErr_Occurred();
+              if (exc_type) {
+                if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
+                else __PYX_ERR(0, 657, __pyx_L9_error)
+              }
+              break;
+            }
+            __Pyx_GOTREF(__pyx_t_2);
+          }
+          __Pyx_XDECREF_SET(__pyx_8genexpr2__pyx_v_i, __pyx_t_2);
+          __pyx_t_2 = 0;
+          __pyx_t_2 = __Pyx_PyObject_Str(__pyx_8genexpr2__pyx_v_i); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 657, __pyx_L9_error)
+          __Pyx_GOTREF(__pyx_t_2);
+          if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_2))) __PYX_ERR(0, 657, __pyx_L9_error)
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        }
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+        __Pyx_XDECREF(__pyx_8genexpr2__pyx_v_i); __pyx_8genexpr2__pyx_v_i = 0;
+        goto __pyx_L13_exit_scope;
+        __pyx_L9_error:;
+        __Pyx_XDECREF(__pyx_8genexpr2__pyx_v_i); __pyx_8genexpr2__pyx_v_i = 0;
+        goto __pyx_L1_error;
+        __pyx_L13_exit_scope:;
+      } /* exit inner scope */
+      __pyx_t_3 = __Pyx_PyString_Join(__pyx_kp_s__10, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 657, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_XDECREF_SET(__pyx_v_bit_string, ((PyObject*)__pyx_t_3));
+      __pyx_t_3 = 0;
+
+      /* "sparse_sim.pyx":658
+ *             sdet._in_wfn = True
+ *             bit_string = ''.join([str(i) for i in sdet.orbitals])
+ *             prob = abs(c_sdet.coef)**2 / norm**2             # <<<<<<<<<<<<<<
+ *             probabilities[bit_string] = prob
+ * 
+ */
+      __pyx_t_3 = PyFloat_FromDouble(pow(__Pyx_c_abs_double(__pyx_v_c_sdet->coef), 2.0)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 658, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_1 = PyNumber_Power(__pyx_v_norm, __pyx_int_2, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 658, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_2 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 658, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_XDECREF_SET(__pyx_v_prob, __pyx_t_2);
+      __pyx_t_2 = 0;
+
+      /* "sparse_sim.pyx":659
+ *             bit_string = ''.join([str(i) for i in sdet.orbitals])
+ *             prob = abs(c_sdet.coef)**2 / norm**2
+ *             probabilities[bit_string] = prob             # <<<<<<<<<<<<<<
+ * 
+ *     return probabilities
+ */
+      if (unlikely((PyDict_SetItem(__pyx_v_probabilities, __pyx_v_bit_string, __pyx_v_prob) < 0))) __PYX_ERR(0, 659, __pyx_L1_error)
+
+      /* "sparse_sim.pyx":653
+ * 
+ *     for k in range(kh_begin_slater_hash(c_wfn.slater_determinants), kh_end_slater_hash(c_wfn.slater_determinants)):
+ *         if kh_exist_slater_hash(c_wfn.slater_determinants, k):             # <<<<<<<<<<<<<<
+ *             c_sdet = kh_value_slater_hash(c_wfn.slater_determinants, k)
+ *             sdet = SlaterDeterminant._init_from_c(c_sdet)
+ */
+    }
+  }
+
+  /* "sparse_sim.pyx":661
+ *             probabilities[bit_string] = prob
+ * 
+ *     return probabilities             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __Pyx_INCREF(__pyx_v_probabilities);
+  __pyx_r = __pyx_v_probabilities;
+  goto __pyx_L0;
+
+  /* "sparse_sim.pyx":640
+ *     return PauliSum._init_from_c(new_pSum)
+ * 
+ * def wavefunction_to_probability_distribution(Wavefunction wfn):             # <<<<<<<<<<<<<<
+ *     cdef WavefunctionC* c_wfn = <WavefunctionC *> wfn._c_wfn
+ *     cdef khiter_t k
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("sparse_sim.wavefunction_to_probability_distribution", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_norm);
+  __Pyx_XDECREF(__pyx_v_probabilities);
+  __Pyx_XDECREF((PyObject *)__pyx_v_sdet);
+  __Pyx_XDECREF(__pyx_v_bit_string);
+  __Pyx_XDECREF(__pyx_v_prob);
+  __Pyx_XDECREF(__pyx_8genexpr2__pyx_v_i);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -17411,7 +17890,7 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_kp_s__10, __pyx_k__10, sizeof(__pyx_k__10), 0, 0, 1, 0},
     {&__pyx_n_s__19, __pyx_k__19, sizeof(__pyx_k__19), 0, 0, 1, 1},
     {&__pyx_kp_u__20, __pyx_k__20, sizeof(__pyx_k__20), 0, 1, 0, 0},
-    {&__pyx_n_s__79, __pyx_k__79, sizeof(__pyx_k__79), 0, 0, 1, 1},
+    {&__pyx_n_s__81, __pyx_k__81, sizeof(__pyx_k__81), 0, 0, 1, 1},
     {&__pyx_n_s_adjoint, __pyx_k_adjoint, sizeof(__pyx_k_adjoint), 0, 0, 1, 1},
     {&__pyx_n_s_append_pauli_string, __pyx_k_append_pauli_string, sizeof(__pyx_k_append_pauli_string), 0, 0, 1, 1},
     {&__pyx_n_s_append_slater_determinant, __pyx_k_append_slater_determinant, sizeof(__pyx_k_append_slater_determinant), 0, 0, 1, 1},
@@ -17419,10 +17898,12 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_array, __pyx_k_array, sizeof(__pyx_k_array), 0, 0, 1, 1},
     {&__pyx_n_s_asyncio_coroutines, __pyx_k_asyncio_coroutines, sizeof(__pyx_k_asyncio_coroutines), 0, 0, 1, 1},
     {&__pyx_n_b_b, __pyx_k_b, sizeof(__pyx_k_b), 0, 0, 0, 1},
+    {&__pyx_n_s_bit_string, __pyx_k_bit_string, sizeof(__pyx_k_bit_string), 0, 0, 1, 1},
     {&__pyx_n_s_bra, __pyx_k_bra, sizeof(__pyx_k_bra), 0, 0, 1, 1},
     {&__pyx_n_s_c_pString, __pyx_k_c_pString, sizeof(__pyx_k_c_pString), 0, 0, 1, 1},
     {&__pyx_n_s_c_pStrings, __pyx_k_c_pStrings, sizeof(__pyx_k_c_pStrings), 0, 0, 1, 1},
     {&__pyx_n_s_c_pSum, __pyx_k_c_pSum, sizeof(__pyx_k_c_pSum), 0, 0, 1, 1},
+    {&__pyx_n_s_c_sdet, __pyx_k_c_sdet, sizeof(__pyx_k_c_sdet), 0, 0, 1, 1},
     {&__pyx_n_s_c_str, __pyx_k_c_str, sizeof(__pyx_k_c_str), 0, 0, 1, 1},
     {&__pyx_n_s_c_wfn, __pyx_k_c_wfn, sizeof(__pyx_k_c_wfn), 0, 0, 1, 1},
     {&__pyx_n_s_class_getitem, __pyx_k_class_getitem, sizeof(__pyx_k_class_getitem), 0, 0, 1, 1},
@@ -17493,6 +17974,8 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_kp_s_pauli_sum_scalar_multiplication_2, __pyx_k_pauli_sum_scalar_multiplication_2, sizeof(__pyx_k_pauli_sum_scalar_multiplication_2), 0, 0, 1, 0},
     {&__pyx_n_s_paulis, __pyx_k_paulis, sizeof(__pyx_k_paulis), 0, 0, 1, 1},
     {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
+    {&__pyx_n_s_prob, __pyx_k_prob, sizeof(__pyx_k_prob), 0, 0, 1, 1},
+    {&__pyx_n_s_probabilities, __pyx_k_probabilities, sizeof(__pyx_k_probabilities), 0, 0, 1, 1},
     {&__pyx_n_s_py_pString, __pyx_k_py_pString, sizeof(__pyx_k_py_pString), 0, 0, 1, 1},
     {&__pyx_n_s_py_pStrings, __pyx_k_py_pStrings, sizeof(__pyx_k_py_pStrings), 0, 0, 1, 1},
     {&__pyx_n_s_py_str, __pyx_k_py_str, sizeof(__pyx_k_py_str), 0, 0, 1, 1},
@@ -17537,6 +18020,7 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_kp_s_wavefunction_remove_near_zero_te, __pyx_k_wavefunction_remove_near_zero_te, sizeof(__pyx_k_wavefunction_remove_near_zero_te), 0, 0, 1, 0},
     {&__pyx_n_s_wavefunction_scalar_multiplicati, __pyx_k_wavefunction_scalar_multiplicati, sizeof(__pyx_k_wavefunction_scalar_multiplicati), 0, 0, 1, 1},
     {&__pyx_kp_s_wavefunction_scalar_multiplicati_2, __pyx_k_wavefunction_scalar_multiplicati_2, sizeof(__pyx_k_wavefunction_scalar_multiplicati_2), 0, 0, 1, 0},
+    {&__pyx_n_s_wavefunction_to_probability_dist, __pyx_k_wavefunction_to_probability_dist, sizeof(__pyx_k_wavefunction_to_probability_dist), 0, 0, 1, 1},
     {&__pyx_n_s_wfn, __pyx_k_wfn, sizeof(__pyx_k_wfn), 0, 0, 1, 1},
     {&__pyx_n_s_zeros, __pyx_k_zeros, sizeof(__pyx_k_zeros), 0, 0, 1, 1},
     {0, 0, 0, 0, 0, 0, 0}
@@ -18106,6 +18590,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *     cdef PauliSumC *new_pSum = pauli_sum_addition_c(<PauliSumC *> left._c_pSum, <PauliSumC *> right._c_pSum)
  */
   __pyx_codeobj__78 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__70, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_pauli_sum_addition, 633, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__78)) __PYX_ERR(0, 633, __pyx_L1_error)
+
+  /* "sparse_sim.pyx":640
+ *     return PauliSum._init_from_c(new_pSum)
+ * 
+ * def wavefunction_to_probability_distribution(Wavefunction wfn):             # <<<<<<<<<<<<<<
+ *     cdef WavefunctionC* c_wfn = <WavefunctionC *> wfn._c_wfn
+ *     cdef khiter_t k
+ */
+  __pyx_tuple__79 = PyTuple_Pack(10, __pyx_n_s_wfn, __pyx_n_s_c_wfn, __pyx_n_s_k, __pyx_n_s_c_sdet, __pyx_n_s_norm, __pyx_n_s_probabilities, __pyx_n_s_sdet, __pyx_n_s_bit_string, __pyx_n_s_prob, __pyx_n_s_i); if (unlikely(!__pyx_tuple__79)) __PYX_ERR(0, 640, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__79);
+  __Pyx_GIVEREF(__pyx_tuple__79);
+  __pyx_codeobj__80 = (PyObject*)__Pyx_PyCode_New(1, 0, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__79, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_cython_sparse_sim_pyx, __pyx_n_s_wavefunction_to_probability_dist, 640, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__80)) __PYX_ERR(0, 640, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -19052,6 +19548,18 @@ if (!__Pyx_RefNanny) {
   __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_29pauli_sum_addition, 0, __pyx_n_s_pauli_sum_addition, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__78)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 633, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pauli_sum_addition, __pyx_t_3) < 0) __PYX_ERR(0, 633, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+  /* "sparse_sim.pyx":640
+ *     return PauliSum._init_from_c(new_pSum)
+ * 
+ * def wavefunction_to_probability_distribution(Wavefunction wfn):             # <<<<<<<<<<<<<<
+ *     cdef WavefunctionC* c_wfn = <WavefunctionC *> wfn._c_wfn
+ *     cdef khiter_t k
+ */
+  __pyx_t_3 = __Pyx_CyFunction_New(&__pyx_mdef_10sparse_sim_31wavefunction_to_probability_distribution, 0, __pyx_n_s_wavefunction_to_probability_dist, NULL, __pyx_n_s_sparse_sim, __pyx_d, ((PyObject *)__pyx_codeobj__80)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 640, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_wavefunction_to_probability_dist, __pyx_t_3) < 0) __PYX_ERR(0, 640, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "sparse_sim.pyx":1
@@ -21042,6 +21550,78 @@ static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
     return value;
 }
 #endif
+
+/* PyIntCompare */
+static CYTHON_INLINE int __Pyx_PyInt_BoolEqObjC(PyObject *op1, PyObject *op2, long intval, long inplace) {
+    CYTHON_MAYBE_UNUSED_VAR(intval);
+    CYTHON_UNUSED_VAR(inplace);
+    if (op1 == op2) {
+        return 1;
+    }
+    #if PY_MAJOR_VERSION < 3
+    if (likely(PyInt_CheckExact(op1))) {
+        const long b = intval;
+        long a = PyInt_AS_LONG(op1);
+        return (a == b);
+    }
+    #endif
+    #if CYTHON_USE_PYLONG_INTERNALS
+    if (likely(PyLong_CheckExact(op1))) {
+        int unequal;
+        unsigned long uintval;
+        Py_ssize_t size = __Pyx_PyLong_DigitCount(op1);
+        const digit* digits = __Pyx_PyLong_Digits(op1);
+        if (intval == 0) {
+            return (__Pyx_PyLong_IsZero(op1) == 1);
+        } else if (intval < 0) {
+            if (__Pyx_PyLong_IsNonNeg(op1))
+                return 0;
+            intval = -intval;
+        } else {
+            if (__Pyx_PyLong_IsNeg(op1))
+                return 0;
+        }
+        uintval = (unsigned long) intval;
+#if PyLong_SHIFT * 4 < SIZEOF_LONG*8
+        if (uintval >> (PyLong_SHIFT * 4)) {
+            unequal = (size != 5) || (digits[0] != (uintval & (unsigned long) PyLong_MASK))
+                 | (digits[1] != ((uintval >> (1 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[2] != ((uintval >> (2 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[3] != ((uintval >> (3 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[4] != ((uintval >> (4 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK));
+        } else
+#endif
+#if PyLong_SHIFT * 3 < SIZEOF_LONG*8
+        if (uintval >> (PyLong_SHIFT * 3)) {
+            unequal = (size != 4) || (digits[0] != (uintval & (unsigned long) PyLong_MASK))
+                 | (digits[1] != ((uintval >> (1 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[2] != ((uintval >> (2 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[3] != ((uintval >> (3 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK));
+        } else
+#endif
+#if PyLong_SHIFT * 2 < SIZEOF_LONG*8
+        if (uintval >> (PyLong_SHIFT * 2)) {
+            unequal = (size != 3) || (digits[0] != (uintval & (unsigned long) PyLong_MASK))
+                 | (digits[1] != ((uintval >> (1 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK)) | (digits[2] != ((uintval >> (2 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK));
+        } else
+#endif
+#if PyLong_SHIFT * 1 < SIZEOF_LONG*8
+        if (uintval >> (PyLong_SHIFT * 1)) {
+            unequal = (size != 2) || (digits[0] != (uintval & (unsigned long) PyLong_MASK))
+                 | (digits[1] != ((uintval >> (1 * PyLong_SHIFT)) & (unsigned long) PyLong_MASK));
+        } else
+#endif
+            unequal = (size != 1) || (((unsigned long) digits[0]) != (uintval & (unsigned long) PyLong_MASK));
+        return (unequal == 0);
+    }
+    #endif
+    if (PyFloat_CheckExact(op1)) {
+        const long b = intval;
+#if CYTHON_COMPILING_IN_LIMITED_API
+        double a = __pyx_PyFloat_AsDouble(op1);
+#else
+        double a = PyFloat_AS_DOUBLE(op1);
+#endif
+        return ((double)a == (double)b);
+    }
+    return __Pyx_PyObject_IsTrueAndDecref(
+        PyObject_RichCompare(op1, op2, Py_EQ));
+}
 
 /* FixUpExtensionType */
 #if CYTHON_USE_TYPE_SPECS
@@ -25175,7 +25755,7 @@ __Pyx_PyType_GetName(PyTypeObject* tp)
     if (unlikely(name == NULL) || unlikely(!PyUnicode_Check(name))) {
         PyErr_Clear();
         Py_XDECREF(name);
-        name = __Pyx_NewRef(__pyx_n_s__79);
+        name = __Pyx_NewRef(__pyx_n_s__81);
     }
     return name;
 }

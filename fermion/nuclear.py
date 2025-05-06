@@ -36,6 +36,10 @@ class Atom:
     def shift(self, dx, dy, dz):
         return Atom(self.symbol, self.x + dx, self.y + dy, self.z + dz, self.vx, self.vy, self.vz, self.mass)
 
+    def energy(self):
+        """Calculate the total energy of the molecule in Ha"""
+        return 0.5 * self.mass * (self.vx**2 + self.vy**2 + self.vz**2)
+
     def to_string(self):
         return f"{self.symbol} {self.x} {self.y} {self.z}"
 
@@ -87,3 +91,10 @@ class Molecule:
             else:
                 new_mol.add_atom(atom)
         return new_mol
+
+    def kinetic_energy(self):
+        """Calculate the total energy of the molecule in Ha"""
+        total_energy = 0
+        for atom in self.atoms:
+            total_energy += atom.energy()
+        return total_energy
