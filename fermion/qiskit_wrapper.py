@@ -183,6 +183,8 @@ def qiskit_probability_distribution(circuit: q.QuantumCircuit, backend, shots=2*
 
 
 def qiskit_probability_distribution_with_zne(circuit: q.QuantumCircuit, backend, shots=2**13, fold_factors: list = [1, 3, 5], mit: M3Mitigation = None):
+    circuit = circuit.copy()
+    circuit = q.transpile(circuit, backend, optimization_level=3)
     results = []
     for fold_factor in fold_factors:
         folded_circuit = qiskit_circuit_fold(circuit, fold_factor)

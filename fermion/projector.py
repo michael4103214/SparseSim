@@ -110,3 +110,12 @@ class Projector:
             return self.add_mapping(right)
         else:
             TypeError(f"Projector + {type(right)} is not defined")
+
+    def to_string(self):
+        output = ""
+        for mapping_pair in self.mapping:
+            output += f"{mapping_pair[0]} -> {mapping_pair[1]}\n"
+        return output
+
+    def __str__(self):
+        return self.to_string()

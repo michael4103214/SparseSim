@@ -2,10 +2,6 @@
 from hamiltonian import *
 import numpy as np
 from pyscf import gto
-from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.units import DistanceUnit
-from qiskit_nature.second_q.mappers import JordanWignerMapper
-from qiskit.quantum_info import SparsePauliOp
 
 
 def test_hf_energy():
