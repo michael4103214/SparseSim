@@ -1,8 +1,11 @@
+from qiskit.quantum_info import Statevector
 from fermion import *
 
 import copy
 from mthree import M3Mitigation
+from multiprocessing import Pool
 import numpy as np
+import os
 import qiskit as q
 from qiskit.circuit.library import PauliEvolutionGate
 from qiskit.quantum_info import SparsePauliOp
@@ -35,6 +38,11 @@ class InitOperators:
         self.epsilons.append(epsilon)
         self.M += 1
 
+    def add_operator_at_beginning(self, operator, epsilon):
+        self.ops.insert(0, operator)
+        self.epsilons.insert(0, epsilon)
+        self.M += 1
+
     def adjoint(self):
         adjoint_init_ops = InitOperators(self.N)
         for m in range(self.M):
@@ -61,6 +69,19 @@ class InitOperators:
                     qiskit_create_backwards_pauli_sum_evolution_circuit(self.ops[m].pSum, self.epsilons[m]))
 
         return circ
+
+    def to_string(self):
+        output = ""
+        for m in range(self.M):
+            output += f"op {m}:\n {self.epsilons[m]} * (\n"
+            op = self.ops[m]
+            for prod in op.prods:
+                output += f"{prod}\n"
+            output += ")\n"
+        return output
+
+    def __str__(self):
+        return self.to_string()
 
 
 def qiskit_create_initialization_from_slater_determinant_circuit(sDet: SlaterDeterminant):
@@ -93,8 +114,8 @@ def qiskit_create_pauli_sum_evolution_circuit(pSum: PauliSum, epsilon: np.comple
 
     circ = q.QuantumCircuit(pSum.N, 0)
     for pString in pStrings:
-        circ = circ.compose(
-            qiskit_create_pauli_string_evolution_circuit(pString, epsilon))
+        circ.compose(
+            qiskit_create_pauli_string_evolution_circuit(pString, epsilon), inplace=True)
     return circ
 
 
@@ -131,6 +152,15 @@ def qiskit_pauli_string_measurement(circuit: q.QuantumCircuit, pString_as_string
     return result[0].data.evs
 
 
+def qiskit_perform_tomography(circuit: q.QuantumCircuit, measurements: Set[str], backend, shots: int = 2**13):
+    tomography = {}
+    for measurement in measurements:
+        tomography[measurement] = qiskit_pauli_string_measurement(
+            circuit, measurement, backend, shots)
+
+    return tomography
+
+
 def qiskit_pauli_string_measurement_with_zne(circuit: q.QuantumCircuit, pString_as_string: str, backend, shots=2**13, fold_factors: list = [1, 3, 5]):
     results = []
     for fold_factor in fold_factors:
@@ -149,15 +179,6 @@ def qiskit_pauli_string_measurement_with_zne(circuit: q.QuantumCircuit, pString_
     return zne_estimate
 
 
-def qiskit_perform_tomography(circuit: q.QuantumCircuit, measurements: Set[str], backend, shots: int = 2**13):
-    tomography = {}
-    for measurement in measurements:
-        tomography[measurement] = qiskit_pauli_string_measurement(
-            circuit, measurement, backend, shots)
-
-    return tomography
-
-
 def qiskit_perform_tomography_with_zne(circuit: q.QuantumCircuit, measurements: Set[str], backend, shots: int = 2**13, fold_factors: list = [1, 3, 5]):
     tomography = {}
     for measurement in measurements:
@@ -167,7 +188,7 @@ def qiskit_perform_tomography_with_zne(circuit: q.QuantumCircuit, measurements: 
     return tomography
 
 
-def qiskit_probability_distribution(circuit: q.QuantumCircuit, backend, shots=2**13):
+def _qiskit_probability_distribution_old(circuit: q.QuantumCircuit, backend, shots=2**13):
     circuit = circuit.copy()
     circuit.measure_all()
     num_qubits = circuit.num_qubits
@@ -180,6 +201,125 @@ def qiskit_probability_distribution(circuit: q.QuantumCircuit, backend, shots=2*
                      total_counts for state, count in counts.items()}
 
     return probabilities
+
+
+def _qiskit_probability_distribution_and_statevector_helper(circuits, backend, num_qubits, shots=2**13):
+    # New instance per process
+    job = backend.run(circuits, shots=shots)
+    statevectors = [job.result().get_statevector(i)
+                    for i in range(len(circuits))]
+    prob_dists = []
+    for i in range(len(circuits)):
+        result = job.result().data(i)
+        counts = result.get("counts")
+        total_counts = sum(counts.values())
+        prob_dist = {bin(int(state, 16))[2:].zfill(num_qubits)[::-1]: count /
+                     total_counts for state, count in counts.items()}
+        prob_dists.append(prob_dist)
+    return statevectors, prob_dists
+
+
+def qiskit_probability_distribution_and_statevector(circuit_or_circuits, backend, make_copy=True, number_of_processes=1, shots=2**13):
+
+    circuits = []
+    num_qubits = -1
+
+    if isinstance(circuit_or_circuits, q.QuantumCircuit):
+        if make_copy:
+            circuit = circuit_or_circuits.copy()
+        else:
+            circuit = circuit_or_circuits
+        circuit.save_statevector()
+        circuit.measure_all()
+        circuits.append(circuit)
+        num_qubits = circuit.num_qubits
+    else:
+        for circuit in circuit_or_circuits:
+            if make_copy:
+                circuit = circuit.copy()
+            circuit.save_statevector()
+            circuit.measure_all()
+            circuits.append(circuit)
+
+            if num_qubits == -1:
+                num_qubits = circuit.num_qubits
+
+    if number_of_processes == 1:
+        statevectors, prob_dists = _qiskit_probability_distribution_and_statevector_helper(
+            circuits, backend, num_qubits, shots)
+    else:
+        num_circuits = len(circuits)
+        batch_size = max(1, num_circuits // number_of_processes)
+        batched_circuits = [circuits[i:i + batch_size]
+                            for i in range(0, num_circuits, batch_size)]
+
+        with Pool(processes=number_of_processes) as pool:
+            results = pool.starmap(_qiskit_probability_distribution_and_statevector_helper,
+                                   [(batch, backend, num_qubits, shots) for batch in batched_circuits])
+
+        statevectors = [
+            sv for batch_result in results for sv in batch_result[0]]
+        prob_dists = [pd for batch_result in results for pd in batch_result[1]]
+
+    if len(statevectors) == 1:
+        return prob_dists[0], statevectors[0]
+    else:
+        return prob_dists, statevectors
+
+
+def _qiskit_probability_distribution_helper(circuits, backend, num_qubits, shots=2**13):
+    # New instance per process
+    job = backend.run(circuits, shots=shots)
+    prob_dists = []
+    for i in range(len(circuits)):
+        result = job.result().data(i)
+        counts = result.get("counts")
+        total_counts = sum(counts.values())
+        prob_dist = {bin(int(state, 16))[2:].zfill(num_qubits)[::-1]: count /
+                     total_counts for state, count in counts.items()}
+        prob_dists.append(prob_dist)
+    return prob_dists
+
+
+def qiskit_probability_distribution(circuit_or_circuits, backend, make_copy=True, number_of_processes=1, shots=2**13):
+
+    circuits = []
+    num_qubits = -1
+
+    if isinstance(circuit_or_circuits, q.QuantumCircuit):
+        if make_copy:
+            circuit = circuit_or_circuits.copy()
+        circuit.measure_all()
+        circuits.append(circuit)
+        num_qubits = circuit.num_qubits
+    else:
+        for circuit in circuit_or_circuits:
+            if make_copy:
+                circuit = circuit.copy()
+            circuit.measure_all()
+            circuits.append(circuit)
+
+            if num_qubits == -1:
+                num_qubits = circuit.num_qubits
+
+    if number_of_processes == 1:
+        prob_dists = _qiskit_probability_distribution_helper(
+            circuits, backend, num_qubits, shots)
+    else:
+        num_circuits = len(circuits)
+        batch_size = max(1, num_circuits // number_of_processes)
+        batched_circuits = [circuits[i:i + batch_size]
+                            for i in range(0, num_circuits, batch_size)]
+
+        with Pool(processes=number_of_processes) as pool:
+            results = pool.starmap(_qiskit_probability_distribution_and_statevector_helper,
+                                   [(batch, backend, num_qubits, shots) for batch in batched_circuits])
+        prob_dists = [pd for batch_result in results for pd in batch_result[1]]
+
+    if len(prob_dists) == 1:
+        return prob_dists[0]
+    else:
+        return prob_dists
 
 
 def qiskit_probability_distribution_with_zne(circuit: q.QuantumCircuit, backend, shots=2**13, fold_factors: list = [1, 3, 5], mit: M3Mitigation = None):
@@ -235,7 +375,7 @@ def slater_determinant_probability(sDet: SlaterDeterminant, prob_dist):
     return prob_dist[bit_string]
 
 
-def qiskit_statevector(circuit: q.QuantumCircuit):
+def _qiskit_statevector_old(circuit: q.QuantumCircuit):
     circuit = circuit.copy()
     backend = Aer.AerSimulator(method='statevector')
     circuit.save_statevector()
@@ -244,13 +384,61 @@ def qiskit_statevector(circuit: q.QuantumCircuit):
     return statevector.data
 
 
+def _qiskit_statevector_old_2(circuit: q.QuantumCircuit):
+    return Statevector(circuit).data
+
+
+def _qiskit_statevector_helper(circuits):
+    # New instance per process
+    backend = Aer.AerSimulator(method='statevector')
+    job = backend.run(circuits)
+    result = job.result()
+    return [result.get_statevector(i).data for i in range(len(circuits))]
+
+
+def qiskit_statevector(circuit_or_circuits, make_copy=True, number_of_processes=1):
+
+    circuits = []
+
+    if isinstance(circuit_or_circuits, q.QuantumCircuit):
+        if make_copy:
+            circuit = circuit_or_circuits.copy()
+        circuit.save_statevector()
+        circuits.append(circuit)
+    else:
+        for circuit in circuit_or_circuits:
+            if make_copy:
+                circuit = circuit.copy()
+            circuit.save_statevector()
+            circuits.append(circuit)
+
+    if number_of_processes == 1:
+        statevectors = _qiskit_statevector_helper(circuits)
+    else:
+        num_circuits = len(circuits)
+        batch_size = max(1, num_circuits // number_of_processes)
+        batched_circuits = [circuits[i:i + batch_size]
+                            for i in range(0, num_circuits, batch_size)]
+
+        with Pool(processes=number_of_processes) as pool:
+            results = pool.map(
+                _qiskit_statevector_helper, batched_circuits)
+
+        statevectors = [sv for batch in results for sv in batch]
+
+    if len(statevectors) == 1:
+        return statevectors[0]
+    else:
+        return statevectors
+
+
 def slater_determinant_probability_from_statevector(sDet: SlaterDeterminant, statevector):
     coef = statevector[sDet.encoding]
     return np.abs(coef)**2
 
 
-def qiskit_pauli_string_measurement_statevector(circuit: q.QuantumCircuit, pString_as_string: str):
-    circuit = circuit.copy()
+def _qiskit_pauli_string_measurement_statevector_old(circuit: q.QuantumCircuit, pString_as_string: str):
+    # circuit = circuit.copy()
     backend = Aer.AerSimulator(method='statevector')
     circuit.save_statevector()
     result = backend.run(circuit).result()
@@ -261,10 +449,16 @@ def qiskit_pauli_string_measurement_statevector(circuit: q.QuantumCircuit, pStri
 
 
 def qiskit_perform_tomography_statevector(circuit: q.QuantumCircuit, measurements: Set[str]):
+    circuit = circuit.copy()
+    backend = Aer.AerSimulator(method='statevector')
+    circuit.save_statevector()
+    result = backend.run(circuit).result()
+    statevector = result.get_statevector()
+
     tomography = {}
     for measurement in measurements:
-        tomography[measurement] = qiskit_pauli_string_measurement_statevector(
-            circuit, measurement)
+        observable = SparsePauliOp(measurement[::-1])
+        tomography[measurement] = statevector.expectation_value(observable)
 
     return tomography
 

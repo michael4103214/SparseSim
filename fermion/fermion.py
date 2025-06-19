@@ -73,12 +73,12 @@ class Product:
     ops: list  # List of Operators applied right to left
     pSum: PauliSum  # PauliSum object representing the product as PauliStrings using Jordan-Wigner Transformation
 
-    def __init__(self, coef, ops, N, with_pSum=True):
+    def __init__(self, coef, ops, N, evaluate_pSum=True):
 
         self.coef = coef
         self.ops = ops
         self.N = N
-        if with_pSum:
+        if evaluate_pSum:
             self.pSum = self.to_pSum()
 
     def to_pSum(self):
@@ -114,8 +114,6 @@ class Product:
     def ops_to_string(self):
         output = ""
         for i, op in enumerate(self.ops):
-            if i > 0:
-                output += " "
             output = output + f"{op}"
         return output
 
@@ -137,9 +135,11 @@ class Product:
         else:
             raise TypeError(f"{type(left)} * prod is not defined")
 
-    def map(self, projector):
+    def map(self, projector, coef_seperate=False):
 
         prods = []
+        if coef_seperate:
+            coefs = []
 
         for (original_sdet_right, target_sdet_right) in projector.mapping:
             for (original_sdet_left, target_sdet_left) in projector.mapping:
@@ -152,10 +152,17 @@ class Product:
                 if np.abs(coef) > 1e-10:
                     bOps = slater_determinant_outer_product_to_bosonic_ops(
                         target_sdet_left, target_sdet_right)
-                    prod = Product(coef, bOps, projector.target_N)
+                    if coef_seperate:
+                        coefs.append(coef)
+                        prod = Product(1, bOps, projector.target_N)
+                    else:
+                        prod = Product(coef, bOps, projector.target_N)
                     prods.append(prod)
 
-        return prods
+        if coef_seperate:
+            return coefs, prods
+        else:
+            return prods
 
     def save(self):
         output = np.array([self.N, self.coef])
@@ -246,12 +253,85 @@ class Operator:
         return self.symbol
 
     def map(self, projector):
-        new_prods = []
+        new_prods_dict = {}
+
+        inverse_mapping = {}
 
         for prod in self.prods:
-            new_prods.extend(prod.map(projector))
+            new_coefs, new_prods = prod.map(projector, coef_seperate=True)
+            for i, new_prod in enumerate(new_prods):
+                new_prod_ops = new_prod.ops_to_string()
+                if new_prod_ops in new_prods_dict.keys():
+                    new_prods_dict[new_prod_ops][1] += new_coefs[i]
+                    inverse_mapping[new_prod_ops].append(
+                        [new_prod, prod, new_coefs[i]])
+                else:
+                    new_prods_dict[new_prod_ops] = [new_prod, new_coefs[i]]
+                    inverse_mapping[new_prod_ops] = [
+                        [new_prod, prod, new_coefs[i]]]
 
-        return Operator(new_prods, projector.target_N, f"{self.symbol}_mapped")
+        new_prods = []
+        for new_prod_ops, [new_prod, coef] in new_prods_dict.items():
+            new_prod = coef * new_prod
+            new_prods.append(new_prod)
+
+        for new_prod_ops, prod_mapping in inverse_mapping.items():
+            total_coef = sum(coef for _, __, coef in prod_mapping)
+            if total_coef != 0:
+                inverse_mapping[new_prod_ops] = [
+                    [total_coef * new_prod, prod, coef / total_coef] for new_prod, prod, coef in prod_mapping
+                ]
+            else:
+                inverse_mapping[new_prod_ops] = [
+                    [total_coef * new_prod, prod, 0.0] for new_prod, prod, coef in prod_mapping
+                ]
+
+        return Operator(new_prods, projector.target_N, f"{self.symbol}_mapped"), inverse_mapping
+
+    def unmap(self, inverse_mapping):
+        unmapped_prods = []
+        unmapped_N = -1
+
+        for i, prod in enumerate(self.prods):
+            prod_ops = prod.ops_to_string()
+            if prod_ops in inverse_mapping.keys():
+                for mapped_prod, original_prod, weight in inverse_mapping[prod_ops]:
+                    coef = weight * prod.coef
+                    unmapped_prods.append(coef * original_prod)
+                    if unmapped_N == -1:
+                        unmapped_N = original_prod.N
+
+        return Operator(unmapped_prods, unmapped_N, f"{self.symbol}_unmapped")
+
+    def diagonal_elements(self):
+
+        diagonal_elements = {}
+
+        for prod in self.prods:
+            indices = []
+            for i, op in enumerate(prod.ops):
+                indices.append(op.idx)
+            num_indices = len(indices)
+
+            diagonal = True
+            for i in range(num_indices // 2):
+                if indices[i] != indices[num_indices - 1 - i]:
+                    diagonal = False
+                    break
+
+            if diagonal:
+                diagonal_elements[prod.ops_to_string()] = prod
+
+        return diagonal_elements
+
+    def trace(self):
+        diagonal_elements = self.diagonal_elements()
+
+        tr = 0.0 + 0.0j
+        for prod in diagonal_elements.values():
+            tr += prod.coef
+
+        return tr
 
     def save(self):
         output = [np.array([self.N, self.symbol])]
@@ -261,6 +341,7 @@ class Operator:
 
         return output
 
+    # check implementation at some point
     def to_tensor(self):
         tensor = self.prods[0].to_tensor()
         for prod in self.prods[1:]:

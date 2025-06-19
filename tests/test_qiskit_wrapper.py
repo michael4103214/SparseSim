@@ -48,10 +48,8 @@ def test_qiskit_expectation():
     print(
         f"Tomography data:\n {[f'{key}: {value}' for key, value in tomography.items()]}")
 
-    circuit.save_statevector()
-    result = backend.run(circuit).result()
-    statevector = result.get_statevector()
-    print(f"Statevector: {statevector.data}")
+    statevector = qiskit_statevector(circuit)
+    print(f"Statevector: {statevector}")
 
     print(f"{fProd3.evaluate_expectation(tomography)}")
 
@@ -74,14 +72,15 @@ def test_qiskit_probability_distribution():
     circuit = circuit.compose(qiskit_create_pauli_sum_evolution_circuit(pSum))
     backend = Aer.AerSimulator()
 
-    statevector = qiskit_statevector(circuit)
-    print(f"Statevector: {statevector}")
-    print(
-        f"P_|10> = {slater_determinant_probability_from_statevector(sdet, statevector)}")
-
-    prob_dist = qiskit_probability_distribution(circuit, backend, 2**13)
-    print(f"Probability Distribution: {prob_dist}")
-    print(f"P_|10> = {slater_determinant_probability(sdet, prob_dist)}")
+    shots_list = [2**9, 2**11, 2**13, 2**15]
+    for shots in shots_list:
+        prob_dist, statevector = qiskit_probability_distribution_and_statevector(
+            circuit, backend, shots)
+        prob = slater_determinant_probability(sdet, prob_dist)
+        prob_statevector = slater_determinant_probability_from_statevector(
+            sdet, statevector)
+        print(f"Running with {shots} shots:")
+        print(f"P_|10> = {prob}~{prob_statevector}")
 
 
 def test_qiskit_statevector_expectation():

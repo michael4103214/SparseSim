@@ -1,4 +1,7 @@
 from rdm import *
+from hamiltonian import *
+
+from pyscf import gto
 
 
 def test_rdm_init_and_freeing():
@@ -40,6 +43,56 @@ def test_rdm_measurement():
         f"Expectation value: {ordm.evaluate_expectation(tomography)} = {ordm.prods[0].evaluate_expectation(tomography)} + {ordm.prods[1].evaluate_expectation(tomography)} + {ordm.prods[2].evaluate_expectation(tomography)} + {ordm.prods[3].evaluate_expectation(tomography)}")
 
 
+def evaluate_rdm(psi: Wavefunction, rdm: RDM):
+
+    new_rdm_prods = []
+    bra = psi.adjoint()
+    for prod in rdm.prods:
+        new_coef = bra * (prod.pSum * psi)
+        if prod.coef == 0:
+            new_prod = 0 * prod
+        else:
+            new_prod = (new_coef / prod.coef) * prod
+        new_rdm_prods.append(new_prod)
+
+    return RDM(rdm.p, rdm.N,  new_rdm_prods)
+
+
+def test_rdm_trace():
+
+    H4 = gto.M(
+        atom="H 0 0 0; H 0 0 0.7348654; H 0.7348654 0 0; H 0.7348654 0 0.7348654",
+        basis="sto-3g",
+        charge=0,
+        spin=0,
+        unit="Angstrom",
+    )
+
+    mf = scf.RHF(H4)
+    mf.kernel()
+
+    H = init_Hamiltonian_from_pyscf(H4, mf)
+
+    sdet0 = SlaterDeterminant(8, 1, [1, 1, 0, 0, 1, 1, 0, 0])
+    wfn0 = Wavefunction(sdet0.N) + sdet0
+
+    wfn = 1 * wfn0
+    for t in range(100):
+        wfn = wavefunction_pauli_sum_evolution(H.pSum, wfn, -0.1)
+        wfn = (1 / wfn.norm()) * wfn
+
+    ordm = RDM(1, sdet0.N)
+    trdm = RDM(2, sdet0.N)
+    # thrdm = RDM(3, sdet0.N)
+
+    ordm_evaluated = evaluate_rdm(wfn, ordm)
+    trdm_evaluated = evaluate_rdm(wfn, trdm)
+    # thrdm_evaluated = evaluate_rdm(wfn, thrdm)
+    print(f"Trace of the evaluated 1RDM: {ordm_evaluated.trace()}")
+    print(f"Trace of the evaluated 2RDM: {trdm_evaluated.trace()}")
+    # print(f"Trace of the evaluated 3RDM: {thrdm_evaluated.trace()}")
+
+
 def test_rdm_saving_and_loading():
     ordm = RDM(1, 2)
 
@@ -69,6 +122,8 @@ def main():
     test_rdm_measurement()
     print("\nTesting RDM saving and loading")
     test_rdm_saving_and_loading()
+    print("\nTesting RDM trace")
+    test_rdm_trace()
 
 
 if __name__ == "__main__":

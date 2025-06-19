@@ -17,12 +17,40 @@ class Hamiltonian(Operator):
         return self.nuc + self.evaluate_expectation(tomography).real
 
     def map(self, projector):
-        new_prods = []
+        new_prods_dict = {}
+
+        inverse_mapping = {}
 
         for prod in self.prods:
-            new_prods.extend(prod.map(projector))
+            new_coefs, new_prods = prod.map(projector, coef_seperate=True)
+            for i, new_prod in enumerate(new_prods):
+                new_prod_ops = new_prod.ops_to_string()
+                if new_prod_ops in new_prods_dict.keys():
+                    new_prods_dict[new_prod_ops][1] += new_coefs[i]
+                    inverse_mapping[new_prod_ops].append(
+                        [new_prod, prod, new_coefs[i]])
+                else:
+                    new_prods_dict[new_prod_ops] = [new_prod, new_coefs[i]]
+                    inverse_mapping[new_prod_ops] = [
+                        [new_prod, prod, new_coefs[i]]]
 
-        return Hamiltonian(new_prods, self.nuc, projector.target_N)
+        new_prods = []
+        for new_prod_ops, [new_prod, coef] in new_prods_dict.items():
+            new_prod = coef * new_prod
+            new_prods.append(new_prod)
+
+        for new_prod_ops, prod_mapping in inverse_mapping.items():
+            total_coef = sum(coef for _, __, coef in prod_mapping)
+            if total_coef != 0:
+                inverse_mapping[new_prod_ops] = [
+                    [total_coef * new_prod, prod, coef / total_coef] for new_prod, prod, coef in prod_mapping
+                ]
+            else:
+                inverse_mapping[new_prod_ops] = [
+                    [total_coef * new_prod, prod, 0.0] for new_prod, prod, coef in prod_mapping
+                ]
+
+        return Hamiltonian(new_prods, self.nuc, projector.target_N, f"{self.symbol}_mapped"), inverse_mapping
 
 
 def init_Hamiltonian_from_pyscf(mol, mf=None):

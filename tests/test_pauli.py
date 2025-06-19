@@ -107,6 +107,10 @@ def test_pauli_sum_addition():
 
     print(f"({pSum0}) + ({pSum1}) = {pSum2}")
 
+    pSum3 = -1 * pSum2
+    pSum4 = pSum2 + pSum3
+    print(f"{pSum2} + {pSum3} = {pSum4}")
+
 
 def test_pauli_sum_get_pauli_strings():
     paulis0 = ['Z', 'Y', 'I', 'X']
