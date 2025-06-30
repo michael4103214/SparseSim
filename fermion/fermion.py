@@ -289,17 +289,26 @@ class Operator:
         return Operator(new_prods, projector.target_N, f"{self.symbol}_mapped"), inverse_mapping
 
     def unmap(self, inverse_mapping):
-        unmapped_prods = []
+        unmapped_prods_dict = {}
         unmapped_N = -1
 
         for i, prod in enumerate(self.prods):
             prod_ops = prod.ops_to_string()
+            # print(f"\t{prod_ops}")
             if prod_ops in inverse_mapping.keys():
                 for mapped_prod, original_prod, weight in inverse_mapping[prod_ops]:
-                    coef = weight * prod.coef
-                    unmapped_prods.append(coef * original_prod)
-                    if unmapped_N == -1:
-                        unmapped_N = original_prod.N
+                    unmapped_prod_ops = original_prod.ops_to_string()
+                    if unmapped_prod_ops not in unmapped_prods_dict.keys():
+                        unmapped_prods_dict[unmapped_prod_ops] = [
+                            original_prod, weight * prod.coef]
+                    else:
+                        unmapped_prods_dict[unmapped_prod_ops][1] += weight * prod.coef
+
+        unmapped_prods = []
+        for unmapped_prod_ops, (original_prod, coef) in unmapped_prods_dict.items():
+            unmapped_prods.append(coef * original_prod)
+            if unmapped_N == -1:
+                unmapped_N = original_prod.N
 
         return Operator(unmapped_prods, unmapped_N, f"{self.symbol}_unmapped")
 
@@ -320,6 +329,9 @@ class Operator:
                     break
 
             if diagonal:
+                if prod.ops_to_string() in diagonal_elements.keys():
+                    print(
+                        f"Warning: Product {prod.ops_to_string()} is already in diagonal_elements, overwriting.")
                 diagonal_elements[prod.ops_to_string()] = prod
 
         return diagonal_elements
