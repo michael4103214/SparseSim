@@ -1,6 +1,8 @@
-from fermion import *
+
 import itertools
 import numpy as np
+
+from SparseSim.fermion.fermion import *
 
 
 class RDM(Operator):

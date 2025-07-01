@@ -1,6 +1,8 @@
-from fermion import *
+
 from pyscf import gto, scf, ao2mo
 from pyscf.gto import Mole
+
+from SparseSim.fermion.fermion import *
 
 
 class Hamiltonian(Operator):

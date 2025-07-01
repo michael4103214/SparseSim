@@ -1,8 +1,8 @@
 import numbers
 import numpy as np
 
-from projector import *
-from sparse_sim import *
+from SparseSim.fermion.projector import *
+from SparseSim.sparse_sim import *
 
 
 class FermionicOperator:

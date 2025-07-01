@@ -64,17 +64,15 @@ char *pauli_string_to_string_no_coef_c(PauliStringC *pString) {
 
   // Allocate memory for the buffer
   char *buffer = (char *)malloc(buffer_size);
+  if (!buffer) return NULL;
 
   char pauli_as_char[] = {'I', 'X', 'Y', 'Z'};
 
   // Append the Pauli operators
   for (unsigned int i = 0; i < pString->N; i++) {
-    char pauli_char[2]; // To hold a single Pauli operator (1 digit + null
-                        // terminator)
-    pauli_char[0] = pauli_as_char[pString->paulis[i]];
-    pauli_char[1] = '\0';
-    strcat(buffer, pauli_char);
+    buffer[i] = pauli_as_char[pString->paulis[i]];
   }
+  buffer[pString->N] = '\0';
 
   return buffer;
 }

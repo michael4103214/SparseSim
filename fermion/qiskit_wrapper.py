@@ -1,6 +1,4 @@
 from qiskit.quantum_info import Statevector
-from fermion import *
-
 import copy
 from mthree import M3Mitigation
 from multiprocessing import Pool
@@ -15,6 +13,8 @@ from scipy.optimize import curve_fit
 from typing import Set
 import warnings
 from scipy.optimize import OptimizeWarning
+
+from SparseSim.fermion.fermion import *
 
 warnings.filterwarnings("ignore", category=OptimizeWarning)
 

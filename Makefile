@@ -1,8 +1,20 @@
+# Determine Platform
+UNAME_S := $(shell uname -s)
+$(info >>> Make loaded $(MAKEFILE_LIST); UNAME = $(shell uname -s))
+
 # Compiler and flags
-CC = /usr/bin/clang
-CFLAGS += -O3 -mcpu=apple-m1 -flto -ffast-math -funroll-loops -fvectorize \
-         -Wall -Wextra -Weverything -Wshadow -Wformat=2 -Wconversion \
-         -g -I./include -Xpreprocessor 
+CC      ?= gcc          
+CFLAGS  := -O3 -ffast-math -funroll-loops \
+           -Wall -Wextra -Wshadow -Wformat=2 -Wconversion \
+           -g -I./include
+
+# Platform specific flags
+ifeq ($(UNAME_S),Darwin)          # macOS / Apple Silicon
+    CC      := clang
+    CFLAGS += -mcpu=apple-m1 -fvectorize -flto -Xpreprocessor -fopenmp
+else                              # Linux / GCC (default)
+    CFLAGS += -march=native -flto -fopenmp
+endif
 
 # Disabled C Flags
 CFLAGS += -Wno-padded -Wno-c++98-compat -Wno-disabled-macro-expansion \
