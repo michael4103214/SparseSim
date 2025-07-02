@@ -14,7 +14,8 @@ from typing import Set
 import warnings
 from scipy.optimize import OptimizeWarning
 
-from SparseSim.fermion.fermion import *
+from .fermion import *
+from ..sparse_sim import *
 
 warnings.filterwarnings("ignore", category=OptimizeWarning)
 

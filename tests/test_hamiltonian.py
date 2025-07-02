@@ -1,7 +1,7 @@
-
-from hamiltonian import *
 import numpy as np
 from pyscf import gto
+
+from sparse_sim.fermion.hamiltonian import *
 
 
 def test_hf_energy():

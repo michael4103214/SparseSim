@@ -1,7 +1,8 @@
 from math import log2
 import random
 import time
-from sparse_sim import *
+
+from sparse_sim.sparse_sim import *
 
 
 def test_initialization_scaling_freeing():

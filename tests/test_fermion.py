@@ -1,4 +1,4 @@
-from fermion import *
+from sparse_sim.fermion.fermion import *
 
 
 def test_fermionic_operator_initialization_and_freeing():

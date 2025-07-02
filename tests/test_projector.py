@@ -1,7 +1,6 @@
-from projector import *
-from hamiltonian import *
-from rdm import *
-
+from sparse_sim.fermion.projector import *
+from sparse_sim.fermion.hamiltonian import *
+from sparse_sim.fermion.rdm import *
 
 import numpy as np
 from pyscf import gto

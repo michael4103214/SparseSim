@@ -1,4 +1,4 @@
-from nuclear import *
+from sparse_sim.fermion.nuclear import *
 
 
 def test_atom():

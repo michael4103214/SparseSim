@@ -1,6 +1,6 @@
 import numpy as np
 
-from SparseSim.sparse_sim import *
+from ..sparse_sim import *
 
 
 class BosonicOperator:

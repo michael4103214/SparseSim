@@ -1,7 +1,7 @@
-from rdm import *
-from hamiltonian import *
-
 from pyscf import gto
+
+from sparse_sim.fermion.rdm import *
+from sparse_sim.fermion.hamiltonian import *
 
 
 def test_rdm_init_and_freeing():
