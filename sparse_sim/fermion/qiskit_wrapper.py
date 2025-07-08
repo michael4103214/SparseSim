@@ -5,11 +5,12 @@ from multiprocessing import Pool
 import numpy as np
 import os
 import qiskit as q
-from qiskit.circuit.library import PauliEvolutionGate
+from qiskit.circuit.library import PauliEvolutionGate, UnitaryGate
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_ibm_runtime import Estimator
 import qiskit_aer as Aer
 from scipy.optimize import curve_fit
+from scipy.linalg import expm
 from typing import Set
 import warnings
 from scipy.optimize import OptimizeWarning
@@ -26,13 +27,15 @@ class InitOperators:
     N: int  # Total number of sites / qubits
     M: int  # Number of Operators
     direction: str  # Direction of the circuit initialization
+    exact: bool  # Whether to use exact pauli sum evolution or not
 
-    def __init__(self, N):
+    def __init__(self, N, exact=False):
         self.N = N
         self.M = 0
         self.ops = []
         self.epsilons = []
         self.pSum_direction = 'forward'
+        self.exact = exact
 
     def add_operator(self, operator, epsilon):
         self.ops.append(operator)
@@ -46,6 +49,7 @@ class InitOperators:
 
     def adjoint(self):
         adjoint_init_ops = InitOperators(self.N)
+        adjoint_init_ops.exact = self.exact
         for m in range(self.M):
             adjoint_init_ops.add_operator(
                 self.ops[self.M-m-1].adjoint(), self.epsilons[self.M-m-1].conj())
@@ -60,14 +64,24 @@ class InitOperators:
     def create_initialization_circuit(self):
         N = self.N
         circ = q.QuantumCircuit(N, 0)
-        if self.pSum_direction == 'forwards':
-            for m in range(self.M):
-                circ = circ.compose(
-                    qiskit_create_pauli_sum_evolution_circuit(self.ops[m].pSum, self.epsilons[m]))
-        elif self.pSum_direction == 'backwards':
-            for m in range(self.M):
-                circ = circ.compose(
-                    qiskit_create_backwards_pauli_sum_evolution_circuit(self.ops[m].pSum, self.epsilons[m]))
+        if self.exact:
+            if self.pSum_direction == 'forwards':
+                for m in range(self.M):
+                    circ = circ.compose(
+                        qiskit_create_pauli_sum_evolution_circuit_exact(self.ops[m].pSum, self.epsilons[m]))
+            elif self.pSum_direction == 'backwards':
+                for m in range(self.M):
+                    circ = circ.compose(
+                        qiskit_create_backwards_pauli_sum_evolution_circuit_exact(self.ops[m].pSum, self.epsilons[m]))
+        else:
+            if self.pSum_direction == 'forwards':
+                for m in range(self.M):
+                    circ = circ.compose(
+                        qiskit_create_pauli_sum_evolution_circuit(self.ops[m].pSum, self.epsilons[m]))
+            elif self.pSum_direction == 'backwards':
+                for m in range(self.M):
+                    circ = circ.compose(
+                        qiskit_create_backwards_pauli_sum_evolution_circuit(self.ops[m].pSum, self.epsilons[m]))
 
         return circ
 
@@ -128,6 +142,43 @@ def qiskit_create_backwards_pauli_sum_evolution_circuit(pSum: PauliSum, epsilon:
     for pString in pStrings:
         circ = circ.compose(
             qiskit_create_pauli_string_evolution_circuit(pString, epsilon))
+    return circ
+
+
+def qiskit_create_pauli_sum_evolution_circuit_exact(pSum: PauliSum, epsilon: np.complex128 = 1.0):
+
+    circ = q.QuantumCircuit(pSum.N, 0)
+
+    pStrings = pSum.get_pauli_strings()
+    coefs = [pString.coef for pString in pStrings]
+    pStrings_little_endian = []
+    for pString in pStrings:
+        pStrings_little_endian.append(pString.string[::-1])
+
+    q_pSum = SparsePauliOp(pStrings_little_endian, coeffs=coefs)
+    q_matrix = q_pSum.to_matrix()
+
+    evolution = expm(q_matrix * epsilon)
+
+    circ.append(UnitaryGate(evolution), circ.qubits)
+    return circ
+
+
+def qiskit_create_backwards_pauli_sum_evolution_circuit_exact(pSum: PauliSum, epsilon: np.complex128 = 1.0):
+    circ = q.QuantumCircuit(pSum.N, 0)
+
+    pStrings = pSum.get_pauli_strings()[::-1]
+    coefs = [pString.coef for pString in pStrings]
+    pStrings_little_endian = []
+    for pString in pStrings:
+        pStrings_little_endian.append(pString.string[::-1])
+
+    q_pSum = SparsePauliOp(pStrings_little_endian, coeffs=coefs)
+    q_matrix = q_pSum.to_matrix()
+
+    evolution = expm(q_matrix * epsilon)
+
+    circ.append(UnitaryGate(evolution), circ.qubits)
     return circ
 
 

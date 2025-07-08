@@ -147,6 +147,10 @@ cdef class SlaterDeterminant:
         self._c_sdet = <uintptr_t> c_sd
         self._in_wfn = False
 
+    def __reduce__(self):
+        return (SlaterDeterminant,
+                (self.N, self.coef, self.orbitals))
+
     @staticmethod
     cdef SlaterDeterminant _init_from_c(SlaterDeterminantC* ptr):
         """
@@ -177,6 +181,10 @@ cdef class SlaterDeterminant:
     @property
     def N(self):
         return (<SlaterDeterminantC *> self._c_sdet).N
+
+    @property
+    def coef(self):
+        return (<SlaterDeterminantC *> self._c_sdet).coef
 
     @property
     def orbitals(self):

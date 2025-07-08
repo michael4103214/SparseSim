@@ -1,11 +1,14 @@
 from mthree import M3Mitigation
 import numpy as np
+from pyscf import gto
 import qiskit as q
 import qiskit_aer as Aer
 from qiskit_aer.noise import NoiseModel
 from qiskit_ibm_runtime import QiskitRuntimeService
 
 from sparse_sim.fermion.qiskit_wrapper import *
+from sparse_sim.fermion.hamiltonian import *
+from sparse_sim.fermion.rdm import *
 
 
 def test_qiskit_expectation():
@@ -165,6 +168,77 @@ def test_qiskit_noisy_probability_distribution():
     print(f"P_|10> = {slater_determinant_probability(sdet, prob_dist_zne)}")
 
 
+def evaluate_ordm_statevector(psi_circuit: q.QuantumCircuit, ordm: RDM):
+
+    ordm_tomography = qiskit_perform_tomography_statevector(
+        psi_circuit, ordm.aggregate_measurements_recursive())
+
+    new_prods = []
+    for prod in ordm.prods:
+        d = prod.evaluate_expectation(ordm_tomography)
+        new_prod = d * prod
+        new_prods.append(new_prod)
+
+    return RDM(1, ordm.N, new_prods)
+
+
+def evaluate_hamiltonian_statevector(psi_circuit: q.QuantumCircuit, H: Hamiltonian):
+    hamiltonian_tomography = qiskit_perform_tomography_statevector(
+        psi_circuit, H.aggregate_measurements())
+
+    energy = H.evaluate_expectation(hamiltonian_tomography)
+
+    return energy
+
+
+def test_qiskit_pauli_sum_evolution():
+    H4 = gto.M(
+        atom="H 0 0 0; H 0 0 0.7348654; H 0 0 1.4697308; H 0 0 2.2045962",
+        basis="sto-3g",
+        charge=0,
+        spin=0,
+        unit="Angstrom",
+    )
+    H4.build()
+
+    H = init_Hamiltonian_from_pyscf(H4)
+
+    hf_sdet = SlaterDeterminant(8, 1, [1, 1, 0, 0, 1, 1, 0, 0])
+
+    circ = q.QuantumCircuit(8, 0)
+    circ.compose(
+        qiskit_create_initialization_from_slater_determinant_circuit(hf_sdet), inplace=True)
+
+    ordm = RDM(1, 8)
+
+    initial_ordm = evaluate_ordm_statevector(circ, ordm)
+    initial_energy = evaluate_hamiltonian_statevector(circ, H)
+
+    print(
+        f"Initial electron count, energy: {initial_ordm.trace()}, {initial_energy}")
+
+    total_time = 100
+    circ_exact = circ.compose(
+        qiskit_create_pauli_sum_evolution_circuit_exact(H.pSum, 1j * total_time), inplace=False)
+
+    exact_ordm = evaluate_ordm_statevector(circ_exact, ordm)
+    exact_energy = evaluate_hamiltonian_statevector(circ_exact, H)
+    print(
+        f"Exact electron count, energy: {exact_ordm.trace()}, {exact_energy}")
+
+    trotterization_list = [1, 10, 100, 1000]
+    for trotter_steps in trotterization_list:
+        circ_trot = circ.copy()
+        evolution_gate = qiskit_create_pauli_sum_evolution_circuit(
+            H.pSum, 1j * total_time / trotter_steps)
+        for _ in range(trotter_steps):
+            circ_trot.compose(evolution_gate, inplace=True)
+        trotter_ordm = evaluate_ordm_statevector(circ_trot, ordm)
+        trotter_energy = evaluate_hamiltonian_statevector(circ_trot, H)
+        print(
+            f"Trotterization with {trotter_steps} steps: electron count = {trotter_ordm.trace()}, energy = {trotter_energy}")
+
+
 def main():
     print("Testing Qiskit Expectation")
     test_qiskit_expectation()
@@ -172,8 +246,10 @@ def main():
     test_qiskit_probability_distribution()
     print("\nTesting Qiskit Statevector Expectation")
     test_qiskit_statevector_expectation()
-    print("\nTesting Qiskit Noisy Probability Distribution")
-    test_qiskit_noisy_probability_distribution()
+    # print("\nTesting Qiskit Noisy Probability Distribution")
+    # test_qiskit_noisy_probability_distribution()
+    print("\nTesting Qiskit Pauli Sum Evolution")
+    test_qiskit_pauli_sum_evolution()
 
 
 if __name__ == "__main__":

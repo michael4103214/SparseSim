@@ -11,11 +11,14 @@ class RDM(Operator):
     prods: list  # List of FermionicProducts'
     symbol: str  # Symbol used for printing the operator
 
-    def __init__(self, p, N, prods=[]):
+    def __init__(self, p, N, prods=[], ordered=False):
         self.p = p
 
         if len(prods) == 0:
-            prods = generate_prods(p, N)
+            if ordered:
+                prods = generate_prods_ordered(p, N)
+            else:
+                prods = generate_prods(p, N)
 
         super().__init__(prods, N, f"{p}D")
 
@@ -85,6 +88,38 @@ def generate_prods(p, N):
     for idx_tuple in itertools.product(itertools.permutations(indices, p), itertools.permutations(indices, p)):
         fOps = []
         for idx, site in enumerate(idx_tuple[0] + idx_tuple[1]):
+            sign = '+' if idx < p else '-'
+            fOps.append(FermionicOperator(sign, site, N))
+        prod = Product(1, fOps, N)
+        prods.append(prod)
+
+    return prods
+
+
+def generate_prods(p, N):
+    prods = []
+
+    indices = range(N)
+
+    for idx_tuple in itertools.product(itertools.permutations(indices, p), itertools.permutations(indices, p)):
+        fOps = []
+        for idx, site in enumerate(idx_tuple[0] + idx_tuple[1]):
+            sign = '+' if idx < p else '-'
+            fOps.append(FermionicOperator(sign, site, N))
+        prod = Product(1, fOps, N)
+        prods.append(prod)
+
+    return prods
+
+
+def generate_prods_ordered(p, N):
+    prods = []
+
+    indices = range(N)
+
+    for idx_tuple in itertools.product(itertools.combinations(indices, p), itertools.combinations(indices, p)):
+        fOps = []
+        for idx, site in enumerate(idx_tuple[0] + idx_tuple[1][::-1]):
             sign = '+' if idx < p else '-'
             fOps.append(FermionicOperator(sign, site, N))
         prod = Product(1, fOps, N)
