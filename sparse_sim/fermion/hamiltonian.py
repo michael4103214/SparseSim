@@ -54,6 +54,28 @@ class Hamiltonian(Operator):
 
         return Hamiltonian(new_prods, self.nuc, projector.target_N, f"{self.symbol}_mapped"), inverse_mapping
 
+    def save(self):
+        output = [np.array([self.N, self.nuc, self.symbol])]
+        for prod in self.prods:
+            output.append(prod.save())
+        output = np.array(output, dtype=object)
+
+        return output
+
+
+def load_hamiltonian(data):
+    row0 = data[0]
+    N = int(row0[0])
+    nuc = float(row0[1])
+    symbol = row0[2]
+    prods = []
+
+    for i in range(1, len(data)):
+        prod_data = data[i]
+        prod = load_product(prod_data)
+        prods.append(prod)
+    return Hamiltonian(prods, nuc, N, symbol)
+
 
 def init_Hamiltonian_from_pyscf(mol, mf=None):
     if mf is None:

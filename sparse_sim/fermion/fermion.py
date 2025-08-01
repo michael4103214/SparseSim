@@ -374,3 +374,24 @@ def load_operator(data):
         prod = load_product(prod_data)
         prods.append(prod)
     return Operator(prods, N, symbol)
+
+
+def save_inverse_mapping(inverse_mapping):
+
+    saveable_inverse_mapping = {}
+
+    for new_prod_ops, terms in inverse_mapping.items():
+        saveable_inverse_mapping[new_prod_ops] = [
+            [new_prod.save(), prod.save(), coef] for new_prod, prod, coef in terms]
+
+    return saveable_inverse_mapping
+
+
+def load_inverse_mapping(saveable_inverse_mapping):
+    inverse_mapping = {}
+
+    for new_prod_ops, terms in saveable_inverse_mapping.items():
+        inverse_mapping[new_prod_ops] = [[load_product(
+            new_prod), load_product(prod), coef] for new_prod, prod, coef in terms]
+
+    return inverse_mapping

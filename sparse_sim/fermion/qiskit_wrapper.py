@@ -1,5 +1,6 @@
 from qiskit.quantum_info import Statevector
 import copy
+from collections import Counter
 from mthree import M3Mitigation
 from multiprocessing import Pool
 import numpy as np
@@ -7,7 +8,8 @@ import os
 import qiskit as q
 from qiskit.circuit.library import PauliEvolutionGate, UnitaryGate
 from qiskit.quantum_info import SparsePauliOp
-from qiskit_ibm_runtime import Estimator
+from qiskit_ibm_runtime import Estimator, Sampler
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 import qiskit_aer as Aer
 from scipy.optimize import curve_fit
 from scipy.linalg import expm
@@ -204,11 +206,41 @@ def qiskit_pauli_string_measurement(circuit: q.QuantumCircuit, pString_as_string
     return result[0].data.evs
 
 
-def qiskit_perform_tomography(circuit: q.QuantumCircuit, measurements: Set[str], backend, shots: int = 2**13):
+def _qiskit_perform_tomography_old(circuit: q.QuantumCircuit, measurements: Set[str], backend, shots: int = 2**13):
     tomography = {}
+
     for measurement in measurements:
         tomography[measurement] = qiskit_pauli_string_measurement(
             circuit, measurement, backend, shots)
+
+    return tomography
+
+
+def qiskit_perform_tomography(circuit: q.QuantumCircuit, measurements: Set[str], backend, shots=2**13):
+
+    estimator = Estimator(mode=backend, options={"default_shots": shots})
+
+    id_string = "I" * len(next(iter(measurements)))
+
+    circuits_with_measurements = []
+    for measurement in measurements:
+        if measurement != id_string:
+            observable = SparsePauliOp(measurement[::-1])
+            transpiled_observable = observable.apply_layout(circuit.layout)
+            circuits_with_measurements.append((circuit, transpiled_observable))
+
+    result = estimator.run(circuits_with_measurements).result()
+
+    tomography = {}
+
+    result_idx = 0
+    for measurement in measurements:
+        print(f"Measurement: {measurement}: {result_idx}")
+        if measurement == id_string:
+            tomography[measurement] = 1.0
+        else:
+            tomography[measurement] = result[result_idx].data.evs
+            result_idx += 1
 
     return tomography
 
@@ -238,21 +270,6 @@ def qiskit_perform_tomography_with_zne(circuit: q.QuantumCircuit, measurements: 
             circuit, measurement, backend, shots, fold_factors)
 
     return tomography
-
-
-def _qiskit_probability_distribution_old(circuit: q.QuantumCircuit, backend, shots=2**13):
-    circuit = circuit.copy()
-    circuit.measure_all()
-    num_qubits = circuit.num_qubits
-    job = backend.run(circuit, shots=shots)
-    result = job.result().data(0)
-    counts = result.get("counts")
-
-    total_counts = sum(counts.values())
-    probabilities = {bin(int(state, 16))[2:].zfill(num_qubits)[::-1]: count /
-                     total_counts for state, count in counts.items()}
-
-    return probabilities
 
 
 def _qiskit_probability_distribution_and_statevector_helper(circuits, backend, num_qubits, shots=2**13):
@@ -319,8 +336,7 @@ def qiskit_probability_distribution_and_statevector(circuit_or_circuits, backend
         return prob_dists, statevectors
 
 
-def _qiskit_probability_distribution_helper(circuits, backend, num_qubits, shots=2**13):
-    # New instance per process
+def _qiskit_probability_distribution_helper_old(circuits, backend, num_qubits, shots=2**13):
     job = backend.run(circuits, shots=shots)
     prob_dists = []
     for i in range(len(circuits)):
@@ -328,6 +344,20 @@ def _qiskit_probability_distribution_helper(circuits, backend, num_qubits, shots
         counts = result.get("counts")
         total_counts = sum(counts.values())
         prob_dist = {bin(int(state, 16))[2:].zfill(num_qubits)[::-1]: count /
+                     total_counts for state, count in counts.items()}
+        prob_dists.append(prob_dist)
+    return prob_dists
+
+
+def _qiskit_probability_distribution_helper(circuits, backend, num_qubits, shots=2**13):
+    sampler = Sampler(mode=backend)
+    result = sampler.run(circuits, shots=shots).result()
+    prob_dists = []
+    for circuit_idx in range(len(circuits)):
+        circuit_result = result[circuit_idx]
+        counts = Counter(circuit_result.data.meas.get_bitstrings())
+        total_counts = sum(counts.values())
+        prob_dist = {state[::-1]: count /
                      total_counts for state, count in counts.items()}
         prob_dists.append(prob_dist)
     return prob_dists
@@ -341,6 +371,8 @@ def qiskit_probability_distribution(circuit_or_circuits, backend, make_copy=True
     if isinstance(circuit_or_circuits, q.QuantumCircuit):
         if make_copy:
             circuit = circuit_or_circuits.copy()
+        else:
+            circuit = circuit_or_circuits
         circuit.measure_all()
         circuits.append(circuit)
         num_qubits = circuit.num_qubits
@@ -427,19 +459,6 @@ def slater_determinant_probability(sDet: SlaterDeterminant, prob_dist):
     return prob_dist[bit_string]
 
 
-def _qiskit_statevector_old(circuit: q.QuantumCircuit):
-    circuit = circuit.copy()
-    backend = Aer.AerSimulator(method='statevector')
-    circuit.save_statevector()
-    result = backend.run(circuit).result()
-    statevector = result.get_statevector()
-    return statevector.data
-
-
-def _qiskit_statevector_old_2(circuit: q.QuantumCircuit):
-    return Statevector(circuit).data
-
-
 def _qiskit_statevector_helper(circuits):
     # New instance per process
     backend = Aer.AerSimulator(method='statevector')
@@ -455,6 +474,8 @@ def qiskit_statevector(circuit_or_circuits, make_copy=True, number_of_processes=
     if isinstance(circuit_or_circuits, q.QuantumCircuit):
         if make_copy:
             circuit = circuit_or_circuits.copy()
+        else:
+            circuit = circuit_or_circuits
         circuit.save_statevector()
         circuits.append(circuit)
     else:
@@ -489,17 +510,6 @@ def slater_determinant_probability_from_statevector(sDet: SlaterDeterminant, sta
     return np.abs(coef)**2
 
 
-def _qiskit_pauli_string_measurement_statevector_old(circuit: q.QuantumCircuit, pString_as_string: str):
-    # circuit = circuit.copy()
-    backend = Aer.AerSimulator(method='statevector')
-    circuit.save_statevector()
-    result = backend.run(circuit).result()
-    statevector = result.get_statevector()
-
-    observable = SparsePauliOp(pString_as_string[::-1])
-    return statevector.expectation_value(observable)
-
-
 def qiskit_perform_tomography_statevector(circuit: q.QuantumCircuit, measurements: Set[str]):
     circuit = circuit.copy()
     backend = Aer.AerSimulator(method='statevector')
@@ -515,7 +525,7 @@ def qiskit_perform_tomography_statevector(circuit: q.QuantumCircuit, measurement
     return tomography
 
 
-def trim_noise_model(noise_model: Aer.noise.NoiseModel, qubit_mapping: dict):
+def trim_noise_model(noise_model: Aer.noise.NoiseModel, qubit_mapping: dict, two_qubit_gates: bool = True):
     noise_model_as_dict = noise_model.to_dict()
     new_noise_model_as_dict = {}
     new_noise_model_as_dict["errors"] = []
@@ -524,6 +534,9 @@ def trim_noise_model(noise_model: Aer.noise.NoiseModel, qubit_mapping: dict):
 
     for error in noise_model_as_dict["errors"]:
         qubits_in_error = error["gate_qubits"][0]
+        if not two_qubit_gates and len(qubits_in_error) > 1:
+            continue
+
         add_to_new_model = True
         for qubit_in_error in qubits_in_error:
             if qubit_in_error not in qubits_to_use:

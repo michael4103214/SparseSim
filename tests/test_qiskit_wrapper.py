@@ -75,12 +75,13 @@ def test_qiskit_probability_distribution():
     backend = Aer.AerSimulator()
 
     shots_list = [2**9, 2**11, 2**13, 2**15]
+    statevector = qiskit_statevector(circuit)
+    prob_statevector = slater_determinant_probability_from_statevector(
+        sdet, statevector)
     for shots in shots_list:
-        prob_dist, statevector = qiskit_probability_distribution_and_statevector(
+        prob_dist = qiskit_probability_distribution(
             circuit, backend, shots)
         prob = slater_determinant_probability(sdet, prob_dist)
-        prob_statevector = slater_determinant_probability_from_statevector(
-            sdet, statevector)
         print(f"Running with {shots} shots:")
         print(f"P_|10> = {prob}~{prob_statevector}")
 
