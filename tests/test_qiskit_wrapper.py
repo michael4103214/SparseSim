@@ -39,6 +39,7 @@ def test_qiskit_expectation():
         qiskit_create_initialization_from_slater_determinant_circuit(sdet))
     circuit = circuit.compose(qiskit_create_pauli_sum_evolution_circuit(pSum))
     backend = Aer.AerSimulator()
+    pm = generate_preset_pass_manager(backend=backend)
 
     measurements_r = op1.aggregate_measurements_recursive()
     print(f"fProd1: {fProd1.pSum}")
@@ -46,7 +47,8 @@ def test_qiskit_expectation():
     print(f"fProd3: {fProd3.pSum}")
     print(f"fProd4: {fProd4.pSum}")
 
-    tomography = qiskit_perform_tomography(circuit, measurements_r, backend)
+    tomography = qiskit_perform_tomography(
+        circuit, measurements_r, backend, pm)
     print(
         f"Tomography data:\n {[f'{key}: {value}' for key, value in tomography.items()]}")
 
@@ -73,6 +75,7 @@ def test_qiskit_probability_distribution():
         qiskit_create_initialization_from_slater_determinant_circuit(sdet))
     circuit = circuit.compose(qiskit_create_pauli_sum_evolution_circuit(pSum))
     backend = Aer.AerSimulator()
+    pm = generate_preset_pass_manager(backend=backend)
 
     shots_list = [2**9, 2**11, 2**13, 2**15]
     statevector = qiskit_statevector(circuit)
@@ -80,7 +83,7 @@ def test_qiskit_probability_distribution():
         sdet, statevector)
     for shots in shots_list:
         prob_dist = qiskit_probability_distribution(
-            circuit, backend, shots)
+            circuit, backend, pm, shots=shots)
         prob = slater_determinant_probability(sdet, prob_dist)
         print(f"Running with {shots} shots:")
         print(f"P_|10> = {prob}~{prob_statevector}")
