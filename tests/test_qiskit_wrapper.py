@@ -161,12 +161,8 @@ def test_qiskit_noisy_probability_distribution():
     print(
         f"P_|10> = {slater_determinant_probability_from_statevector(sdet, statevector)}")
     prob_dist = qiskit_probability_distribution(circuit, backend, 2**15)
-    print(f"Probability Distribution without ZNE: {prob_dist}")
+    print(f"Probability Distribution: {prob_dist}")
     print(f"P_|10> = {slater_determinant_probability(sdet, prob_dist)}")
-    prob_dist_zne = qiskit_probability_distribution_with_zne(
-        circuit, backend, 2**15, [1, 3, 5], mit)
-    print(f"Probability Distribution with ZNE: {prob_dist_zne}")
-    print(f"P_|10> = {slater_determinant_probability(sdet, prob_dist_zne)}")
 
 
 def evaluate_ordm_statevector(psi_circuit: q.QuantumCircuit, ordm: RDM):
