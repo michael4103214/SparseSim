@@ -186,19 +186,6 @@ def qiskit_create_backwards_pauli_sum_evolution_circuit_exact(pSum: PauliSum, ep
     return circ
 
 
-def qiskit_circuit_fold(circuit: q.QuantumCircuit, fold_factor: int):
-    assert fold_factor % 2 == 1, "Fold factor must be an odd integer."
-
-    num_folds = (fold_factor - 1) // 2
-
-    folded_circuit = circuit.copy()
-    for _ in range(num_folds):
-        folded_circuit = folded_circuit.compose(circuit.inverse())
-        folded_circuit = folded_circuit.compose(circuit)
-
-    return folded_circuit
-
-
 def qiskit_pauli_string_measurement(circuit: q.QuantumCircuit, pString_as_string: str, backend, shots=2**13):
     estimator = Estimator(mode=backend, options={"default_shots": shots})
 
@@ -206,16 +193,6 @@ def qiskit_pauli_string_measurement(circuit: q.QuantumCircuit, pString_as_string
 
     result = estimator.run([(circuit, observable)]).result()
     return result[0].data.evs
-
-
-def _qiskit_perform_tomography_old(circuit: q.QuantumCircuit, measurements: Set[str], backend, shots: int = 2**13):
-    tomography = {}
-
-    for measurement in measurements:
-        tomography[measurement] = qiskit_pauli_string_measurement(
-            circuit, measurement, backend, shots)
-
-    return tomography
 
 
 def qiskit_perform_tomography(circuit: q.QuantumCircuit, measurements: Set[str], backend, pm, shots=2**13):
@@ -244,35 +221,6 @@ def qiskit_perform_tomography(circuit: q.QuantumCircuit, measurements: Set[str],
         else:
             tomography[measurement] = result[result_idx].data.evs
             result_idx += 1
-
-    return tomography
-
-
-def qiskit_pauli_string_measurement_with_zne(circuit: q.QuantumCircuit, pString_as_string: str, backend, shots=2**13, fold_factors: list = [1, 3, 5]):
-    # Old
-    results = []
-    for fold_factor in fold_factors:
-        folded_circuit = qiskit_circuit_fold(circuit, fold_factor)
-        result = qiskit_pauli_string_measurement(
-            folded_circuit, pString_as_string, backend, shots)
-
-        results.append(result)
-
-    def linear(x, a, b):
-        return a * x + b
-
-    params, _ = curve_fit(linear, fold_factor, results)
-    zne_estimate = linear(0, *params)
-
-    return zne_estimate
-
-
-def qiskit_perform_tomography_with_zne(circuit: q.QuantumCircuit, measurements: Set[str], backend, shots: int = 2**13, fold_factors: list = [1, 3, 5]):
-    # Old
-    tomography = {}
-    for measurement in measurements:
-        tomography[measurement] = qiskit_pauli_string_measurement_with_zne(
-            circuit, measurement, backend, shots, fold_factors)
 
     return tomography
 
@@ -419,52 +367,6 @@ def qiskit_probability_distribution(circuit_or_circuits, backend, pm, mit=None, 
         return prob_dists[0]
     else:
         return prob_dists
-
-
-def qiskit_probability_distribution_with_zne(circuit: q.QuantumCircuit, backend, shots=2**13, fold_factors: list = [1, 3, 5], mit: M3Mitigation = None):
-    # Old
-    circuit = circuit.copy()
-    circuit = q.transpile(circuit, backend, optimization_level=3)
-    results = []
-    for fold_factor in fold_factors:
-        folded_circuit = qiskit_circuit_fold(circuit, fold_factor)
-        folded_circuit.measure_all()
-        job = backend.run(folded_circuit, shots=shots)
-        result = job.result().data(0)
-        counts = result.get("counts")
-
-        folded_counts = {bin(int(state, 16))[2:].zfill(folded_circuit.num_qubits)[
-            ::-1]: count for state, count in counts.items()}
-
-        if mit is not None:
-            folded_counts = mit.apply_correction(
-                folded_counts, range(folded_circuit.num_qubits))
-
-        results.append(folded_counts)
-
-    def linear(x, a, b):
-        return a * x + b
-
-    fitted_probs = {}
-    for key in results[0].keys():
-        probs_to_fit = []
-        for result in results:
-            probs_to_fit.append(result.get(key, 0))
-        params, _ = curve_fit(linear, fold_factors, probs_to_fit)
-        fitted_probs[key] = linear(0, *params)
-
-    for key, value in fitted_probs.items():
-        if value < 0:
-            fitted_probs[key] = 0.0
-        elif value > 1:
-            fitted_probs[key] = 1.0
-        else:
-            fitted_probs[key] = value
-    total_prob = sum(fitted_probs.values())
-    probabilities = {key: count / total_prob for key,
-                     count in fitted_probs.items()}
-
-    return probabilities
 
 
 def slater_determinant_probability(sDet: SlaterDeterminant, prob_dist):
