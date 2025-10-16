@@ -11,10 +11,6 @@ sparse_sim/build/
 dist/
 *.egg-info/
 
-# Cython-generated C & compiled extension
-sparse_sim/cython/*.c
-sparse_sim/*.so       # or simply *.so if you prefer
-
 # C compiler artefacts
 *.o
 *.dSYM/
@@ -22,7 +18,7 @@ temp.*
 
 # Test / coverage artefacts
 .cache/
-.coverage
+.coverageI
 *.log
 
 # macOS / editor noise
