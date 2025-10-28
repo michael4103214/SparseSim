@@ -134,12 +134,17 @@ slater_determinant_pauli_string_multiplication_c(PauliStringC *pString,
   SlaterDeterminantC *new_sdet;
 
   if (pString->N != sdet->N) {
-    fprintf(stderr, "Error: Pauli strings have different number of qubits.\n");
+    fprintf(stderr, "Error: Pauli string and wavefunction have different "
+                    "number of indices.\n");
     return NULL;
   }
 
   N = sdet->N;
   new_orbitals = (unsigned int *)malloc(sdet->N * sizeof(int));
+  if (!new_orbitals) {
+    fprintf(stderr, "Malloc failed for new_orbitals\n");
+    return NULL;
+  }
   new_coef = pString->coef * sdet->coef;
 
   for (unsigned int i = 0; i < N; i++) {
@@ -187,16 +192,35 @@ void free_wavefunction_c(WavefunctionC *wfn) {
   free(wfn);
 }
 
+double WAVEFUNCTION_CUTOFF_DEFAULT = 1e-8;
+
 WavefunctionC *wavefunction_init_c(unsigned int N) {
   WavefunctionC *wfn = (WavefunctionC *)malloc(sizeof(WavefunctionC));
+  if (!wfn) {
+    fprintf(stderr, "Malloc failed for Wavefunction\n");
+    return NULL;
+  }
   wfn->s = 0;
   wfn->slater_determinants = kh_init(slater_hash);
   wfn->N = N;
+  wfn->cutoff = WAVEFUNCTION_CUTOFF_DEFAULT;
+  return wfn;
+}
+
+WavefunctionC *wavefunction_init_with_specified_cutoff_c(unsigned int N,
+                                                         double cutoff) {
+  WavefunctionC *wfn = wavefunction_init_c(N);
+  wfn->cutoff = cutoff;
   return wfn;
 }
 
 void wavefunction_append_slater_determinant_c(WavefunctionC *wfn,
                                               SlaterDeterminantC *sdet) {
+  if (fabs(creal(sdet->coef)) < wfn->cutoff &&
+      fabs(cimag(sdet->coef)) < wfn->cutoff) {
+    free_slater_determinant_c(sdet);
+    return;
+  }
   int ret;
   khiter_t k =
       kh_put(slater_hash, wfn->slater_determinants, sdet->encoding, &ret);
@@ -206,8 +230,8 @@ void wavefunction_append_slater_determinant_c(WavefunctionC *wfn,
         (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k);
     existing_sdet->coef += sdet->coef;
 
-    if (fabs(creal(existing_sdet->coef)) < 1e-8 &&
-        fabs(cimag(existing_sdet->coef)) < 1e-8) {
+    if (fabs(creal(existing_sdet->coef)) < wfn->cutoff &&
+        fabs(cimag(existing_sdet->coef)) < wfn->cutoff) {
       kh_del(slater_hash, wfn->slater_determinants, k);
       free_slater_determinant_c(existing_sdet);
       wfn->s--;
@@ -249,7 +273,13 @@ WavefunctionC *wavefunction_scalar_multiplication_c(WavefunctionC *wfn,
     return NULL;
   }
 
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
+  WavefunctionC *new_wfn =
+      wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
+  if (!new_wfn) {
+    fprintf(stderr, "Error: Failed to allocate new wavefunction.\n");
+    return NULL;
+  }
+
   khiter_t k;
 
   for (k = kh_begin(wfn->slater_determinants);
@@ -277,7 +307,8 @@ WavefunctionC *wavefunction_adjoint_c(WavefunctionC *wfn) {
     return NULL;
   }
 
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
+  WavefunctionC *new_wfn =
+      wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
   khiter_t k;
 
   for (k = kh_begin(wfn->slater_determinants);
@@ -400,11 +431,12 @@ WavefunctionC *wavefunction_pauli_string_multiplication_c(PauliStringC *pString,
   }
   if (wfn->N != pString->N) {
     fprintf(stderr, "Error: Wavefunction and Pauli string have different "
-                    "number of qubits.\n");
+                    "number of indices.\n");
     return NULL;
   }
 
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
+  WavefunctionC *new_wfn =
+      wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
   khiter_t k;
 
   for (k = kh_begin(wfn->slater_determinants);
@@ -436,11 +468,8 @@ WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum,
     return NULL;
   }
 
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
-  if (!new_wfn) {
-    fprintf(stderr, "Error: Failed to allocate new wavefunction.\n");
-    return NULL;
-  }
+  WavefunctionC *new_wfn =
+      wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
 
   khiter_t kp, ks;
   int success = 0;
@@ -498,12 +527,16 @@ evolution_helper_sinh(PauliStringC *pString, SlaterDeterminantC *sdet,
   SlaterDeterminantC *new_sdet;
 
   if (pString->N != sdet->N) {
-    fprintf(stderr, "Error: Pauli strings have different number of qubits.\n");
+    fprintf(stderr, "Error: Pauli strings have different number of indices.\n");
     return NULL;
   }
 
   N = sdet->N;
   new_orbitals = (unsigned int *)malloc(sdet->N * sizeof(int));
+  if (!new_orbitals) {
+    fprintf(stderr, "Malloc failed for new_orbitals\n");
+    return NULL;
+  }
   double complex x = pString->coef * epsilon;
   // double complex sinh = x * (1 + x * x * (1.0 / 6.0 + x * x / 120.0));
   new_coef = csinh(x) * sdet->coef;
@@ -545,11 +578,12 @@ WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString,
   }
   if (wfn->N != pString->N) {
     fprintf(stderr, "Error: Wavefunction and Pauli string have different "
-                    "number of qubits.\n");
+                    "number of indices.\n");
     return NULL;
   }
 
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
+  WavefunctionC *new_wfn =
+      wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
   khiter_t k;
 
   for (k = kh_begin(wfn->slater_determinants);
@@ -659,7 +693,8 @@ WavefunctionC *wavefunction_remove_near_zero_terms_c(WavefunctionC *wfn,
     return NULL;
   }
 
-  WavefunctionC *new_wfn = wavefunction_init_c(wfn->N);
+  WavefunctionC *new_wfn =
+      wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
   khiter_t k;
 
   for (k = kh_begin(wfn->slater_determinants);

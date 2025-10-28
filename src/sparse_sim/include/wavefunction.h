@@ -45,16 +45,21 @@ slater_determinant_pauli_string_multiplication_c(PauliStringC *pString,
 // Struct for slater determinant khash hashmap
 KHASH_MAP_INIT_INT(slater_hash, SlaterDeterminantC *)
 
+extern double WAVEFUNCTION_CUTOFF_DEFAULT;
+
 // Struct for a wavefunction containing multiple slater determinants
 typedef struct WavefunctionC {
   unsigned int N; // Number of orbitals
   unsigned int s; // Current number of slater determinants
   khash_t(slater_hash) *
       slater_determinants; // Hashmap of slater determinant elements
+  double cutoff;           // Cutoff for near-zero terms
 } WavefunctionC;
 
 // Wavefunction function declarations
 WavefunctionC *wavefunction_init_c(unsigned int N);
+WavefunctionC *wavefunction_init_with_specified_cutoff_c(unsigned int N,
+                                                         double cutoff);
 void free_wavefunction_c(WavefunctionC *wfn);
 char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket);
 double wavefunction_norm_c(WavefunctionC *wfn);

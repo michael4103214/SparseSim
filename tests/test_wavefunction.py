@@ -125,7 +125,7 @@ def test_wavefunction_pauli_string_evolution():
         wfn = wavefunction_pauli_string_evolution(pString, wfn, 0.01)
 
     norm = wfn.norm()
-    print(f"exp(0.01 * ({pString})) * ({old_wfn}) = {wfn}")
+    print(f"exp(1000 * ({pString})) * ({old_wfn}) = {wfn}")
     print(f"Norm: {norm}")
 
 
@@ -150,7 +150,7 @@ def test_wavefunction_pauli_sum_evolution():
         wfn = wavefunction_pauli_sum_evolution(pSum, wfn, 0.01)
 
     norm = wfn.norm()
-    print(f"exp(0.01 * ({pSum})) * ({old_wfn}) = {wfn}")
+    print(f"exp(1000 * ({pSum})) * ({old_wfn}) = {wfn}")
     print(f"Norm: {norm}")
 
 
@@ -213,12 +213,14 @@ def test_wavefunction_cleaning():
     sdet1 = SlaterDeterminant(4, 1e-4, orbitals1)
 
     orbitals2 = [1, 0, 1, 0]
-    sdet2 = SlaterDeterminant(4, 1e-4j, orbitals2)
+    sdet2 = SlaterDeterminant(4, 1e-10j, orbitals2)
 
-    orbitals0 = [0, 0, 1, 0]
-    sdet3 = SlaterDeterminant(4, 0.5 + 0j, orbitals0)
+    orbitals3 = [0, 0, 1, 0]
+    sdet3 = SlaterDeterminant(4, 0.5 + 0j, orbitals3)
 
-    wfn = sdet0 + sdet1 + sdet2 + sdet3
+    wfn = Wavefunction(4, cutoff=1e-18)
+
+    wfn = wfn + sdet0 + sdet1 + sdet2 + sdet3
     print(f"Initial: {wfn}")
 
     wfn_clean = wfn.remove_near_zero_terms(1e-3)

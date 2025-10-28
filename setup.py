@@ -20,6 +20,7 @@ sources = [
     rel(cy / ("core.c" if use_c else "core.pyx")),
     rel(csrc / "pauli.c"),
     rel(csrc / "wavefunction.c"),
+    rel(csrc / "density_matrix.c")
 ]
 
 include_dirs = [rel(inc), rel(csrc), rel(cy)]

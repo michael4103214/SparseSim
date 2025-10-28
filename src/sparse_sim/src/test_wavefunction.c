@@ -7,7 +7,6 @@
 #include "wavefunction.h"
 
 void test_initialization_scaling_freeing(void);
-void test_realloc(void);
 void test_inner_product(void);
 void test_appending_slater_determinants(void);
 void test_wavefunction_pauli_sum_multiplication(void);
@@ -275,7 +274,7 @@ void test_wavefunction_pauli_string_evolution(void) {
   new_wfn_str = wavefunction_to_string_c(wfn, 'k');
   norm = wavefunction_norm_c(wfn);
 
-  printf("exp(0.01 * (%s)) * (%s) = %s\n", pString_str, wfn_str, new_wfn_str);
+  printf("exp(1000 * (%s)) * (%s) = %s\n", pString_str, wfn_str, new_wfn_str);
   printf("Norm: %lf\n", norm);
 
   free(wfn_str);
@@ -328,7 +327,7 @@ void test_wavefunction_pauli_sum_evolution(void) {
   new_wfn_str = wavefunction_to_string_c(wfn, 'k');
   norm = wavefunction_norm_c(wfn);
 
-  printf("exp(0.01 * (%s)) * (%s) = %s\n", pSum_str, wfn_str, new_wfn_str);
+  printf("exp(1000 * (%s)) * (%s) = %s\n", pSum_str, wfn_str, new_wfn_str);
   printf("Norm: %lf\n", norm);
 
   free(wfn_str);

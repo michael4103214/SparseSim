@@ -64,7 +64,8 @@ char *pauli_string_to_string_no_coef_c(PauliStringC *pString) {
 
   // Allocate memory for the buffer
   char *buffer = (char *)malloc(buffer_size);
-  if (!buffer) return NULL;
+  if (!buffer)
+    return NULL;
 
   char pauli_as_char[] = {'I', 'X', 'Y', 'Z'};
 
@@ -124,7 +125,7 @@ double pauli_string_comparison_c(PauliStringC *left, PauliStringC *right) {
   double comparison = 1;
 
   if (left->N != right->N) {
-    fprintf(stderr, "Error: Pauli strings have different number of qubits.\n");
+    fprintf(stderr, "Error: Pauli strings have different number of indices.\n");
     return 0;
   }
 
@@ -152,7 +153,7 @@ PauliStringC *pauli_string_multiplication_c(PauliStringC *left,
   PauliStringC *product;
 
   if (left->N != right->N) {
-    fprintf(stderr, "Error: Pauli strings have different number of qubits.\n");
+    fprintf(stderr, "Error: Pauli strings have different number of indices.\n");
     return NULL;
   }
 
@@ -172,11 +173,21 @@ PauliStringC *pauli_string_multiplication_c(PauliStringC *left,
   return product;
 }
 
+double PAULISUM_CUTOFF_DEFAULT = 1e-12;
+
 PauliSumC *pauli_sum_init_c(unsigned int N) {
   PauliSumC *pSum = (PauliSumC *)malloc(sizeof(PauliSumC));
   pSum->N = N;
   pSum->p = 0;
   pSum->pauli_strings = kh_init(pauli_hash);
+  pSum->cutoff = PAULISUM_CUTOFF_DEFAULT;
+  return pSum;
+}
+
+PauliSumC *pauli_sum_init_with_specified_cutoff_c(unsigned int N,
+                                                  double cutoff) {
+  PauliSumC *pSum = pauli_sum_init_c(N);
+  pSum->cutoff = cutoff;
   return pSum;
 }
 
@@ -271,6 +282,13 @@ char *pauli_sum_to_string_c(PauliSumC *pSum) {
 }
 
 void pauli_sum_append_pauli_string_c(PauliSumC *pSum, PauliStringC *pString) {
+
+  if (fabs(creal(pString->coef)) < pSum->cutoff &&
+      fabs(cimag(pString->coef)) < pSum->cutoff) {
+    free_pauli_string_c(pString);
+    return;
+  }
+
   int ret;
   khiter_t k = kh_put(pauli_hash, pSum->pauli_strings, pString->encoding, &ret);
 
@@ -279,8 +297,8 @@ void pauli_sum_append_pauli_string_c(PauliSumC *pSum, PauliStringC *pString) {
         (PauliStringC *)kh_value(pSum->pauli_strings, k);
     existing_pString->coef += pString->coef;
 
-    if (fabs(creal(existing_pString->coef)) < 1e-12 &&
-        fabs(cimag(existing_pString->coef)) < 1e-12) {
+    if (fabs(creal(existing_pString->coef)) < pSum->cutoff &&
+        fabs(cimag(existing_pString->coef)) < pSum->cutoff) {
       kh_del(pauli_hash, pSum->pauli_strings, k);
       free_pauli_string_c(existing_pString);
       pSum->p--;
@@ -300,7 +318,8 @@ PauliSumC *pauli_sum_scalar_multiplication_c(PauliSumC *pSum,
     return NULL;
   }
 
-  PauliSumC *new_pSum = pauli_sum_init_c(pSum->N);
+  PauliSumC *new_pSum =
+      pauli_sum_init_with_specified_cutoff_c(pSum->N, pSum->cutoff);
   if (!new_pSum) {
     fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
     return NULL;
@@ -333,7 +352,8 @@ PauliSumC *pauli_sum_adjoint_c(PauliSumC *pSum) {
     return NULL;
   }
 
-  PauliSumC *new_pSum = pauli_sum_init_c(pSum->N);
+  PauliSumC *new_pSum =
+      pauli_sum_init_with_specified_cutoff_c(pSum->N, pSum->cutoff);
   if (!new_pSum) {
     fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
     return NULL;
@@ -365,11 +385,12 @@ PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right) {
     return NULL;
   }
   if (left->N != right->N) {
-    fprintf(stderr, "Error: Pauli sums have different number of qubits.\n");
+    fprintf(stderr, "Error: Pauli sums have different number of indices.\n");
     return NULL;
   }
 
-  PauliSumC *new_pSum = pauli_sum_init_c(left->N);
+  PauliSumC *new_pSum =
+      pauli_sum_init_with_specified_cutoff_c(left->N, left->cutoff);
   if (!new_pSum) {
     fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
     return NULL;
@@ -412,11 +433,12 @@ PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right) {
     return NULL;
   }
   if (left->N != right->N) {
-    fprintf(stderr, "Error: Pauli sums have different number of qubits.\n");
+    fprintf(stderr, "Error: Pauli sums have different number of indices.\n");
     return NULL;
   }
 
-  PauliSumC *new_pSum = pauli_sum_init_c(left->N);
+  PauliSumC *new_pSum =
+      pauli_sum_init_with_specified_cutoff_c(left->N, left->cutoff);
   if (!new_pSum) {
     fprintf(stderr, "Error: Failed to allocate new PauliSum.\n");
     return NULL;

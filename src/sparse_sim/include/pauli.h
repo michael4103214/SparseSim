@@ -42,15 +42,20 @@ PauliStringC *pauli_string_multiplication_c(PauliStringC *left,
 // Struct for pauli string khash hashmap
 KHASH_MAP_INIT_INT64(pauli_hash, PauliStringC *)
 
+extern double PAULISUM_CUTOFF_DEFAULT;
+
 // Struct for pauli sum with multiple pauli strings
 typedef struct PauliSumC {
   unsigned int N;                      // Number of qubits
   unsigned int p;                      // Current number of Pauli strings
   khash_t(pauli_hash) * pauli_strings; // Hashmap of Pauli string elements
+  double cutoff;                       // Cutoff for small coefficients
 } PauliSumC;
 
 // Pauli sum function declarations
 PauliSumC *pauli_sum_init_c(unsigned int N);
+PauliSumC *pauli_sum_init_with_specified_cutoff_c(unsigned int N,
+                                                  double cutoff);
 void free_pauli_sum_c(PauliSumC *pSum);
 char *pauli_sum_to_string_c(PauliSumC *pSum);
 void pauli_sum_append_pauli_string_c(PauliSumC *pSum, PauliStringC *pString);
