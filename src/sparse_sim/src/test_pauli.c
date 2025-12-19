@@ -5,40 +5,23 @@
 
 #include "pauli.h"
 
-void test_pauli_string_initialization_scaling_freeing(void);
-void test_pauli_string_multiplication(void);
-void test_pauli_sum_initialization_scaling_freeing(void);
-void test_pauli_sum_adjoint(void);
-void test_pauli_sum_multiplication(void);
-void test_pauli_sum_addition(void);
-void test_pauli_encoding(unsigned int N);
-void test_pauli_sum_get_pauli_strings(void);
-
 void test_pauli_string_initialization_scaling_freeing(void) {
-  unsigned int paulis0[] = {0, 1, 0, 1};
-  char paulis1[] = {'I', 'X', 'I', 'X'};
-  PauliStringC *pString0;
-  PauliStringC *pString1;
-  PauliStringC *pString2;
-  PauliStringC *pString3;
-  char *pString0_str;
-  char *pString1_str;
-  char *pString2_str;
-  char *pString3_str;
 
-  pString0 = pauli_string_init_as_ints_c(4, (double complex)1.0, paulis0);
-  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
-  pString0_str = pauli_string_to_string_c(pString0);
+  PauliStringC *pString0 = pauli_string_init_as_ints_c(
+      4, (double complex)1.0, (unsigned int[]){0, 1, 0, 1});
+  PauliStringC *pString1 = pauli_string_init_as_chars_c(
+      4, (double complex)I, (char[]){'I', 'X', 'I', 'X'});
+  char *pString0_str = pauli_string_to_string_c(pString0);
   printf("%s with encoding %llu\n", pString0_str, pString0->encoding);
 
-  pString1_str = pauli_string_to_string_c(pString1);
+  char *pString1_str = pauli_string_to_string_c(pString1);
 
-  pString2 = pauli_string_scalar_multiplication_c(pString1, 2);
-  pString2_str = pauli_string_to_string_c(pString2);
+  PauliStringC *pString2 = pauli_string_scalar_multiplication_c(pString1, 2);
+  char *pString2_str = pauli_string_to_string_c(pString2);
   printf("2 * %s = %s\n", pString1_str, pString2_str);
 
-  pString3 = pauli_string_adjoint_c(pString2);
-  pString3_str = pauli_string_to_string_c(pString3);
+  PauliStringC *pString3 = pauli_string_adjoint_c(pString2);
+  char *pString3_str = pauli_string_to_string_c(pString3);
   printf("Adjoint of %s = %s\n", pString2_str, pString3_str);
 
   free(pString0_str);
@@ -53,22 +36,15 @@ void test_pauli_string_initialization_scaling_freeing(void) {
 }
 
 void test_pauli_string_multiplication(void) {
-  unsigned int paulis0[] = {0, 2, 0, 1};
-  char paulis1[] = {'I', 'X', 'I', 'I'};
-  char *pString0_str;
-  char *pString1_str;
-  char *pString2_str;
-  PauliStringC *pString0;
-  PauliStringC *pString1;
-  PauliStringC *pString2;
+  PauliStringC *pString0 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){0, 2, 0, 1});
+  PauliStringC *pString1 = pauli_string_init_as_chars_c(
+      4, (double complex)I, (char[]){'I', 'X', 'I', 'I'});
+  PauliStringC *pString2 = pauli_string_multiplication_c(pString0, pString1);
 
-  pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
-  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
-  pString2 = pauli_string_multiplication_c(pString0, pString1);
-
-  pString0_str = pauli_string_to_string_c(pString0);
-  pString1_str = pauli_string_to_string_c(pString1);
-  pString2_str = pauli_string_to_string_c(pString2);
+  char *pString0_str = pauli_string_to_string_c(pString0);
+  char *pString1_str = pauli_string_to_string_c(pString1);
+  char *pString2_str = pauli_string_to_string_c(pString2);
 
   printf("%s * %s = %s\n", pString0_str, pString1_str, pString2_str);
 
@@ -81,21 +57,17 @@ void test_pauli_string_multiplication(void) {
 }
 
 void test_pauli_sum_initialization_scaling_freeing(void) {
-  unsigned int paulis0[] = {0, 2, 0, 1};
-  char paulis1[] = {'I', 'X', 'I', 'I'};
-  char *pSum_str;
-  PauliStringC *pString0;
-  PauliStringC *pString1;
-  PauliSumC *pSum;
 
-  pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
-  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
+  PauliStringC *pString0 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){0, 2, 0, 1});
+  PauliStringC *pString1 = pauli_string_init_as_chars_c(
+      4, (double complex)I, (char[]){'I', 'X', 'I', 'I'});
 
-  pSum = pauli_sum_init_c(4);
+  PauliSumC *pSum = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum, pString0);
   pauli_sum_append_pauli_string_c(pSum, pString1);
 
-  pSum_str = pauli_sum_to_string_c(pSum);
+  char *pSum_str = pauli_sum_to_string_c(pSum);
   printf("%s contains %u pStrings of 2\n", pSum_str, pSum->p);
 
   free(pSum_str);
@@ -103,37 +75,26 @@ void test_pauli_sum_initialization_scaling_freeing(void) {
 }
 
 void test_pauli_sum_adjoint(void) {
-  unsigned int paulis0[] = {0, 2, 0, 1};
-  unsigned int paulis2[] = {0, 2, 1, 1};
-  char paulis1[] = {'I', 'X', 'X', 'I'};
-  char paulis3[] = {'I', 'X', 'I', 'I'};
 
-  char *pSum0_str;
-  char *pSum1_str;
+  PauliStringC *pString0 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){0, 2, 0, 1});
+  PauliStringC *pString1 = pauli_string_init_as_chars_c(
+      4, (double complex)I, (char[]){'I', 'X', 'X', 'I'});
+  PauliStringC *pString2 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){0, 2, 1, 1});
+  PauliStringC *pString3 = pauli_string_init_as_chars_c(
+      4, (double complex) - I, (char[]){'I', 'X', 'I', 'I'});
 
-  PauliStringC *pString0;
-  PauliStringC *pString1;
-  PauliStringC *pString2;
-  PauliStringC *pString3;
-
-  PauliSumC *pSum0;
-  PauliSumC *pSum1;
-
-  pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
-  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
-  pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
-  pString3 = pauli_string_init_as_chars_c(4, (double complex) - I, paulis3);
-
-  pSum0 = pauli_sum_init_c(4);
+  PauliSumC *pSum0 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum0, pString0);
   pauli_sum_append_pauli_string_c(pSum0, pString1);
   pauli_sum_append_pauli_string_c(pSum0, pString2);
   pauli_sum_append_pauli_string_c(pSum0, pString3);
 
-  pSum1 = pauli_sum_adjoint_c(pSum0);
+  PauliSumC *pSum1 = pauli_sum_adjoint_c(pSum0);
 
-  pSum0_str = pauli_sum_to_string_c(pSum0);
-  pSum1_str = pauli_sum_to_string_c(pSum1);
+  char *pSum0_str = pauli_sum_to_string_c(pSum0);
+  char *pSum1_str = pauli_sum_to_string_c(pSum1);
 
   printf("(%s)^dagger = (%s)\n", pSum0_str, pSum1_str);
 
@@ -145,42 +106,29 @@ void test_pauli_sum_adjoint(void) {
 }
 
 void test_pauli_sum_multiplication(void) {
-  unsigned int paulis0[] = {0, 2, 0, 1};
-  unsigned int paulis2[] = {0, 2, 0, 1};
-  char paulis1[] = {'I', 'X', 'I', 'I'};
-  char paulis3[] = {'I', 'X', 'I', 'I'};
 
-  char *pSum0_str;
-  char *pSum1_str;
-  char *pSum2_str;
+  PauliStringC *pString0 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){0, 2, 0, 1});
+  PauliStringC *pString1 = pauli_string_init_as_chars_c(
+      4, (double complex)I, (char[]){'I', 'X', 'I', 'I'});
+  PauliStringC *pString2 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){0, 2, 0, 1});
+  PauliStringC *pString3 = pauli_string_init_as_chars_c(
+      4, (double complex)I, (char[]){'I', 'X', 'I', 'I'});
 
-  PauliStringC *pString0;
-  PauliStringC *pString1;
-  PauliStringC *pString2;
-  PauliStringC *pString3;
-
-  PauliSumC *pSum0;
-  PauliSumC *pSum1;
-  PauliSumC *pSum2;
-
-  pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
-  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
-  pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
-  pString3 = pauli_string_init_as_chars_c(4, (double complex)I, paulis3);
-
-  pSum0 = pauli_sum_init_c(4);
+  PauliSumC *pSum0 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum0, pString0);
   pauli_sum_append_pauli_string_c(pSum0, pString1);
 
-  pSum1 = pauli_sum_init_c(4);
+  PauliSumC *pSum1 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum1, pString2);
   pauli_sum_append_pauli_string_c(pSum1, pString3);
 
-  pSum2 = pauli_sum_multiplication_c(pSum0, pSum1);
+  PauliSumC *pSum2 = pauli_sum_multiplication_c(pSum0, pSum1);
 
-  pSum0_str = pauli_sum_to_string_c(pSum0);
-  pSum1_str = pauli_sum_to_string_c(pSum1);
-  pSum2_str = pauli_sum_to_string_c(pSum2);
+  char *pSum0_str = pauli_sum_to_string_c(pSum0);
+  char *pSum1_str = pauli_sum_to_string_c(pSum1);
+  char *pSum2_str = pauli_sum_to_string_c(pSum2);
 
   printf("(%s) * (%s) = (%s)\n", pSum0_str, pSum1_str, pSum2_str);
 
@@ -194,42 +142,29 @@ void test_pauli_sum_multiplication(void) {
 }
 
 void test_pauli_sum_addition(void) {
-  unsigned int paulis0[] = {0, 2, 0, 1};
-  unsigned int paulis2[] = {0, 2, 0, 1};
-  char paulis1[] = {'I', 'X', 'I', 'I'};
-  char paulis3[] = {'I', 'X', 'I', 'I'};
 
-  char *pSum0_str;
-  char *pSum1_str;
-  char *pSum2_str;
+  PauliStringC *pString0 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){0, 2, 0, 1});
+  PauliStringC *pString1 = pauli_string_init_as_chars_c(
+      4, (double complex)I, (char[]){'I', 'X', 'I', 'I'});
+  PauliStringC *pString2 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){0, 2, 0, 1});
+  PauliStringC *pString3 = pauli_string_init_as_chars_c(
+      4, (double complex) - I, (char[]){'I', 'X', 'I', 'I'});
 
-  PauliStringC *pString0;
-  PauliStringC *pString1;
-  PauliStringC *pString2;
-  PauliStringC *pString3;
-
-  PauliSumC *pSum0;
-  PauliSumC *pSum1;
-  PauliSumC *pSum2;
-
-  pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
-  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
-  pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
-  pString3 = pauli_string_init_as_chars_c(4, (double complex) - I, paulis3);
-
-  pSum0 = pauli_sum_init_c(4);
+  PauliSumC *pSum0 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum0, pString0);
   pauli_sum_append_pauli_string_c(pSum0, pString1);
 
-  pSum1 = pauli_sum_init_c(4);
+  PauliSumC *pSum1 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum1, pString2);
   pauli_sum_append_pauli_string_c(pSum1, pString3);
 
-  pSum2 = pauli_sum_addition_c(pSum0, pSum1);
+  PauliSumC *pSum2 = pauli_sum_addition_c(pSum0, pSum1);
 
-  pSum0_str = pauli_sum_to_string_c(pSum0);
-  pSum1_str = pauli_sum_to_string_c(pSum1);
-  pSum2_str = pauli_sum_to_string_c(pSum2);
+  char *pSum0_str = pauli_sum_to_string_c(pSum0);
+  char *pSum1_str = pauli_sum_to_string_c(pSum1);
+  char *pSum2_str = pauli_sum_to_string_c(pSum2);
 
   printf("(%s) + (%s) = (%s)\n", pSum0_str, pSum1_str, pSum2_str);
 
@@ -290,26 +225,17 @@ void test_pauli_encoding(unsigned int N) {
 }
 
 void test_pauli_sum_get_pauli_strings(void) {
-  unsigned int paulis0[] = {3, 2, 0, 1};
-  unsigned int paulis2[] = {2, 2, 0, 1};
-  char paulis1[] = {'I', 'X', 'Y', 'I'};
-  char paulis3[] = {'I', 'X', 'I', 'I'};
 
-  char *pSum0_str;
+  PauliStringC *pString0 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){3, 2, 0, 1});
+  PauliStringC *pString1 = pauli_string_init_as_chars_c(
+      4, (double complex)I, (char[]){'I', 'X', 'Y', 'I'});
+  PauliStringC *pString2 = pauli_string_init_as_ints_c(
+      4, (double complex)1, (unsigned int[]){2, 2, 0, 1});
+  PauliStringC *pString3 = pauli_string_init_as_chars_c(
+      4, (double complex) - I, (char[]){'I', 'X', 'I', 'I'});
 
-  PauliStringC *pString0;
-  PauliStringC *pString1;
-  PauliStringC *pString2;
-  PauliStringC *pString3;
-
-  PauliSumC *pSum0;
-
-  pString0 = pauli_string_init_as_ints_c(4, (double complex)1, paulis0);
-  pString1 = pauli_string_init_as_chars_c(4, (double complex)I, paulis1);
-  pString2 = pauli_string_init_as_ints_c(4, (double complex)1, paulis2);
-  pString3 = pauli_string_init_as_chars_c(4, (double complex) - I, paulis3);
-
-  pSum0 = pauli_sum_init_c(4);
+  PauliSumC *pSum0 = pauli_sum_init_c(4);
   pauli_sum_append_pauli_string_c(pSum0, pString0);
   pauli_sum_append_pauli_string_c(pSum0, pString1);
   pauli_sum_append_pauli_string_c(pSum0, pString2);
@@ -321,7 +247,7 @@ void test_pauli_sum_get_pauli_strings(void) {
     return;
   }
 
-  pSum0_str = pauli_sum_to_string_c(pSum0);
+  char *pSum0_str = pauli_sum_to_string_c(pSum0);
   printf("%s contains %u Pauli strings:\n", pSum0_str, pSum0->p);
   free(pSum0_str);
 

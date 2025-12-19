@@ -46,6 +46,9 @@ class Atom:
     def __str__(self):
         return self.to_string()
 
+    def __repr__(self):
+        return self.__str__()
+
 
 def interatomic_distance(atom1: Atom, atom2: Atom):
     dx = atom1.x - atom2.x
@@ -75,6 +78,9 @@ class Molecule:
 
     def __str__(self):
         return self.to_string()
+
+    def __repr__(self):
+        return self.__str__()
 
     def evolve(self, forces, dt):
         new_mol = Molecule(self.symbol)

@@ -1,7 +1,5 @@
 #include "pauli.h"
 
-// Deprecated
-
 PauliStringC *pauli_string_init_as_chars_c(unsigned int N, double complex coef,
                                            char paulis[]) {
   PauliStringC *pString = (PauliStringC *)malloc(sizeof(PauliStringC));
@@ -137,8 +135,7 @@ double pauli_string_comparison_c(PauliStringC *left, PauliStringC *right) {
 
 PauliStringC *pauli_string_multiplication_c(PauliStringC *left,
                                             PauliStringC *right) {
-  double complex coef;
-  unsigned int N;
+
   unsigned int caylay_pauli[4][4] = {
       {0, 1, 2, 3}, {1, 0, 3, 2}, {2, 3, 0, 1}, {3, 2, 1, 0}};
 
@@ -157,9 +154,9 @@ PauliStringC *pauli_string_multiplication_c(PauliStringC *left,
     return NULL;
   }
 
-  coef = left->coef * right->coef;
+  double complex coef = left->coef * right->coef;
 
-  N = left->N;
+  unsigned int N = left->N;
 
   paulis = (unsigned int *)malloc(N * sizeof(unsigned int));
 
@@ -195,9 +192,8 @@ void free_pauli_sum_c(PauliSumC *pSum) {
   if (pSum == NULL)
     return;
 
-  khiter_t k;
-  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
-       ++k) {
+  for (khiter_t k = kh_begin(pSum->pauli_strings);
+       k != kh_end(pSum->pauli_strings); ++k) {
     if (kh_exist(pSum->pauli_strings, k)) {
       free_pauli_string_c((PauliStringC *)kh_value(pSum->pauli_strings, k));
     }
@@ -231,10 +227,9 @@ char *pauli_sum_to_string_c(PauliSumC *pSum) {
   }
 
   // Iterate through the hash table
-  khiter_t k;
   unsigned int index = 0;
-  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
-       ++k) {
+  for (khiter_t k = kh_begin(pSum->pauli_strings);
+       k != kh_end(pSum->pauli_strings); ++k) {
     if (kh_exist(pSum->pauli_strings, k)) {
       PauliStringC *pString = (PauliStringC *)kh_value(pSum->pauli_strings, k);
       pauli_strings[index] = pauli_string_to_string_c(pString);
@@ -325,9 +320,8 @@ PauliSumC *pauli_sum_scalar_multiplication_c(PauliSumC *pSum,
     return NULL;
   }
 
-  khiter_t k;
-  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
-       ++k) {
+  for (khiter_t k = kh_begin(pSum->pauli_strings);
+       k != kh_end(pSum->pauli_strings); ++k) {
     if (kh_exist(pSum->pauli_strings, k)) {
       PauliStringC *original_pString =
           (PauliStringC *)kh_value(pSum->pauli_strings, k);
@@ -359,9 +353,8 @@ PauliSumC *pauli_sum_adjoint_c(PauliSumC *pSum) {
     return NULL;
   }
 
-  khiter_t k;
-  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
-       ++k) {
+  for (khiter_t k = kh_begin(pSum->pauli_strings);
+       k != kh_end(pSum->pauli_strings); ++k) {
     if (kh_exist(pSum->pauli_strings, k)) {
       PauliStringC *original_pString =
           (PauliStringC *)kh_value(pSum->pauli_strings, k);
@@ -396,14 +389,13 @@ PauliSumC *pauli_sum_multiplication_c(PauliSumC *left, PauliSumC *right) {
     return NULL;
   }
 
-  khiter_t k1, k2;
-  for (k1 = kh_begin(left->pauli_strings); k1 != kh_end(left->pauli_strings);
-       ++k1) {
+  for (khiter_t k1 = kh_begin(left->pauli_strings);
+       k1 != kh_end(left->pauli_strings); ++k1) {
     if (kh_exist(left->pauli_strings, k1)) {
       PauliStringC *left_pString =
           (PauliStringC *)kh_value(left->pauli_strings, k1);
 
-      for (k2 = kh_begin(right->pauli_strings);
+      for (khiter_t k2 = kh_begin(right->pauli_strings);
            k2 != kh_end(right->pauli_strings); ++k2) {
         if (kh_exist(right->pauli_strings, k2)) {
           PauliStringC *right_pString =
@@ -444,9 +436,8 @@ PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right) {
     return NULL;
   }
 
-  khiter_t k;
-  for (k = kh_begin(left->pauli_strings); k != kh_end(left->pauli_strings);
-       ++k) {
+  for (khiter_t k = kh_begin(left->pauli_strings);
+       k != kh_end(left->pauli_strings); ++k) {
     if (kh_exist(left->pauli_strings, k)) {
       PauliStringC *pString = (PauliStringC *)kh_value(left->pauli_strings, k);
       PauliStringC *pString_copy = pauli_string_init_as_ints_c(
@@ -455,8 +446,8 @@ PauliSumC *pauli_sum_addition_c(PauliSumC *left, PauliSumC *right) {
     }
   }
 
-  for (k = kh_begin(right->pauli_strings); k != kh_end(right->pauli_strings);
-       ++k) {
+  for (khiter_t k = kh_begin(right->pauli_strings);
+       k != kh_end(right->pauli_strings); ++k) {
     if (kh_exist(right->pauli_strings, k)) {
       PauliStringC *pString = (PauliStringC *)kh_value(right->pauli_strings, k);
       PauliStringC *pString_copy = pauli_string_init_as_ints_c(
@@ -481,10 +472,9 @@ PauliStringC **get_pauli_strings_c(PauliSumC *pSum) {
     return NULL;
   }
 
-  khiter_t k;
   unsigned int index = 0;
-  for (k = kh_begin(pSum->pauli_strings); k != kh_end(pSum->pauli_strings);
-       ++k) {
+  for (khiter_t k = kh_begin(pSum->pauli_strings);
+       k != kh_end(pSum->pauli_strings); ++k) {
     if (kh_exist(pSum->pauli_strings, k)) {
       PauliStringC *pString = kh_value(pSum->pauli_strings, k);
       PauliStringC *new_pString = pauli_string_init_as_ints_c(

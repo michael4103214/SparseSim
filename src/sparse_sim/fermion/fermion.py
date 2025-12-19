@@ -55,6 +55,9 @@ class FermionicOperator:
     def __str__(self):
         return f"{self.op}a_{self.idx}"
 
+    def __repr__(self):
+        return self.__str__()
+
     def save(self):
         return np.array(['f', self.N, self.op, self.idx])
 
@@ -110,6 +113,9 @@ class Product:
             output = output + f"{op}"
         output = output + ")"
         return output
+
+    def __repr__(self):
+        return self.__str__()
 
     def ops_to_string(self):
         output = ""
@@ -251,6 +257,9 @@ class Operator:
 
     def __str__(self):
         return self.symbol
+
+    def __repr__(self):
+        return self.__str__()
 
     def map(self, projector):
         new_prods_dict = {}

@@ -17,7 +17,7 @@
 
 // Struct for a single slater determinant
 typedef struct SlaterDeterminantC {
-  unsigned int N;      // Number of orbitals
+  unsigned int N;      // Number of orbitals spinless
   double complex coef; // Complex coefficient in front of the slater determinant
   unsigned int *orbitals; // Dynamically allocated array for orbital occupations
   unsigned int

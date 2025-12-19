@@ -8,11 +8,9 @@ void free_slater_determinant_c(SlaterDeterminantC *sdet) {
 SlaterDeterminantC *slater_determinant_init_c(const unsigned int N,
                                               double complex coef,
                                               unsigned int orbitals[]) {
-  SlaterDeterminantC *sdet;
-  unsigned int encoding;
-  unsigned int i;
 
-  sdet = (SlaterDeterminantC *)malloc(sizeof(SlaterDeterminantC));
+  SlaterDeterminantC *sdet =
+      (SlaterDeterminantC *)malloc(sizeof(SlaterDeterminantC));
   if (!sdet) {
     fprintf(stderr, "Malloc failed for SlaterDeterminant\n");
     return NULL;
@@ -28,8 +26,8 @@ SlaterDeterminantC *slater_determinant_init_c(const unsigned int N,
     return NULL;
   }
 
-  encoding = 0;
-  for (i = 0; i < N; i++) {
+  unsigned int encoding = 0;
+  for (unsigned int i = 0; i < N; i++) {
     sdet->orbitals[i] = orbitals[i];
     if (orbitals[i]) {
       encoding += 1 << i;
@@ -42,20 +40,17 @@ SlaterDeterminantC *slater_determinant_init_c(const unsigned int N,
 
 char *slater_determinant_to_string_c(SlaterDeterminantC *sdet,
                                      char bra_or_ket) {
-  size_t buffer_size;
-  char *buffer;
-  unsigned int i;
   char orbital_char[2]; // To hold a single orbital (1 digit + null terminator)
 
   // Calculate buffer size
-  buffer_size = 40        // for coef
-                + 1       // for |
-                + sdet->N // for orbitals
-                + 1       // for >
-                + 1;      // for terminator
+  size_t buffer_size = 40        // for coef
+                       + 1       // for |
+                       + sdet->N // for orbitals
+                       + 1       // for >
+                       + 1;      // for terminator
 
   // Allocate memory for the buffer
-  buffer = (char *)malloc(buffer_size);
+  char *buffer = (char *)malloc(buffer_size);
   if (!buffer) {
     fprintf(stderr, "Malloc failed for slater_determinant_to_string_c\n");
     return NULL;
@@ -77,7 +72,7 @@ char *slater_determinant_to_string_c(SlaterDeterminantC *sdet,
   }
 
   // Append the orbital occupations
-  for (i = 0; i < sdet->N; i++) {
+  for (unsigned int i = 0; i < sdet->N; i++) {
     snprintf(orbital_char, sizeof(orbital_char), "%u", sdet->orbitals[i]);
     strcat(buffer, orbital_char);
   }
@@ -128,24 +123,19 @@ SlaterDeterminantC *
 slater_determinant_pauli_string_multiplication_c(PauliStringC *pString,
                                                  SlaterDeterminantC *sdet) {
 
-  unsigned int N;
-  unsigned int *new_orbitals;
-  double complex new_coef;
-  SlaterDeterminantC *new_sdet;
-
   if (pString->N != sdet->N) {
     fprintf(stderr, "Error: Pauli string and wavefunction have different "
                     "number of indices.\n");
     return NULL;
   }
 
-  N = sdet->N;
-  new_orbitals = (unsigned int *)malloc(sdet->N * sizeof(int));
+  unsigned int N = sdet->N;
+  unsigned int *new_orbitals = (unsigned int *)malloc(sdet->N * sizeof(int));
   if (!new_orbitals) {
     fprintf(stderr, "Malloc failed for new_orbitals\n");
     return NULL;
   }
-  new_coef = pString->coef * sdet->coef;
+  double complex new_coef = pString->coef * sdet->coef;
 
   for (unsigned int i = 0; i < N; i++) {
     switch (pString->paulis[i]) {
@@ -170,7 +160,8 @@ slater_determinant_pauli_string_multiplication_c(PauliStringC *pString,
       return NULL;
     }
   }
-  new_sdet = slater_determinant_init_c(N, new_coef, new_orbitals);
+  SlaterDeterminantC *new_sdet =
+      slater_determinant_init_c(N, new_coef, new_orbitals);
   free(new_orbitals);
   return new_sdet;
 }
@@ -179,8 +170,7 @@ void free_wavefunction_c(WavefunctionC *wfn) {
   if (wfn == NULL)
     return;
 
-  khiter_t k;
-  for (k = kh_begin(wfn->slater_determinants);
+  for (khiter_t k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
       free_slater_determinant_c(
@@ -251,9 +241,8 @@ double wavefunction_norm_c(WavefunctionC *wfn) {
   }
 
   double norm = 0.0;
-  khiter_t k;
 
-  for (k = kh_begin(wfn->slater_determinants);
+  for (khiter_t k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
       SlaterDeterminantC *sdet =
@@ -280,9 +269,7 @@ WavefunctionC *wavefunction_scalar_multiplication_c(WavefunctionC *wfn,
     return NULL;
   }
 
-  khiter_t k;
-
-  for (k = kh_begin(wfn->slater_determinants);
+  for (khiter_t k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
       SlaterDeterminantC *sdet =
@@ -309,9 +296,8 @@ WavefunctionC *wavefunction_adjoint_c(WavefunctionC *wfn) {
 
   WavefunctionC *new_wfn =
       wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
-  khiter_t k;
 
-  for (k = kh_begin(wfn->slater_determinants);
+  for (khiter_t k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
       SlaterDeterminantC *sdet =
@@ -337,16 +323,15 @@ double complex wavefunction_multiplication_c(WavefunctionC *bra,
   }
 
   double complex product = 0.0 + 0.0 * (double complex)I;
-  khiter_t k1, k2;
 
-  for (k1 = kh_begin(bra->slater_determinants);
+  for (khiter_t k1 = kh_begin(bra->slater_determinants);
        k1 != kh_end(bra->slater_determinants); ++k1) {
     if (kh_exist(bra->slater_determinants, k1)) {
       SlaterDeterminantC *sdet_bra =
           (SlaterDeterminantC *)kh_value(bra->slater_determinants, k1);
       unsigned int encoding = sdet_bra->encoding;
 
-      k2 = kh_get(slater_hash, ket->slater_determinants, encoding);
+      khiter_t k2 = kh_get(slater_hash, ket->slater_determinants, encoding);
       if (k2 != kh_end(ket->slater_determinants)) {
         SlaterDeterminantC *sdet_ket =
             (SlaterDeterminantC *)kh_value(ket->slater_determinants, k2);
@@ -380,10 +365,9 @@ char *wavefunction_to_string_c(WavefunctionC *wfn, char bra_or_ket) {
   }
   buffer[0] = '\0';
 
-  khiter_t k;
   int first_entry = 1; // Flag to track first element (to avoid extra " + ")
 
-  for (k = kh_begin(wfn->slater_determinants);
+  for (khiter_t k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
       SlaterDeterminantC *sdet =
@@ -437,9 +421,8 @@ WavefunctionC *wavefunction_pauli_string_multiplication_c(PauliStringC *pString,
 
   WavefunctionC *new_wfn =
       wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
-  khiter_t k;
 
-  for (k = kh_begin(wfn->slater_determinants);
+  for (khiter_t k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
       SlaterDeterminantC *sdet =
@@ -471,15 +454,14 @@ WavefunctionC *wavefunction_pauli_sum_multiplication_c(PauliSumC *pSum,
   WavefunctionC *new_wfn =
       wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
 
-  khiter_t kp, ks;
   int success = 0;
 
-  for (kp = kh_begin(pSum->pauli_strings); kp != kh_end(pSum->pauli_strings);
-       ++kp) {
+  for (khiter_t kp = kh_begin(pSum->pauli_strings);
+       kp != kh_end(pSum->pauli_strings); ++kp) {
     if (kh_exist(pSum->pauli_strings, kp)) {
       PauliStringC *pString = (PauliStringC *)kh_value(pSum->pauli_strings, kp);
 
-      for (ks = kh_begin(wfn->slater_determinants);
+      for (khiter_t ks = kh_begin(wfn->slater_determinants);
            ks != kh_end(wfn->slater_determinants); ++ks) {
         if (kh_exist(wfn->slater_determinants, ks)) {
           SlaterDeterminantC *sdet =
@@ -521,25 +503,20 @@ static inline SlaterDeterminantC *
 evolution_helper_sinh(PauliStringC *pString, SlaterDeterminantC *sdet,
                       double complex epsilon) {
 
-  unsigned int N;
-  unsigned int *new_orbitals;
-  double complex new_coef;
-  SlaterDeterminantC *new_sdet;
-
   if (pString->N != sdet->N) {
     fprintf(stderr, "Error: Pauli strings have different number of indices.\n");
     return NULL;
   }
 
-  N = sdet->N;
-  new_orbitals = (unsigned int *)malloc(sdet->N * sizeof(int));
+  unsigned int N = sdet->N;
+  unsigned int *new_orbitals = (unsigned int *)malloc(sdet->N * sizeof(int));
   if (!new_orbitals) {
     fprintf(stderr, "Malloc failed for new_orbitals\n");
     return NULL;
   }
   double complex x = pString->coef * epsilon;
   // double complex sinh = x * (1 + x * x * (1.0 / 6.0 + x * x / 120.0));
-  new_coef = csinh(x) * sdet->coef;
+  double complex new_coef = csinh(x) * sdet->coef;
 
   for (unsigned int i = 0; i < N; i++) {
     switch (pString->paulis[i]) {
@@ -564,7 +541,8 @@ evolution_helper_sinh(PauliStringC *pString, SlaterDeterminantC *sdet,
       return NULL;
     }
   }
-  new_sdet = slater_determinant_init_c(N, new_coef, new_orbitals);
+  SlaterDeterminantC *new_sdet =
+      slater_determinant_init_c(N, new_coef, new_orbitals);
   free(new_orbitals);
   return new_sdet;
 }
@@ -584,9 +562,8 @@ WavefunctionC *wavefunction_pauli_string_evolution_c(PauliStringC *pString,
 
   WavefunctionC *new_wfn =
       wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
-  khiter_t k;
 
-  for (k = kh_begin(wfn->slater_determinants);
+  for (khiter_t k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
       SlaterDeterminantC *sdet =
@@ -623,11 +600,10 @@ WavefunctionC *wavefunction_pauli_sum_evolution_c(PauliSumC *pSum,
   }
 
   WavefunctionC *new_wfn = NULL;
-  khiter_t kp;
   int first_iteration = 1;
 
-  for (kp = kh_begin(pSum->pauli_strings); kp != kh_end(pSum->pauli_strings);
-       ++kp) {
+  for (khiter_t kp = kh_begin(pSum->pauli_strings);
+       kp != kh_end(pSum->pauli_strings); ++kp) {
     if (kh_exist(pSum->pauli_strings, kp)) {
       PauliStringC *pString = (PauliStringC *)kh_value(pSum->pauli_strings, kp);
 
@@ -657,9 +633,8 @@ wavefunction_get_min_encoding_sdet_c(WavefunctionC *wfn) {
 
   SlaterDeterminantC *min_sdet = NULL;
   unsigned int min_encoding = UINT_MAX;
-  khiter_t k;
 
-  for (k = kh_begin(wfn->slater_determinants);
+  for (khiter_t k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
       SlaterDeterminantC *sdet =
@@ -695,9 +670,8 @@ WavefunctionC *wavefunction_remove_near_zero_terms_c(WavefunctionC *wfn,
 
   WavefunctionC *new_wfn =
       wavefunction_init_with_specified_cutoff_c(wfn->N, wfn->cutoff);
-  khiter_t k;
 
-  for (k = kh_begin(wfn->slater_determinants);
+  for (khiter_t k = kh_begin(wfn->slater_determinants);
        k != kh_end(wfn->slater_determinants); ++k) {
     if (kh_exist(wfn->slater_determinants, k)) {
       SlaterDeterminantC *sdet =

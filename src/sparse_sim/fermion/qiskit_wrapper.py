@@ -102,6 +102,9 @@ class InitOperators:
     def __str__(self):
         return self.to_string()
 
+    def __repr__(self):
+        return self.__str__()
+
 
 def qiskit_create_initialization_from_slater_determinant_circuit(sDet: SlaterDeterminant):
     N = sDet.N

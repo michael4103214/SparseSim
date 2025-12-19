@@ -9,11 +9,8 @@ void free_outer_product_c(OuterProductC *oprod) {
 OuterProductC *outer_product_init_c(const unsigned int N, double complex coef,
                                     unsigned int ket_orbitals[],
                                     unsigned int bra_orbitals[]) {
-  OuterProductC *oprod;
-  unsigned int encoding;
-  unsigned int i;
 
-  oprod = (OuterProductC *)malloc(sizeof(OuterProductC));
+  OuterProductC *oprod = (OuterProductC *)malloc(sizeof(OuterProductC));
   if (!oprod) {
     fprintf(stderr, "Malloc failed for OuterProduct\n");
     return NULL;
@@ -37,8 +34,8 @@ OuterProductC *outer_product_init_c(const unsigned int N, double complex coef,
     return NULL;
   }
 
-  encoding = 0;
-  for (i = 0; i < N; i++) {
+  unsigned int encoding = 0;
+  for (unsigned int i = 0; i < N; i++) {
     oprod->ket_orbitals[i] = ket_orbitals[i];
     oprod->bra_orbitals[i] = bra_orbitals[i];
     if (ket_orbitals[i]) {
@@ -54,22 +51,20 @@ OuterProductC *outer_product_init_c(const unsigned int N, double complex coef,
 }
 
 char *outer_product_to_string_c(OuterProductC *oprod) {
-  size_t buffer_size;
-  char *buffer;
-  unsigned int i;
+
   char orbital_char[2]; // To hold a single orbital (1 digit + null terminator)
 
   // Calculate buffer size
-  buffer_size = 40         // for coef
-                + 1        // for |
-                + oprod->N // for ket orbitals
-                + 2        // for ><
-                + oprod->N // for bra orbitals
-                + 1        // for |
-                + 1;       // for terminator
+  size_t buffer_size = 40         // for coef
+                       + 1        // for |
+                       + oprod->N // for ket orbitals
+                       + 2        // for ><
+                       + oprod->N // for bra orbitals
+                       + 1        // for |
+                       + 1;       // for terminator
 
   // Allocate memory for the buffer
-  buffer = (char *)malloc(buffer_size);
+  char *buffer = (char *)malloc(buffer_size);
   if (!buffer) {
     fprintf(stderr, "Malloc failed for outer_product_to_string_c\n");
     return NULL;
@@ -82,7 +77,7 @@ char *outer_product_to_string_c(OuterProductC *oprod) {
   strcat(buffer, "|");
 
   // Append the ket orbital occupations
-  for (i = 0; i < oprod->N; i++) {
+  for (unsigned int i = 0; i < oprod->N; i++) {
     snprintf(orbital_char, sizeof(orbital_char), "%u", oprod->ket_orbitals[i]);
     strcat(buffer, orbital_char);
   }
@@ -91,7 +86,7 @@ char *outer_product_to_string_c(OuterProductC *oprod) {
   strcat(buffer, "><");
 
   // Append the bra orbital occupations
-  for (i = 0; i < oprod->N; i++) {
+  for (unsigned int i = 0; i < oprod->N; i++) {
     snprintf(orbital_char, sizeof(orbital_char), "%u", oprod->bra_orbitals[i]);
     strcat(buffer, orbital_char);
   }
@@ -110,16 +105,13 @@ OuterProductC *outer_product_scalar_multiplication_c(OuterProductC *oprod,
 }
 OuterProductC *outer_product_multiplication(OuterProductC *oprod_left,
                                             OuterProductC *oprod_right) {
-  unsigned int N;
-  double complex new_coef;
-  OuterProductC *new_oprod;
 
   if (oprod_left->N != oprod_right->N) {
     fprintf(stderr, "Error: Outer products have different number of qubits.\n");
     return NULL;
   }
 
-  N = oprod_left->N;
+  unsigned int N = oprod_left->N;
 
   unsigned int comparison = 1;
   for (unsigned int i = 0; i < N; i++) {
@@ -129,24 +121,21 @@ OuterProductC *outer_product_multiplication(OuterProductC *oprod_left,
     }
   }
 
+  double complex new_coef;
   if (comparison == 0) {
     new_coef = 0.0 + 0.0 * (double complex)I;
   } else {
     new_coef = oprod_left->coef * oprod_right->coef;
   }
 
-  new_oprod = outer_product_init_c(N, new_coef, oprod_left->ket_orbitals,
-                                   oprod_right->bra_orbitals);
+  OuterProductC *new_oprod = outer_product_init_c(
+      N, new_coef, oprod_left->ket_orbitals, oprod_right->bra_orbitals);
   return new_oprod;
 }
 
 OuterProductC *
 outer_product_pauli_string_left_multiplication_c(PauliStringC *pString,
                                                  OuterProductC *oprod) {
-  unsigned int N;
-  unsigned int *new_ket_orbitals;
-  double complex new_coef;
-  OuterProductC *new_oprod;
 
   if (pString->N != oprod->N) {
     fprintf(stderr, "Error: Pauli string and wavefunction have different "
@@ -154,13 +143,14 @@ outer_product_pauli_string_left_multiplication_c(PauliStringC *pString,
     return NULL;
   }
 
-  N = oprod->N;
-  new_ket_orbitals = (unsigned int *)malloc(oprod->N * sizeof(int));
+  unsigned int N = oprod->N;
+  unsigned int *new_ket_orbitals =
+      (unsigned int *)malloc(oprod->N * sizeof(int));
   if (!new_ket_orbitals) {
     fprintf(stderr, "Malloc failed for new_ket_orbitals\n");
     return NULL;
   }
-  new_coef = pString->coef * oprod->coef;
+  double complex new_coef = pString->coef * oprod->coef;
 
   for (unsigned int i = 0; i < N; i++) {
     switch (pString->paulis[i]) {
@@ -187,7 +177,7 @@ outer_product_pauli_string_left_multiplication_c(PauliStringC *pString,
     }
   }
 
-  new_oprod =
+  OuterProductC *new_oprod =
       outer_product_init_c(N, new_coef, new_ket_orbitals, oprod->bra_orbitals);
   free(new_ket_orbitals);
   return new_oprod;
@@ -196,10 +186,6 @@ outer_product_pauli_string_left_multiplication_c(PauliStringC *pString,
 OuterProductC *
 outer_product_pauli_string_right_multiplication_c(OuterProductC *oprod,
                                                   PauliStringC *pString) {
-  unsigned int N;
-  unsigned int *new_bra_orbitals;
-  double complex new_coef;
-  OuterProductC *new_oprod;
 
   if (pString->N != oprod->N) {
     fprintf(stderr, "Error: Pauli string and wavefunction have different "
@@ -207,13 +193,14 @@ outer_product_pauli_string_right_multiplication_c(OuterProductC *oprod,
     return NULL;
   }
 
-  N = oprod->N;
-  new_bra_orbitals = (unsigned int *)malloc(oprod->N * sizeof(int));
+  unsigned int N = oprod->N;
+  unsigned int *new_bra_orbitals =
+      (unsigned int *)malloc(oprod->N * sizeof(int));
   if (!new_bra_orbitals) {
     fprintf(stderr, "Malloc failed for new_bra_orbitals\n");
     return NULL;
   }
-  new_coef = pString->coef * oprod->coef;
+  double complex new_coef = pString->coef * oprod->coef;
 
   for (unsigned int i = 0; i < N; i++) {
     switch (pString->paulis[i]) {
@@ -240,7 +227,7 @@ outer_product_pauli_string_right_multiplication_c(OuterProductC *oprod,
     }
   }
 
-  new_oprod =
+  OuterProductC *new_oprod =
       outer_product_init_c(N, new_coef, oprod->ket_orbitals, new_bra_orbitals);
   free(new_bra_orbitals);
   return new_oprod;
@@ -251,8 +238,8 @@ void free_density_matrix_c(DensityMatrixC *dm) {
     return;
   }
 
-  khiter_t k;
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
       free_outer_product_c(oprod);
@@ -326,10 +313,7 @@ DensityMatrixC *density_matrix_from_wavefunction_c(WavefunctionC *wfn) {
     return NULL;
   }
 
-  khiter_t k_ket;
-  khiter_t k_bra;
-
-  for (k_ket = kh_begin(wfn->slater_determinants);
+  for (khiter_t k_ket = kh_begin(wfn->slater_determinants);
        k_ket != kh_end(wfn->slater_determinants); ++k_ket) {
 
     if (kh_exist(wfn->slater_determinants, k_ket)) {
@@ -337,7 +321,7 @@ DensityMatrixC *density_matrix_from_wavefunction_c(WavefunctionC *wfn) {
       SlaterDeterminantC *ket_sd =
           (SlaterDeterminantC *)kh_value(wfn->slater_determinants, k_ket);
 
-      for (k_bra = kh_begin(wfn->slater_determinants);
+      for (khiter_t k_bra = kh_begin(wfn->slater_determinants);
            k_bra != kh_end(wfn->slater_determinants); ++k_bra) {
 
         if (kh_exist(wfn->slater_determinants, k_bra)) {
@@ -370,9 +354,9 @@ double density_matrix_trace_c(DensityMatrixC *dm) {
   }
 
   double trace = 0.0;
-  khiter_t k;
 
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
       int is_diagonal = 1;
@@ -400,9 +384,8 @@ DensityMatrixC *density_matrix_scalar_multiplication_c(DensityMatrixC *dm,
   DensityMatrixC *new_dm =
       density_matrix_init_with_specified_cutoff_c(dm->N, dm->cutoff);
 
-  khiter_t k;
-
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
       OuterProductC *new_oprod =
@@ -430,16 +413,13 @@ DensityMatrixC *density_matrix_multiplication_c(DensityMatrixC *dm_left,
   DensityMatrixC *new_dm =
       density_matrix_init_with_specified_cutoff_c(dm_left->N, dm_left->cutoff);
 
-  khiter_t k_left;
-  khiter_t k_right;
-
-  for (k_left = kh_begin(dm_left->outer_products);
+  for (khiter_t k_left = kh_begin(dm_left->outer_products);
        k_left != kh_end(dm_left->outer_products); ++k_left) {
     if (kh_exist(dm_left->outer_products, k_left)) {
       OuterProductC *oprod_left =
           (OuterProductC *)kh_value(dm_left->outer_products, k_left);
 
-      for (k_right = kh_begin(dm_right->outer_products);
+      for (khiter_t k_right = kh_begin(dm_right->outer_products);
            k_right != kh_end(dm_right->outer_products); ++k_right) {
         if (kh_exist(dm_right->outer_products, k_right)) {
           OuterProductC *oprod_right =
@@ -480,10 +460,10 @@ char *density_matrix_to_string_c(DensityMatrixC *dm) {
   }
   buffer[0] = '\0';
 
-  khiter_t k;
   int first_entry = 1; // Flag to track first element (to avoid extra " + ")
 
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
       char *oprod_str = outer_product_to_string_c(oprod);
@@ -538,9 +518,9 @@ density_matrix_pauli_string_left_multiplication_c(PauliStringC *pString,
 
   DensityMatrixC *new_dm =
       density_matrix_init_with_specified_cutoff_c(dm->N, dm->cutoff);
-  khiter_t k;
 
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
       OuterProductC *new_oprod =
@@ -571,9 +551,9 @@ density_matrix_pauli_string_right_multiplication_c(DensityMatrixC *dm,
 
   DensityMatrixC *new_dm =
       density_matrix_init_with_specified_cutoff_c(dm->N, dm->cutoff);
-  khiter_t k;
 
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
       OuterProductC *new_oprod =
@@ -604,16 +584,15 @@ density_matrix_pauli_sum_left_multiplication_c(PauliSumC *pSum,
   DensityMatrixC *new_dm =
       density_matrix_init_with_specified_cutoff_c(dm->N, dm->cutoff);
 
-  khiter_t kp, ko;
   int success = 0;
 
-  for (kp = kh_begin(pSum->pauli_strings); kp != kh_end(pSum->pauli_strings);
-       ++kp) {
+  for (khiter_t kp = kh_begin(pSum->pauli_strings);
+       kp != kh_end(pSum->pauli_strings); ++kp) {
     if (kh_exist(pSum->pauli_strings, kp)) {
       PauliStringC *pString = (PauliStringC *)kh_value(pSum->pauli_strings, kp);
 
-      for (ko = kh_begin(dm->outer_products); ko != kh_end(dm->outer_products);
-           ++ko) {
+      for (khiter_t ko = kh_begin(dm->outer_products);
+           ko != kh_end(dm->outer_products); ++ko) {
         if (kh_exist(dm->outer_products, ko)) {
           OuterProductC *oprod =
               (OuterProductC *)kh_value(dm->outer_products, ko);
@@ -656,16 +635,15 @@ density_matrix_pauli_sum_right_multiplication_c(DensityMatrixC *dm,
   DensityMatrixC *new_dm =
       density_matrix_init_with_specified_cutoff_c(dm->N, dm->cutoff);
 
-  khiter_t kp, ko;
   int success = 0;
 
-  for (kp = kh_begin(pSum->pauli_strings); kp != kh_end(pSum->pauli_strings);
-       ++kp) {
+  for (khiter_t kp = kh_begin(pSum->pauli_strings);
+       kp != kh_end(pSum->pauli_strings); ++kp) {
     if (kh_exist(pSum->pauli_strings, kp)) {
       PauliStringC *pString = (PauliStringC *)kh_value(pSum->pauli_strings, kp);
 
-      for (ko = kh_begin(dm->outer_products); ko != kh_end(dm->outer_products);
-           ++ko) {
+      for (khiter_t ko = kh_begin(dm->outer_products);
+           ko != kh_end(dm->outer_products); ++ko) {
         if (kh_exist(dm->outer_products, ko)) {
           OuterProductC *oprod =
               (OuterProductC *)kh_value(dm->outer_products, ko);
@@ -705,10 +683,6 @@ OuterProductC *evolution_helper_cosh_cosh(PauliStringC *pString,
 OuterProductC *evolution_helper_sinh_cosh(PauliStringC *pString,
                                           OuterProductC *oprod,
                                           double complex epsilon) {
-  unsigned int N;
-  unsigned int *new_ket_orbitals;
-  double complex new_coef;
-  OuterProductC *new_oprod;
 
   if (pString->N != oprod->N) {
     fprintf(stderr, "Error: Pauli string and wavefunction have different "
@@ -716,15 +690,16 @@ OuterProductC *evolution_helper_sinh_cosh(PauliStringC *pString,
     return NULL;
   }
 
-  N = oprod->N;
-  new_ket_orbitals = (unsigned int *)malloc(oprod->N * sizeof(int));
+  unsigned int N = oprod->N;
+  unsigned int *new_ket_orbitals =
+      (unsigned int *)malloc(oprod->N * sizeof(int));
   if (!new_ket_orbitals) {
     fprintf(stderr, "Malloc failed for new_ket_orbitals\n");
     return NULL;
   }
 
   double complex x = pString->coef * epsilon;
-  new_coef = csinh(x) * ccosh(conj(x)) * oprod->coef;
+  double complex new_coef = csinh(x) * ccosh(conj(x)) * oprod->coef;
 
   for (unsigned int i = 0; i < N; i++) {
     switch (pString->paulis[i]) {
@@ -750,7 +725,7 @@ OuterProductC *evolution_helper_sinh_cosh(PauliStringC *pString,
       return NULL;
     }
   }
-  new_oprod =
+  OuterProductC *new_oprod =
       outer_product_init_c(N, new_coef, new_ket_orbitals, oprod->bra_orbitals);
   free(new_ket_orbitals);
   return new_oprod;
@@ -759,10 +734,6 @@ OuterProductC *evolution_helper_sinh_cosh(PauliStringC *pString,
 OuterProductC *evolution_helper_cosh_sinh(PauliStringC *pString,
                                           OuterProductC *oprod,
                                           double complex epsilon) {
-  unsigned int N;
-  unsigned int *new_bra_orbitals;
-  double complex new_coef;
-  OuterProductC *new_oprod;
 
   if (pString->N != oprod->N) {
     fprintf(stderr, "Error: Pauli string and wavefunction have different "
@@ -770,15 +741,16 @@ OuterProductC *evolution_helper_cosh_sinh(PauliStringC *pString,
     return NULL;
   }
 
-  N = oprod->N;
-  new_bra_orbitals = (unsigned int *)malloc(oprod->N * sizeof(int));
+  unsigned int N = oprod->N;
+  unsigned int *new_bra_orbitals =
+      (unsigned int *)malloc(oprod->N * sizeof(int));
   if (!new_bra_orbitals) {
     fprintf(stderr, "Malloc failed for new_bra_orbitals\n");
     return NULL;
   }
 
   double complex x = pString->coef * epsilon;
-  new_coef = ccosh(x) * csinh(conj(x)) * oprod->coef;
+  double complex new_coef = ccosh(x) * csinh(conj(x)) * oprod->coef;
 
   for (unsigned int i = 0; i < N; i++) {
     switch (pString->paulis[i]) {
@@ -804,7 +776,7 @@ OuterProductC *evolution_helper_cosh_sinh(PauliStringC *pString,
       return NULL;
     }
   }
-  new_oprod =
+  OuterProductC *new_oprod =
       outer_product_init_c(N, new_coef, oprod->ket_orbitals, new_bra_orbitals);
   free(new_bra_orbitals);
   return new_oprod;
@@ -813,11 +785,6 @@ OuterProductC *evolution_helper_cosh_sinh(PauliStringC *pString,
 OuterProductC *evolution_helper_sinh_sinh(PauliStringC *pString,
                                           OuterProductC *oprod,
                                           double complex epsilon) {
-  unsigned int N;
-  unsigned int *new_ket_orbitals;
-  unsigned int *new_bra_orbitals;
-  double complex new_coef;
-  OuterProductC *new_oprod;
 
   if (pString->N != oprod->N) {
     fprintf(stderr, "Error: Pauli string and wavefunction have different "
@@ -825,13 +792,15 @@ OuterProductC *evolution_helper_sinh_sinh(PauliStringC *pString,
     return NULL;
   }
 
-  N = oprod->N;
-  new_ket_orbitals = (unsigned int *)malloc(oprod->N * sizeof(int));
+  unsigned int N = oprod->N;
+  unsigned int *new_ket_orbitals =
+      (unsigned int *)malloc(oprod->N * sizeof(int));
   if (!new_ket_orbitals) {
     fprintf(stderr, "Malloc failed for new_ket_orbitals\n");
     return NULL;
   }
-  new_bra_orbitals = (unsigned int *)malloc(oprod->N * sizeof(int));
+  unsigned int *new_bra_orbitals =
+      (unsigned int *)malloc(oprod->N * sizeof(int));
   if (!new_bra_orbitals) {
     fprintf(stderr, "Malloc failed for new_bra_orbitals\n");
     free(new_ket_orbitals);
@@ -839,7 +808,7 @@ OuterProductC *evolution_helper_sinh_sinh(PauliStringC *pString,
   }
 
   double complex x = pString->coef * epsilon;
-  new_coef = csinh(x) * csinh(conj(x)) * oprod->coef;
+  double complex new_coef = csinh(x) * csinh(conj(x)) * oprod->coef;
 
   for (unsigned int i = 0; i < N; i++) {
     switch (pString->paulis[i]) {
@@ -870,7 +839,7 @@ OuterProductC *evolution_helper_sinh_sinh(PauliStringC *pString,
       return NULL;
     }
   }
-  new_oprod =
+  OuterProductC *new_oprod =
       outer_product_init_c(N, new_coef, new_ket_orbitals, new_bra_orbitals);
   free(new_ket_orbitals);
   free(new_bra_orbitals);
@@ -890,9 +859,9 @@ DensityMatrixC *density_matrix_pauli_string_evolution_c(
 
   DensityMatrixC *new_dm =
       density_matrix_init_with_specified_cutoff_c(dm->N, dm->cutoff);
-  khiter_t k;
 
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
 
@@ -939,11 +908,10 @@ DensityMatrixC *density_matrix_pauli_sum_evolution_c(PauliSumC *pSum,
   }
 
   DensityMatrixC *new_dm = NULL;
-  khiter_t kp;
   int first_iteration = 1;
 
-  for (kp = kh_begin(pSum->pauli_strings); kp != kh_end(pSum->pauli_strings);
-       ++kp) {
+  for (khiter_t kp = kh_begin(pSum->pauli_strings);
+       kp != kh_end(pSum->pauli_strings); ++kp) {
     if (kh_exist(pSum->pauli_strings, kp)) {
       PauliStringC *pString = (PauliStringC *)kh_value(pSum->pauli_strings, kp);
       new_dm = density_matrix_pauli_string_evolution_c(pString, dm, epsilon);
@@ -973,8 +941,8 @@ density_matrix_get_min_encoding_outer_product_c(DensityMatrixC *dm) {
 
   OuterProductC *min_oprod = NULL;
   unsigned int min_encoding = UINT_MAX;
-  khiter_t k;
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
       unsigned int encoding = oprod->encoding;
@@ -1009,9 +977,9 @@ DensityMatrixC *density_matrix_remove_near_zero_terms_c(DensityMatrixC *dm,
 
   DensityMatrixC *new_dm =
       density_matrix_init_with_specified_cutoff_c(dm->N, dm->cutoff);
-  khiter_t k;
 
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
       if (fabs(creal(oprod->coef)) >= cutoff ||
@@ -1028,19 +996,15 @@ DensityMatrixC *density_matrix_remove_near_zero_terms_c(DensityMatrixC *dm,
 
 DensityMatrixC *
 CPTP_evolution_hamiltonian_helper(PauliSumC *H, DensityMatrixC *dm, double t) {
-  DensityMatrixC *Hdm;
-  DensityMatrixC *dmH;
-  DensityMatrixC *result;
 
-  Hdm = density_matrix_pauli_sum_left_multiplication_c(H, dm);
-  dmH = density_matrix_pauli_sum_right_multiplication_c(dm, H);
+  DensityMatrixC *Hdm = density_matrix_pauli_sum_left_multiplication_c(H, dm);
+  DensityMatrixC *dmH = density_matrix_pauli_sum_right_multiplication_c(dm, H);
 
-  result = density_matrix_scalar_multiplication_c(Hdm, -(double complex)I * t);
+  DensityMatrixC *result =
+      density_matrix_scalar_multiplication_c(Hdm, -(double complex)I * t);
 
-  khiter_t k;
-
-  for (k = kh_begin(dmH->outer_products); k != kh_end(dmH->outer_products);
-       ++k) {
+  for (khiter_t k = kh_begin(dmH->outer_products);
+       k != kh_end(dmH->outer_products); ++k) {
     if (kh_exist(dmH->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dmH->outer_products, k);
       oprod =
@@ -1057,27 +1021,23 @@ CPTP_evolution_hamiltonian_helper(PauliSumC *H, DensityMatrixC *dm, double t) {
 
 DensityMatrixC *CPTP_evolution_lindblad_helper(PauliSumC *L, DensityMatrixC *dm,
                                                double t) {
-  PauliSumC *Ldag;
-  PauliSumC *LdagL;
-  DensityMatrixC *LdmLdag;
-  DensityMatrixC *LdagLdm;
-  DensityMatrixC *dmLadL;
 
   DensityMatrixC *result =
       density_matrix_init_with_specified_cutoff_c(dm->N, dm->cutoff);
 
-  Ldag = pauli_sum_adjoint_c(L);
-  LdagL = pauli_sum_multiplication_c(Ldag, L);
+  PauliSumC *Ldag = pauli_sum_adjoint_c(L);
+  PauliSumC *LdagL = pauli_sum_multiplication_c(Ldag, L);
 
-  LdmLdag = density_matrix_pauli_sum_left_multiplication_c(L, dm);
+  DensityMatrixC *LdmLdag =
+      density_matrix_pauli_sum_left_multiplication_c(L, dm);
   LdmLdag = density_matrix_pauli_sum_right_multiplication_c(LdmLdag, Ldag);
 
-  LdagLdm = density_matrix_pauli_sum_left_multiplication_c(LdagL, dm);
-  dmLadL = density_matrix_pauli_sum_right_multiplication_c(dm, LdagL);
+  DensityMatrixC *LdagLdm =
+      density_matrix_pauli_sum_left_multiplication_c(LdagL, dm);
+  DensityMatrixC *dmLadL =
+      density_matrix_pauli_sum_right_multiplication_c(dm, LdagL);
 
-  khiter_t k;
-
-  for (k = kh_begin(LdmLdag->outer_products);
+  for (khiter_t k = kh_begin(LdmLdag->outer_products);
        k != kh_end(LdmLdag->outer_products); ++k) {
     if (kh_exist(LdmLdag->outer_products, k)) {
       OuterProductC *oprod =
@@ -1087,7 +1047,7 @@ DensityMatrixC *CPTP_evolution_lindblad_helper(PauliSumC *L, DensityMatrixC *dm,
     }
   }
 
-  for (k = kh_begin(LdagLdm->outer_products);
+  for (khiter_t k = kh_begin(LdagLdm->outer_products);
        k != kh_end(LdagLdm->outer_products); ++k) {
     if (kh_exist(LdagLdm->outer_products, k)) {
       OuterProductC *oprod =
@@ -1097,7 +1057,7 @@ DensityMatrixC *CPTP_evolution_lindblad_helper(PauliSumC *L, DensityMatrixC *dm,
     }
   }
 
-  for (k = kh_begin(dmLadL->outer_products);
+  for (khiter_t k = kh_begin(dmLadL->outer_products);
        k != kh_end(dmLadL->outer_products); ++k) {
     if (kh_exist(dmLadL->outer_products, k)) {
       OuterProductC *oprod =
@@ -1122,9 +1082,8 @@ DensityMatrixC *density_matrix_CPTP_evolution_c(PauliSumC *H, PauliSumC **Ls,
   DensityMatrixC *result =
       density_matrix_init_with_specified_cutoff_c(dm->N, dm->cutoff);
 
-  khiter_t k;
-
-  for (k = kh_begin(dm->outer_products); k != kh_end(dm->outer_products); ++k) {
+  for (khiter_t k = kh_begin(dm->outer_products);
+       k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
       OuterProductC *new_oprod = outer_product_init_c(
@@ -1136,7 +1095,7 @@ DensityMatrixC *density_matrix_CPTP_evolution_c(PauliSumC *H, PauliSumC **Ls,
   DensityMatrixC *hamiltonian_contribution =
       CPTP_evolution_hamiltonian_helper(H, dm, t);
 
-  for (k = kh_begin(hamiltonian_contribution->outer_products);
+  for (khiter_t k = kh_begin(hamiltonian_contribution->outer_products);
        k != kh_end(hamiltonian_contribution->outer_products); ++k) {
     if (kh_exist(hamiltonian_contribution->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(
@@ -1151,7 +1110,7 @@ DensityMatrixC *density_matrix_CPTP_evolution_c(PauliSumC *H, PauliSumC **Ls,
     DensityMatrixC *lindblad_contribution =
         CPTP_evolution_lindblad_helper(Ls[i], dm, t);
 
-    for (k = kh_begin(lindblad_contribution->outer_products);
+    for (khiter_t k = kh_begin(lindblad_contribution->outer_products);
          k != kh_end(lindblad_contribution->outer_products); ++k) {
       if (kh_exist(lindblad_contribution->outer_products, k)) {
         OuterProductC *oprod =

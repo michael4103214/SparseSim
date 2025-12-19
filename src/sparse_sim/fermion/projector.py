@@ -51,6 +51,9 @@ class BosonicOperator:
     def __str__(self):
         return f"{self.op}b_{self.idx}"
 
+    def __repr__(self):
+        return self.__str__()
+
     def save(self):
         return np.array(['b', self.N, self.op, self.idx])
 
@@ -119,3 +122,6 @@ class Projector:
 
     def __str__(self):
         return self.to_string()
+
+    def __repr__(self):
+        return self.__str__()
