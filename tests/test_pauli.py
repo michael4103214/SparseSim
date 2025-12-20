@@ -1,4 +1,4 @@
-from sparse_sim.cython.core import *
+from sparse_sim.cython.pauli import *
 
 
 def test_pauli_string_initialization_scaling_freeing():

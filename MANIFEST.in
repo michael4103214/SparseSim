@@ -1,8 +1,13 @@
 graft src/sparse_sim
 global-exclude __pycache__ *.py[cod]
 
-recursive-include src/sparse_sim/cython core.c core.pyx  core.pyi
+# Cython sources + interface files
+recursive-include src/sparse_sim/cython *.pyx *.pxd *.pyi *.c
+
+# C headers
 recursive-include src/sparse_sim/include *.h
+
+# typing + metadata
 include src/sparse_sim/__init__.pyi
 include src/sparse_sim/py.typed
 include README.md LICENSE

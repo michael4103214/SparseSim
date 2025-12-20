@@ -3,6 +3,7 @@
 
 #include <complex.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,8 +24,8 @@ typedef struct OuterProductC {
       *ket_orbitals; // Dynamically allocated array for ket orbital occupations
   unsigned int
       *bra_orbitals; // Dynamically allocated array for bra orbital occupations
-  unsigned int encoding; // Decimal encoding of bra and ket orbital occupations
-                         // for hashing purposes
+  uint64_t encoding; // Decimal encoding of bra and ket orbital occupations
+                     // for hashing purposes
 } OuterProductC;
 
 // Outer product function declarations
@@ -46,7 +47,7 @@ outer_product_pauli_string_right_multiplication_c(OuterProductC *oprod,
                                                   PauliStringC *pString);
 
 // Struct for outer product khash hashmap
-KHASH_MAP_INIT_INT(outer_product_hash, OuterProductC *)
+KHASH_MAP_INIT_INT64(outer_product_hash, OuterProductC *)
 
 extern double DENSITYMATRIX_CUTOFF_DEFAULT;
 

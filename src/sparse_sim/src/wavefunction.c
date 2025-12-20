@@ -26,7 +26,7 @@ SlaterDeterminantC *slater_determinant_init_c(const unsigned int N,
     return NULL;
   }
 
-  unsigned int encoding = 0;
+  uint64_t encoding = 0;
   for (unsigned int i = 0; i < N; i++) {
     sdet->orbitals[i] = orbitals[i];
     if (orbitals[i]) {
@@ -114,8 +114,8 @@ double slater_determinant_comparison_c(SlaterDeterminantC *bra,
   return (double)(bra->encoding == ket->encoding);
 }
 
-double complex slater_dermininant_multiplication_c(SlaterDeterminantC *bra,
-                                                   SlaterDeterminantC *ket) {
+double complex slater_determininant_multiplication_c(SlaterDeterminantC *bra,
+                                                     SlaterDeterminantC *ket) {
   return slater_determinant_comparison_c(bra, ket) * bra->coef * ket->coef;
 }
 
@@ -335,7 +335,7 @@ double complex wavefunction_multiplication_c(WavefunctionC *bra,
       if (k2 != kh_end(ket->slater_determinants)) {
         SlaterDeterminantC *sdet_ket =
             (SlaterDeterminantC *)kh_value(ket->slater_determinants, k2);
-        product += slater_dermininant_multiplication_c(sdet_bra, sdet_ket);
+        product += slater_determininant_multiplication_c(sdet_bra, sdet_ket);
       }
     }
   }

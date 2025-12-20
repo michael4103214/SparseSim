@@ -34,7 +34,7 @@ OuterProductC *outer_product_init_c(const unsigned int N, double complex coef,
     return NULL;
   }
 
-  unsigned int encoding = 0;
+  uint64_t encoding = 0;
   for (unsigned int i = 0; i < N; i++) {
     oprod->ket_orbitals[i] = ket_orbitals[i];
     oprod->bra_orbitals[i] = bra_orbitals[i];
@@ -940,12 +940,12 @@ density_matrix_get_min_encoding_outer_product_c(DensityMatrixC *dm) {
   }
 
   OuterProductC *min_oprod = NULL;
-  unsigned int min_encoding = UINT_MAX;
+  uint64_t min_encoding = UINT64_MAX;
   for (khiter_t k = kh_begin(dm->outer_products);
        k != kh_end(dm->outer_products); ++k) {
     if (kh_exist(dm->outer_products, k)) {
       OuterProductC *oprod = (OuterProductC *)kh_value(dm->outer_products, k);
-      unsigned int encoding = oprod->encoding;
+      uint64_t encoding = oprod->encoding;
       if (encoding < min_encoding) {
         min_encoding = encoding;
         min_oprod = oprod;

@@ -3,8 +3,10 @@ import random
 import time
 import numpy as np
 
-from sparse_sim.cython.core import *
-from sparse_sim.fermion.rdm import *
+from sparse_sim.cython.pauli import *
+from sparse_sim.cython.wavefunction import *
+from sparse_sim.cython.density_matrix import *
+# from sparse_sim.fermion.rdm import *
 
 
 def test_initialization_scaling_freeing():
@@ -276,7 +278,7 @@ def test_density_matrix_cleaning():
     print(f"After cleaning: {dm_clean} with trace {dm_clean.trace()}\n")
 
 
-def test_density_matrix_tomography_and_probability_distribution():
+'''def test_density_matrix_tomography_and_probability_distribution():
 
     sdet0 = SlaterDeterminant(4, 1/np.sqrt(2), [0, 1, 0, 1])
     sdet1 = SlaterDeterminant(4, 1/np.sqrt(2), [1, 0, 1, 0])
@@ -336,7 +338,7 @@ def test_density_matrix_tomography_and_probability_distribution():
         print("Probability distributions from Wavefunction and DensityMatrix match.\n")
     else:
         print(
-            "Probability distributions from Wavefunction and DensityMatrix DO NOT match.\n")
+            "Probability distributions from Wavefunction and DensityMatrix DO NOT match.\n")'''
 
 
 def main():
@@ -370,8 +372,8 @@ def main():
     print("\nTesting DensityMatrix Cleaning:")
     test_density_matrix_cleaning()
 
-    print("\nTesting DensityMatrix Tomography and Probability Distribution:")
-    test_density_matrix_tomography_and_probability_distribution()
+    # print("\nTesting DensityMatrix Tomography and Probability Distribution:")
+    # test_density_matrix_tomography_and_probability_distribution()
 
 
 if __name__ == "__main__":

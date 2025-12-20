@@ -2,7 +2,8 @@ from math import log2
 import random
 import time
 
-from sparse_sim.cython.core import *
+from sparse_sim.cython.wavefunction import *
+from sparse_sim.cython.pauli import *
 
 
 def test_initialization_scaling_freeing():

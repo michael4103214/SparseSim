@@ -16,11 +16,25 @@ def rel(p: Path) -> str:
 
 use_c = (cy / "core.c").exists()
 
-sources = [
-    rel(cy / ("core.c" if use_c else "core.pyx")),
+shared_csrc = [
     rel(csrc / "pauli.c"),
     rel(csrc / "wavefunction.c"),
-    rel(csrc / "density_matrix.c")
+    rel(csrc / "density_matrix.c"),
+]
+
+pauli_sources = [
+    rel(cy / ("pauli.c" if use_c else "pauli.pyx")),
+    *shared_csrc,
+]
+
+wavefunction_sources = [
+    rel(cy / ("wavefunction.c" if use_c else "wavefunction.pyx")),
+    *shared_csrc,
+]
+
+density_matrix_sources = [
+    rel(cy / ("density_matrix.c" if use_c else "density_matrix.pyx")),
+    *shared_csrc,
 ]
 
 include_dirs = [rel(inc), rel(csrc), rel(cy)]
@@ -53,18 +67,41 @@ kwargs = dict(
     }
 )
 
-ext = Extension(
-    name="sparse_sim.cython.core",
-    sources=sources,
-    include_dirs=include_dirs,
-    extra_compile_args=extra_compile_args,
-    extra_link_args=extra_link_args,
-    language="c",
-)
+extensions = [
+    Extension(
+        name="sparse_sim.cython.pauli",
+        sources=pauli_sources,
+        include_dirs=include_dirs,
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+        language="c",
+    ),
+    Extension(
+        name="sparse_sim.cython.wavefunction",
+        sources=wavefunction_sources,
+        include_dirs=include_dirs,
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+        language="c",
+    ),
+    Extension(
+        name="sparse_sim.cython.density_matrix",
+        sources=density_matrix_sources,
+        include_dirs=include_dirs,
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+        language="c",
+    ),
+]
 
 if use_c:
-    setup(ext_modules=[ext], **kwargs)
+    setup(ext_modules=extensions, **kwargs)
 else:
     from Cython.Build import cythonize
-    setup(ext_modules=cythonize(
-        [ext], compiler_directives={"language_level": 3}), **kwargs)
+    setup(
+        ext_modules=cythonize(
+            extensions,
+            compiler_directives={"language_level": 3},
+        ),
+        **kwargs
+    )

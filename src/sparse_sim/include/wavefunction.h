@@ -3,6 +3,7 @@
 
 #include <complex.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +21,7 @@ typedef struct SlaterDeterminantC {
   unsigned int N;      // Number of orbitals spinless
   double complex coef; // Complex coefficient in front of the slater determinant
   unsigned int *orbitals; // Dynamically allocated array for orbital occupations
-  unsigned int
+  uint64_t
       encoding; // Decimal encoding of orbital occupations for hashing purposes
 } SlaterDeterminantC;
 
@@ -36,14 +37,14 @@ slater_determinant_scalar_multiplication_c(SlaterDeterminantC *sdet,
 SlaterDeterminantC *slater_determinant_adjoint_c(SlaterDeterminantC *sdet);
 double slater_determinant_comparison_c(SlaterDeterminantC *bra,
                                        SlaterDeterminantC *ket);
-double complex slater_dermininant_multiplication_c(SlaterDeterminantC *bra,
-                                                   SlaterDeterminantC *ket);
+double complex slater_determininant_multiplication_c(SlaterDeterminantC *bra,
+                                                     SlaterDeterminantC *ket);
 SlaterDeterminantC *
 slater_determinant_pauli_string_multiplication_c(PauliStringC *pString,
                                                  SlaterDeterminantC *sdet);
 
 // Struct for slater determinant khash hashmap
-KHASH_MAP_INIT_INT(slater_hash, SlaterDeterminantC *)
+KHASH_MAP_INIT_INT64(slater_hash, SlaterDeterminantC *)
 
 extern double WAVEFUNCTION_CUTOFF_DEFAULT;
 
